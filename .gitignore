@@ -79,10 +79,9 @@ backups/*
 deploy/
 
 # =============================================
-# SQL SEED & SECURITY SCRIPTS
+# SQL (seed, security, migration scripts)
 # =============================================
-sql/02-security.sql
-sql/03-admin.sql
+sql/
 
 # =============================================
 # SCRIPTS (DB migration, backup, test helpers)
@@ -99,4 +98,3 @@ logs/email-smoke/
 # =============================================
 SECURITY.md
 SERVER.md
-sql/delete-products.sql
