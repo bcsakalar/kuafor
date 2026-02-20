@@ -1,0 +1,39 @@
+<section class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+	<div class="ui-card ui-border rounded-2xl p-6 sm:p-8">
+		<div class="flex items-center gap-3">
+			<div class="h-10 w-10 rounded-full bg-[color:var(--accent)]/10 text-[color:var(--accent)] flex items-center justify-center">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5" aria-hidden="true">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+					<path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+				</svg>
+			</div>
+			<div>
+				<%
+					const mode = String((typeof redirectMode !== 'undefined' ? redirectMode : '') || '').trim().toLowerCase();
+					const isSuccess = mode === 'success';
+					const redirectTarget = String((typeof redirectUrl !== 'undefined' ? redirectUrl : (typeof payUrl !== 'undefined' ? payUrl : (typeof successUrl !== 'undefined' ? successUrl : ''))) || '').trim();
+				%>
+				<h1 class="text-lg sm:text-xl font-semibold"><%= isSuccess ? 'Siparişiniz hazırlanıyor' : 'Ödeme sayfası açılıyor' %></h1>
+				<p class="text-sm ui-muted"><%= isSuccess ? 'Birazdan siparişinizin başarılı sayfasına yönlendirileceksiniz.' : 'Birazdan iyzico ödeme sayfasına yönlendirileceksiniz.' %></p>
+			</div>
+		</div>
+
+		<div class="mt-6 grid gap-3">
+			<a class="ui-btn ui-btn-primary" href="<%= redirectTarget %>" target="_top" rel="noopener"><%= isSuccess ? 'Sipariş Tamamlandı Sayfası' : 'Ödemeye Git' %></a>
+			<% if (!isSuccess && (!isShopLoggedIn)) { %>
+				<a class="ui-btn ui-btn-secondary" href="/login?next=<%= encodeURIComponent(redirectTarget) %>" target="_top" rel="noopener">Giriş Yap ve Devam Et</a>
+			<% } %>
+			<% if (!isSuccess) { %>
+				<a class="ui-btn ui-btn-secondary" href="<%= redirectTarget %>" target="_blank" rel="noopener">Yeni Sekmede Aç</a>
+			<% } %>
+			<p class="text-xs ui-muted">
+				Yönlendirme olmazsa yukarıdaki butona dokunun.
+				<% if (!isSuccess && paymentOrderId) { %>
+					<span class="block mt-1">Alternatif: <a class="underline" href="/checkout/hosted?orderId=<%= encodeURIComponent(String(paymentOrderId)) %>">iyzico ödeme sayfasını tekrar başlat</a>.</span>
+				<% } %>
+			</p>
+		</div>
+	</div>
+</section>
+
+<script src="/public/js/payment-redirect.js" data-redirect-url="<%= redirectTarget %>"></script>

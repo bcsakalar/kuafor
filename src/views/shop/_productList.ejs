@@ -1,0 +1,224 @@
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+	<aside class="lg:col-span-3">
+		<div class="ui-card ui-border rounded-2xl p-5 sticky top-24">
+			<p class="text-sm font-semibold">Filtreler</p>
+			<form method="get" action="<%= listPath || '/' %>" class="mt-4 space-y-4">
+				<div>
+					<label class="text-xs ui-muted">Kategori</label>
+					<select name="category" class="mt-1 w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2">
+						<option value="" <%= !(filters && filters.category) ? 'selected' : '' %>>Tümü</option>
+						<% (categories || []).forEach((c) => { %>
+							<option value="<%= c.slug %>" <%= (filters && filters.category) === c.slug ? 'selected' : '' %>><%= c.name %></option>
+						<% }) %>
+					</select>
+				</div>
+
+				<% if (filters && filters.q) { %>
+					<input type="hidden" name="q" value="<%= filters.q %>" />
+				<% } %>
+
+				<div>
+					<label class="text-xs ui-muted">Fiyat Aralığı</label>
+					<div class="mt-1 grid grid-cols-2 gap-2">
+						<input
+							name="minPrice"
+							type="number"
+							step="0.01"
+							min="0"
+							placeholder="Min"
+							value="<%= (filters && filters.minPrice) ? filters.minPrice : '' %>"
+							class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2"
+						/>
+						<input
+							name="maxPrice"
+							type="number"
+							step="0.01"
+							min="0"
+							placeholder="Max"
+							value="<%= (filters && filters.maxPrice) ? filters.maxPrice : '' %>"
+							class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2"
+						/>
+					</div>
+				</div>
+
+				<div>
+					<label class="text-xs ui-muted">Sıralama</label>
+					<select name="sort" class="mt-1 w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2">
+						<option value="newest" <%= !(filters && filters.sort) || (filters && filters.sort) === 'newest' ? 'selected' : '' %>>En Yeniler</option>
+						<option value="best_sellers" <%= (filters && filters.sort) === 'best_sellers' ? 'selected' : '' %>>Çok Satanlar</option>
+						<option value="price_asc" <%= (filters && filters.sort) === 'price_asc' ? 'selected' : '' %>>Fiyat: Düşükten Yükseğe</option>
+						<option value="price_desc" <%= (filters && filters.sort) === 'price_desc' ? 'selected' : '' %>>Fiyat: Yüksekten Düşüğe</option>
+					</select>
+				</div>
+
+				<div class="flex items-center gap-3 text-sm">
+					<button type="submit" class="font-semibold hover:underline">Uygula</button>
+					<a href="<%= listPath || '/' %>" class="ui-muted hover:underline">Sıfırla</a>
+				</div>
+			</form>
+		</div>
+	</aside>
+
+	<div class="lg:col-span-9">
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+			<% (products || []).forEach((p) => { %>
+				<%
+					const sizeOptions = Array.isArray(p.size_options) ? p.size_options.filter(Boolean) : [];
+					const colorOptions = Array.isArray(p.color_options) ? p.color_options.filter(Boolean) : [];
+					const hasSizeOptions = sizeOptions.length > 0;
+					const hasColorOptions = colorOptions.length > 0;
+					const isOutOfStock = (Number(p.stock) || 0) <= 0;
+					const isLowStock = !isOutOfStock && (Number(p.stock) || 0) <= 5;
+				%>
+				<div class="ui-card ui-border rounded-xl overflow-hidden flex flex-col h-full" data-product-card>
+					<div class="relative aspect-[4/3] bg-[color:var(--bg-elevated)]">
+						<% if (p.image_url) { %>
+							<img src="<%= p.image_url %>" alt="<%= p.name %>" class="w-full h-full object-cover" />
+						<% } else { %>
+							<div class="absolute inset-0 flex items-center justify-center">
+								<div class="text-center px-6">
+									<p class="text-xs ui-muted">Görsel yakında</p>
+									<p class="mt-1 text-sm font-semibold"><%= p.name %></p>
+								</div>
+							</div>
+						<% } %>
+						<% if (isOutOfStock) { %>
+							<span class="absolute top-3 left-3 text-xs px-2 py-1 rounded-full border ui-border bg-[color:var(--bg-primary)]">Tükendi</span>
+						<% } else if (isLowStock) { %>
+							<span class="absolute top-3 left-3 text-xs px-2 py-1 rounded-full border border-red-600/40 bg-red-950/30 text-red-200">Az kaldı</span>
+						<% } %>
+					</div>
+					<div class="p-4 flex flex-col flex-1">
+						<div class="flex items-start justify-between gap-4">
+							<div class="min-w-0">
+								<h2 class="text-base font-semibold leading-snug break-words">
+									<a class="hover:underline" href="/product/<%= p.id %>"><%= p.name %></a>
+								</h2>
+								<% if (p.category_name) { %>
+									<p class="mt-1 text-sm ui-muted"><%= p.category_name %></p>
+								<% } %>
+								<% if (!hasSizeOptions && p.size) { %>
+									<p class="mt-2">
+										<span class="text-xs px-2 py-1 rounded-full border ui-border bg-[color:var(--bg-elevated)]"><%= p.size %></span>
+									</p>
+								<% } %>
+							</div>
+							<div class="text-right shrink-0">
+								<%
+									const basePrice = Number(p.price);
+									const minEff = Number((p.min_price ?? p.price));
+									const showMin = Number.isFinite(minEff) ? minEff : basePrice;
+									const formattedMinPrice = Number.isFinite(showMin)
+										? showMin.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+										: '';
+								%>
+								<p class="text-base sm:text-lg font-semibold whitespace-nowrap tabular-nums" data-price-display><%= formattedMinPrice %>&nbsp;₺</p>
+							</div>
+						</div>
+
+						<form class="mt-3 flex flex-col items-stretch gap-2" method="post" action="/cart/add" data-variant-pricing>
+							<input type="hidden" name="productId" value="<%= p.id %>" />
+							<input type="hidden" data-base-price value="<%= Number(p.price).toFixed(2) %>" />
+							<input type="hidden" data-variant-prices-json value="<%= JSON.stringify(p.variant_prices || {}) %>" />
+							<% if (isLowStock) { %>
+								<div class="p-3 rounded border border-red-600/30 bg-red-950/20 text-red-200 text-xs">
+									<strong>Son stoklar:</strong> Bu ürün tükenmek üzere. Geç kalmadan sipariş verin.
+								</div>
+							<% } %>
+							<% if (hasSizeOptions || hasColorOptions) { %>
+								<div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+									<% if (hasSizeOptions) { %>
+										<label class="grid gap-1 text-xs min-w-0">
+											<span class="ui-muted">Boyut (ml/gr)</span>
+											<% if (sizeOptions.length === 1) { %>
+												<input type="hidden" name="selected_size" value="<%= sizeOptions[0] %>" />
+												<input value="<%= sizeOptions[0] %>" disabled class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+											<% } else { %>
+												<select name="selected_size" required class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2">
+													<option value="" selected>Seçiniz</option>
+													<% sizeOptions.forEach((opt) => { %>
+														<option value="<%= opt %>"><%= opt %></option>
+													<% }) %>
+												</select>
+											<% } %>
+										</label>
+									<% } %>
+									<% if (hasColorOptions) { %>
+										<label class="grid gap-1 text-xs min-w-0">
+											<span class="ui-muted">Renk</span>
+											<% if (colorOptions.length === 1) { %>
+												<input type="hidden" name="selected_color" value="<%= colorOptions[0] %>" />
+												<input value="<%= colorOptions[0] %>" disabled class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+											<% } else { %>
+												<select name="selected_color" required class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2">
+													<option value="" selected>Seçiniz</option>
+													<% colorOptions.forEach((opt) => { %>
+														<option value="<%= opt %>"><%= opt %></option>
+													<% }) %>
+												</select>
+											<% } %>
+										</label>
+									<% } %>
+								</div>
+								<div data-variant-error class="hidden p-3 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200 text-xs">
+									Lütfen seçim yapın.
+								</div>
+							<% } %>
+							<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+								<input name="quantity" type="number" min="1" max="<%= Math.min(50, Math.max(1, p.stock)) %>" value="1" class="w-full sm:w-16 border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+								<button class="ui-btn ui-btn-primary w-full sm:w-auto" type="submit" <%= p.stock <= 0 ? 'disabled' : '' %>>Sepete Ekle</button>
+								<a class="ui-btn ui-btn-ghost w-full sm:w-auto" href="/product/<%= p.id %>">Detay</a>
+							</div>
+						</form>
+					</div>
+				</div>
+			<% }) %>
+		</div>
+
+		<% if (!products || products.length === 0) { %>
+			<div class="mt-10 ui-card ui-border rounded-2xl p-6">
+				<p class="ui-muted">Bu filtrelere uygun ürün bulunamadı.</p>
+			</div>
+		<% } %>
+
+		<% if (pagination && pagination.totalPages && pagination.totalPages > 1) { %>
+			<%
+				const current = Number(pagination.page) || 1;
+				const total = Number(pagination.totalPages) || 1;
+				const start = Math.max(1, current - 2);
+				const end = Math.min(total, current + 2);
+			%>
+			<nav class="mt-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
+				<div>
+					<% if (current > 1) { %>
+						<a class="ui-muted hover:underline" href="<%= buildPageHref(current - 1) %>">Önceki</a>
+					<% } %>
+				</div>
+				<div class="flex items-center gap-2">
+					<% if (start > 1) { %>
+						<a class="ui-muted hover:underline" href="<%= buildPageHref(1) %>">1</a>
+						<% if (start > 2) { %><span class="ui-muted">…</span><% } %>
+					<% } %>
+					<% for (let p = start; p <= end; p++) { %>
+						<% if (p === current) { %>
+							<span class="font-semibold"><%= p %></span>
+						<% } else { %>
+							<a class="ui-muted hover:underline" href="<%= buildPageHref(p) %>"><%= p %></a>
+						<% } %>
+					<% } %>
+					<% if (end < total) { %>
+						<% if (end < total - 1) { %><span class="ui-muted">…</span><% } %>
+						<a class="ui-muted hover:underline" href="<%= buildPageHref(total) %>"><%= total %></a>
+					<% } %>
+				</div>
+				<div>
+					<% if (current < total) { %>
+						<a class="ui-muted hover:underline" href="<%= buildPageHref(current + 1) %>">Sonraki</a>
+					<% } %>
+				</div>
+			</nav>
+		<% } %>
+	</div>
+</div>
+
+<script src="/public/js/products-variants.js" defer></script>

@@ -1,0 +1,117 @@
+<section class="ui-card ui-border rounded-2xl p-6">
+	<div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+		<div class="max-w-3xl">
+			<h1 class="text-2xl font-semibold">Takvim</h1>
+			<p class="ui-muted mt-2 leading-relaxed">
+				Günlük planınızı buradan yönetin. Liste görünümünde iki şubeyi birlikte izleyin; Takvim görünümünde gün, hafta ve ay planını hızlıca görüntüleyin.
+			</p>
+			<p class="mt-2 text-sm ui-muted">
+				Takvim görünümünde gün seçerek sağ tarafta o günün tüm randevularını net şekilde görebilirsiniz.
+			</p>
+		</div>
+		<div class="w-full lg:w-80 border ui-border rounded-xl p-4 bg-[color:var(--bg-primary)]">
+			<p class="font-semibold">Hızlı Özet</p>
+			<ul class="mt-2 text-sm ui-muted space-y-1">
+				<li>Bugün ve yarın randevu yoğunluğu</li>
+				<li>Şube filtresiyle hızlı görünüm</li>
+				<li>Çakışan randevular otomatik ayrılır</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="mt-6 flex flex-col sm:flex-row sm:items-end gap-3">
+		<div class="flex items-center gap-2">
+			<button id="calModeList" type="button" class="ui-btn ui-btn-primary h-10 px-3">Liste</button>
+			<button id="calModeCalendar" type="button" class="ui-btn ui-btn-ghost h-10 px-3">Takvim</button>
+		</div>
+
+		<div class="flex flex-col w-full sm:w-auto">
+			<label class="text-sm ui-muted" for="calStaff">Personel</label>
+			<select id="calStaff" class="mt-1 h-10 w-full border ui-border rounded px-3 bg-[color:var(--bg-elevated)]">
+				<option value="all">Tümü</option>
+			</select>
+		</div>
+
+		<div id="calListControls" class="flex flex-col sm:flex-row sm:items-end sm:flex-wrap gap-3 w-full">
+		<div class="flex flex-col w-full sm:w-auto">
+			<label class="text-sm ui-muted" for="calStart">Başlangıç</label>
+			<input id="calStart" type="date" class="mt-1 w-full border ui-border rounded px-3 py-2 bg-[color:var(--bg-elevated)]" />
+		</div>
+		<div class="flex flex-col w-full sm:w-auto">
+			<label class="text-sm ui-muted" for="calEnd">Bitiş</label>
+			<input id="calEnd" type="date" class="mt-1 w-full border ui-border rounded px-3 py-2 bg-[color:var(--bg-elevated)]" />
+		</div>
+		<button id="calLoad" class="ui-btn ui-btn-primary h-10 px-4 w-full sm:w-auto">Yükle</button>
+		<p id="calStatus" class="text-sm ui-muted"></p>
+		</div>
+
+		<div id="calCalendarControls" class="hidden flex flex-col sm:flex-row sm:items-end sm:flex-wrap gap-3 w-full">
+			<div class="flex flex-col w-full sm:w-auto">
+				<label class="text-sm ui-muted" for="calView">Görünüm</label>
+				<select id="calView" class="mt-1 h-10 w-full border ui-border rounded px-3 bg-[color:var(--bg-elevated)]">
+					<option value="month">Ay</option>
+					<option value="week">Hafta</option>
+					<option value="day">Gün</option>
+				</select>
+			</div>
+			<div class="flex flex-col w-full sm:w-auto">
+				<label class="text-sm ui-muted" for="calBranch">Şube</label>
+				<select id="calBranch" class="mt-1 h-10 w-full border ui-border rounded px-3 bg-[color:var(--bg-elevated)]">
+					<option value="all">Tümü</option>
+					<option value="men">Erkek Kuaförü</option>
+					<option value="women">Güzellik Salonu</option>
+				</select>
+			</div>
+			<div class="flex flex-col w-full sm:w-auto">
+				<label class="text-sm ui-muted" for="calFocus">Tarih</label>
+				<input id="calFocus" type="date" class="mt-1 w-full border ui-border rounded px-3 py-2 bg-[color:var(--bg-elevated)]" />
+			</div>
+			<div class="flex flex-wrap items-center gap-2">
+				<button id="calPrev" type="button" class="ui-btn ui-btn-ghost h-10 px-3">Önce</button>
+				<button id="calToday" type="button" class="ui-btn ui-btn-ghost h-10 px-3">Bugün</button>
+				<button id="calNext" type="button" class="ui-btn ui-btn-ghost h-10 px-3">Sonra</button>
+			</div>
+			<p id="calRangeLabel" class="text-sm ui-muted"></p>
+		</div>
+	</div>
+
+	<div id="calListWrap" class="mt-6 grid lg:grid-cols-2 gap-4">
+		<div class="border ui-border rounded-2xl p-4 bg-[color:var(--bg-elevated)]">
+			<p class="font-semibold">Erkek Kuaförü</p>
+			<p class="mt-1 text-sm ui-muted">Seçili tarih aralığındaki randevular listelenir.</p>
+			<div id="calendarMen" class="mt-3 text-sm border ui-border rounded-xl p-3 bg-[color:var(--bg-primary)]"></div>
+		</div>
+		<div class="border ui-border rounded-2xl p-4 bg-[color:var(--bg-elevated)]">
+			<p class="font-semibold">Güzellik Salonu</p>
+			<p class="mt-1 text-sm ui-muted">Seçili tarih aralığındaki randevular listelenir.</p>
+			<div id="calendarWomen" class="mt-3 text-sm border ui-border rounded-xl p-3 bg-[color:var(--bg-primary)]"></div>
+		</div>
+	</div>
+
+	<div id="calCalendarWrap" class="hidden mt-6 border ui-border rounded-2xl p-4 bg-[color:var(--bg-elevated)]">
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+			<p class="font-semibold">Takvim Görünümü</p>
+			<div class="text-xs ui-muted">
+				<span class="inline-block px-2 py-1 rounded border ui-border bg-[color:var(--bg-primary)]">K: Kuaför</span>
+				<span class="inline-block px-2 py-1 rounded border ui-border bg-[color:var(--bg-primary)] ml-2">G: Güzellik</span>
+			</div>
+		</div>
+		<div class="mt-3 grid lg:grid-cols-[minmax(0,1fr)_340px] gap-4">
+			<div class="overflow-x-auto">
+				<div id="calendarGrid" class="min-w-[720px] lg:min-w-0"></div>
+			</div>
+			<aside class="border ui-border rounded-2xl p-4 bg-[color:var(--bg-primary)]">
+				<div class="flex items-start justify-between gap-3">
+					<div>
+						<p class="font-semibold">Gün Detayı</p>
+						<p id="calDayTitle" class="mt-1 text-sm ui-muted"></p>
+					</div>
+					<p id="calDayCount" class="text-sm ui-muted"></p>
+				</div>
+				<div id="calDayDetails" class="mt-3"></div>
+			</aside>
+		</div>
+	</div>
+</section>
+
+<script src="/public/js/admin/calendar.js" defer></script>

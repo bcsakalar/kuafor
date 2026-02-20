@@ -1,0 +1,353 @@
+<header class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+	<div>
+		<h1 class="text-2xl font-semibold">Ürünler</h1>
+		<p class="mt-1 ui-muted text-sm">Ürün ekle, düzenle, yayına al. Listeyi arayarak/filtreleyerek yönet.</p>
+	</div>
+</header>
+
+<% if (query && (query.error || query.err)) { %>
+	<%
+		let msg = 'Ürün eklenemedi. Alanları kontrol edin.';
+		if (query.err === 'file_too_large') msg = 'Dosya çok büyük. Lütfen daha küçük bir görsel yükleyin.';
+		if (query.err === 'invalid_file_type') msg = 'Sadece .png ve .jpg görselleri yükleyebilirsiniz.';
+		if (query.err === 'upload_error') msg = 'Dosya yüklenirken bir sorun oluştu.';
+	%>
+	<div class="mb-4 p-3 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200 text-sm"><%= msg %></div>
+<% } %>
+<% if (query && query.bulk_err) { %>
+	<%
+		let msg = 'Toplu yükleme başarısız.';
+		if (query.bulk_err === 'no_file') msg = 'Lütfen bir .csv veya .xlsx dosyası seçin.';
+		if (query.bulk_err === 'file_too_large') msg = 'Dosya çok büyük. Lütfen daha küçük bir dosya yükleyin.';
+		if (query.bulk_err === 'invalid_file_type') msg = 'Sadece .csv ve .xlsx dosyaları yükleyebilirsiniz.';
+		if (query.bulk_err === 'missing_columns') {
+			const missing = query.missing ? String(query.missing) : '';
+			msg = 'Dosyada eksik sütun var. Gerekli sütunlar: Ürün adı (name/Ad), Kategori (category/Kategori), Açıklama (description/Açıklama), Fiyat (price/Fiyat), Stok (stock/Stok). Varyantlı ürünlerde ayrıca Boyut ve Renk.\n';
+			if (missing) msg += `Eksik: ${missing}`;
+		}
+	%>
+	<div class="mb-4 p-3 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200 text-sm"><%= msg %></div>
+<% } %>
+<% if (query && query.ok) { %>
+	<div class="mb-4 p-3 rounded border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 text-sm">İşlem başarılı.</div>
+<% } %>
+<% if (query && query.bulk_ok) { %>
+	<%
+		const added = Number(query.added || 0);
+		const updated = Number(query.updated || 0);
+		const invalid = Number(query.invalid || 0);
+		let msg = `Toplu yükleme tamamlandı. Eklenen: ${added}, Güncellenen: ${updated}, Hatalı: ${invalid}.`;
+		if (query.invalid_preview) msg += ` Hatalı örnekler: ${String(query.invalid_preview)}`;
+	%>
+	<div class="mb-4 p-3 rounded border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 text-sm"><%= msg %></div>
+<% } %>
+
+
+<div data-shopadmin-products-page class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:items-start min-w-0 overflow-x-hidden">
+	<div class="shopadmin-left-col lg:col-span-4 grid gap-4 min-h-0 min-w-0 lg:min-w-[300px] lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:sticky lg:top-4 shopadmin-scrollbar">
+		<details class="ui-card ui-border rounded-2xl p-5 shopadmin-details" open>
+			<summary class="flex items-center justify-between gap-3 cursor-pointer select-none">
+				<div>
+					<h2 class="text-lg font-semibold">Yeni Ürün</h2>
+					<p class="mt-1 ui-muted text-sm">Yeni ürün ekle.</p>
+				</div>
+				<span class="ui-muted text-sm">Aç/Kapat</span>
+			</summary>
+			<form class="mt-4 grid gap-3" method="post" action="/products" enctype="multipart/form-data" data-variant-stock-editor>
+			<label class="grid gap-1 text-sm">
+				<span class="ui-muted">Ad</span>
+				<input name="name" required class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+			</label>
+			<div class="grid gap-3">
+				<label class="grid gap-1 text-sm">
+					<span class="ui-muted">Boyut Seçenekleri (ml / gr)</span>
+					<textarea name="size_options" rows="2" data-size-options required class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Örn: 50 ml, 100 ml, 150 ml veya 50 gr, 100 gr\nİpucu: virgül / satır sonu / noktalı virgül ile ayır."></textarea>
+					<div class="flex flex-wrap items-end gap-2">
+						<label class="grid gap-1 text-xs">
+							<span class="ui-muted">Hızlı ekle</span>
+							<input data-size-value type="number" min="1" step="1" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="150" />
+						</label>
+						<label class="grid gap-1 text-xs">
+							<span class="ui-muted">Birim</span>
+							<select data-size-unit class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2">
+								<option value="ml" selected>ml</option>
+								<option value="gr">gr</option>
+							</select>
+						</label>
+						<button class="ui-btn ui-btn-secondary" data-size-add type="button">Boyut Ekle</button>
+					</div>
+					<p class="text-xs ui-muted" data-size-help></p>
+					<p class="text-xs ui-muted">Bu ürünlerde fiyat ve stok <strong>boyut</strong> bazlı girilir (tek fiyat yok).</p>
+				</label>
+				<label class="grid gap-1 text-sm">
+					<span class="ui-muted">Renk Seçenekleri (opsiyonel)</span>
+					<textarea name="color_options" rows="2" data-color-options class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Örn: Siyah, Beyaz, Kırmızı\nİpucu: virgül / satır sonu / noktalı virgül ile ayır."></textarea>
+					<p class="text-xs ui-muted">Girerseniz shop tarafında renk <strong>seçimli</strong> olur.</p>
+				</label>
+				<div class="space-y-1 w-full min-w-0">
+					<label class="flex items-center gap-2 text-sm cursor-pointer w-full">
+						<input type="checkbox" name="share_stock_across_colors" data-share-colors-stock class="shrink-0 rounded border ui-border w-4 h-4" />
+						<span class="ui-muted flex-1 min-w-0 text-left">Renkler aynı stoku paylaşsın (stok boyuta göre tek havuz)</span>
+					</label>
+					<p class="text-xs ui-muted pl-6">Bu açıkken, aynı boyuttaki tüm renklerin stoğu birlikte azalır. Admin stok girerken bir rengi değiştirince diğer renkler otomatik eşitlenir.</p>
+				</div>
+				<div class="space-y-1 w-full min-w-0">
+					<label class="flex items-center gap-2 text-sm cursor-pointer w-full">
+						<input type="checkbox" name="share_price_across_colors" data-share-colors-price class="shrink-0 rounded border ui-border w-4 h-4" />
+						<span class="ui-muted flex-1 min-w-0 text-left">Renkler aynı fiyatı paylaşsın (fiyat boyuta göre tek)</span>
+					</label>
+					<p class="text-xs ui-muted pl-6">Bu açıkken, aynı boyuttaki tüm renklerin fiyatı aynı olur. Bir rengi güncellersen diğer renkler otomatik eşitlenir.</p>
+				</div>
+
+				<input type="hidden" name="variant_stocks_json" data-variant-stocks-json value="[]" />
+				<input type="hidden" name="stock" data-product-stock value="0" />
+				<p class="text-xs ui-muted" data-variant-hint style="display:none;">Her boyut/renk kombinasyonu için stok girin. Fiyat alanı zorunludur.</p>
+				<div class="border ui-border rounded-xl overflow-hidden" data-variant-stocks-table style="display:none;">
+					<table class="w-full">
+						<thead class="bg-[color:var(--bg-elevated)]">
+							<tr>
+								<th class="text-left text-xs ui-muted py-2 px-3">Boyut</th>
+								<th class="text-left text-xs ui-muted py-2 px-3">Renk</th>
+								<th class="text-left text-xs ui-muted py-2 px-3">Stok</th>
+								<th class="text-left text-xs ui-muted py-2 px-3">Varyant Fiyatı (₺)</th>
+							</tr>
+						</thead>
+						<tbody data-variant-stocks-tbody></tbody>
+					</table>
+					<div class="px-3 py-2 text-xs ui-muted">Toplam: <span class="font-semibold" data-variant-total></span></div>
+				</div>
+			</div>
+			<label class="grid gap-1 text-sm">
+				<span class="ui-muted">Açıklama</span>
+				<textarea name="description" rows="3" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2"></textarea>
+			</label>
+			<label class="grid gap-1 text-sm">
+				<span class="ui-muted">Düşük Stok Uyarısı (eşik)</span>
+				<input name="low_stock_threshold" type="number" min="0" step="1" value="5" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+				<p class="text-xs ui-muted">Stok bu değere düşerse dashboard'ta "Az Kalanlar" listesine girer.</p>
+			</label>
+			<label class="grid gap-1 text-sm">
+				<span class="ui-muted">Görsel URL (opsiyonel)</span>
+				<input name="image_url" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="/public/images/uploads/..." />
+			</label>
+			<label class="grid gap-1 text-sm">
+				<span class="ui-muted">Görsel Yükle (opsiyonel)</span>
+				<input name="image" type="file" accept="image/*" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+				<p class="text-xs ui-muted">Yüklersen URL alanı yerine dosya kullanılır.</p>
+			</label>
+			<label class="grid gap-1 text-sm">
+				<span class="ui-muted">Kategori</span>
+				<select name="category_id" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2">
+					<option value="">(Seçilmedi)</option>
+					<% (categories || []).forEach((c) => { %>
+						<option value="<%= c.id %>"><%= c.name %></option>
+					<% }) %>
+				</select>
+			</label>
+			<label class="flex items-center gap-2 text-sm cursor-pointer w-full">
+				<input type="checkbox" name="is_active" checked class="shrink-0 rounded border ui-border w-4 h-4" />
+				<span class="ui-muted whitespace-nowrap">Yayında</span>
+			</label>
+			<button class="ui-btn ui-btn-primary" type="submit">Kaydet</button>
+			</form>
+		</details>
+
+		<details class="ui-card ui-border rounded-2xl p-5 shopadmin-details">
+			<summary class="flex items-center justify-between gap-3 cursor-pointer select-none">
+				<div>
+					<h2 class="text-lg font-semibold">Toplu Ürün Yükle</h2>
+					<p class="mt-1 ui-muted text-sm">CSV/XLSX ile hızlı ekle veya güncelle.</p>
+				</div>
+				<span class="ui-muted text-sm">Aç/Kapat</span>
+			</summary>
+			<p class="mt-3 ui-muted text-sm">.csv veya .xlsx dosyası yükleyin. İlk satırda sütun adları olmalı; sütun adları <strong>Türkçe</strong> veya <strong>İngilizce</strong> yazabilirsiniz (ör. Ad veya name, Fiyat veya price).</p>
+			<p class="mt-2 ui-muted text-sm"><strong>Basit ürün (tek fiyat, tek stok):</strong> Her satırda ürün adı, kategori, açıklama, fiyat ve stok girin. Bir satır = bir ürün.</p>
+			<p class="mt-1 ui-muted text-sm"><strong>Varyantlı ürün (boyut/renk seçenekli):</strong> Aynı ürünün her boyut–renk kombinasyonu için ayrı satır yazın. Örneğin tişört “S–Kırmızı”, “S–Mavi”, “M–Kırmızı” için üç satır; her satırda o varyantın fiyatı ve stoğu olacak. Aynı ürün adı + aynı kategori = tek ürün olarak gruplanır.</p>
+			<p class="mt-1 ui-muted text-sm">Zorunlu sütunlar: Ürün adı, Kategori, Açıklama, Fiyat, Stok. Varyantlı ürünlerde ek olarak Boyut ve Renk. İsteğe bağlı: Boyut seçenekleri, Renk seçenekleri, Renkler aynı stok, Renkler aynı fiyat.</p>
+			<div class="mt-3 flex flex-wrap gap-2">
+				<a class="ui-btn ui-btn-secondary" href="/products/bulk-template?format=csv">CSV Şablon İndir</a>
+				<a class="ui-btn ui-btn-secondary" href="/products/bulk-template?format=xlsx">XLSX Şablon İndir</a>
+			</div>
+			<form class="mt-4 grid gap-3" method="post" action="/products/bulk-upload" enctype="multipart/form-data">
+				<label class="grid gap-1 text-sm">
+					<span class="ui-muted">Dosya</span>
+					<input name="file" type="file" accept=".csv,.xlsx" required class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+				</label>
+				<button class="ui-btn ui-btn-secondary" type="submit">Toplu Ürün Yükle</button>
+			</form>
+		</details>
+
+		<details class="ui-card ui-border rounded-2xl p-5 shopadmin-details flex flex-col min-h-0 min-w-0 [&[open]>summary]:mb-4">
+			<summary class="flex items-center justify-between gap-3 cursor-pointer select-none flex-shrink-0 list-none">
+				<div class="min-w-0">
+					<h2 class="text-lg font-semibold">Kategoriler</h2>
+					<p class="mt-1 ui-muted text-sm">Kategori ekle/sil.</p>
+				</div>
+				<span class="ui-muted text-sm flex-shrink-0">Aç/Kapat</span>
+			</summary>
+			<div class="min-h-0 min-w-0 flex flex-col gap-4">
+				<form class="grid gap-3 flex-shrink-0 min-w-0 w-full" method="post" action="/categories">
+					<label class="grid gap-1 text-sm min-w-0">
+						<span class="ui-muted">Kategori Adı</span>
+						<input name="name" required class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 w-full min-w-0" />
+					</label>
+					<label class="grid gap-1 text-sm min-w-0">
+						<span class="ui-muted">Slug (opsiyonel)</span>
+						<input name="slug" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 w-full min-w-0" placeholder="otomatik oluşturulur" />
+					</label>
+					<button class="ui-btn ui-btn-secondary w-fit" type="submit">Kategori Ekle</button>
+				</form>
+
+				<div class="mt-1 grid gap-2 min-h-0 overflow-y-auto overflow-x-hidden shopadmin-scrollbar" style="max-height: 220px;">
+					<% (categories || []).forEach((c) => { %>
+						<div class="border ui-border rounded-xl p-3 flex items-center justify-between gap-3 flex-shrink-0">
+							<div class="min-w-[100px] flex-1 overflow-hidden">
+								<p class="font-semibold truncate"><%= c.name %></p>
+								<p class="text-xs ui-muted truncate"><%= c.slug %></p>
+							</div>
+							<form class="flex-shrink-0" method="post" action="/categories/<%= c.id %>/delete" onsubmit="return confirm('Kategori silinsin mi? Ürünlerdeki kategori alanı boş kalır.');">
+								<button class="ui-btn ui-btn-secondary" type="submit">Sil</button>
+							</form>
+						</div>
+					<% }) %>
+					<% if (!categories || categories.length === 0) { %>
+						<p class="ui-muted text-sm flex-shrink-0">Henüz kategori yok.</p>
+					<% } %>
+				</div>
+			</div>
+		</details>
+	</div>
+
+	<div class="lg:col-span-8 min-w-0">
+		<div class="ui-card ui-border rounded-2xl p-5 min-w-0 overflow-hidden">
+			<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+				<div>
+					<h2 class="text-lg font-semibold">Mevcut Ürünler</h2>
+					<p class="mt-1 ui-muted text-sm">Toplam: <span class="font-semibold" data-products-total><%= (products || []).length %></span> · Görünen: <span class="font-semibold" data-products-count>0</span></p>
+				</div>
+				<div class="w-full sm:w-auto grid grid-cols-1 sm:grid-cols-3 gap-2">
+					<label class="grid gap-1 text-xs">
+						<span class="ui-muted">Ara</span>
+						<input data-products-search placeholder="Ürün adı / kategori / boyut / renk" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm" />
+					</label>
+					<label class="grid gap-1 text-xs">
+						<span class="ui-muted">Durum</span>
+						<select data-products-filter-status class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm">
+							<option value="all" selected>Hepsi</option>
+							<option value="active">Yayında</option>
+							<option value="inactive">Pasif</option>
+						</select>
+					</label>
+					<label class="flex items-center gap-2 text-sm border ui-border rounded-xl px-3 py-2 bg-[color:var(--bg-elevated)]">
+						<input data-products-filter-lowstock type="checkbox" />
+						<span class="ui-muted">Sadece düşük stok</span>
+					</label>
+				</div>
+			</div>
+
+			<div class="mt-4 overflow-x-auto overflow-y-visible shopadmin-scrollbar" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+				<table class="w-full text-sm border-collapse min-w-[640px]" id="shopAdminProductsTable">
+					<thead>
+						<tr class="border-b ui-border text-left">
+							<th class="py-2 px-2 w-12 ui-muted font-medium">Görsel</th>
+							<th class="py-2 px-2 min-w-[140px] ui-muted font-medium">Ürün</th>
+							<th class="py-2 px-2 hidden md:table-cell ui-muted font-medium">Kategori</th>
+							<th class="py-2 px-2 whitespace-nowrap ui-muted font-medium">Fiyat</th>
+							<th class="py-2 px-2 whitespace-nowrap ui-muted font-medium">Stok</th>
+							<th class="py-2 px-2 hidden lg:table-cell whitespace-nowrap ui-muted font-medium">Eşik</th>
+							<th class="py-2 px-2 whitespace-nowrap ui-muted font-medium">Durum</th>
+							<th class="py-2 px-2 text-right ui-muted font-medium">İşlemler</th>
+						</tr>
+					</thead>
+					<tbody id="shopAdminProductsList">
+					<% if (!products || products.length === 0) { %>
+						<tr><td colspan="8" class="py-6 ui-muted text-center">Henüz ürün yok.</td></tr>
+					<% } %>
+					<% (products || []).forEach((p) => { %>
+						<%
+							const sizeOptions = Array.isArray(p.size_options) ? p.size_options.filter(Boolean) : [];
+							const colorOptions = Array.isArray(p.color_options) ? p.color_options.filter(Boolean) : [];
+							const minEff = Number((p.min_price ?? p.price));
+							const maxEff = Number((p.max_price ?? p.price));
+							const showMin = Number.isFinite(minEff) ? minEff : Number(p.price);
+							const showMax = Number.isFinite(maxEff) ? maxEff : Number(p.price);
+							const threshold = (typeof p.low_stock_threshold !== 'undefined' && p.low_stock_threshold !== null) ? Number(p.low_stock_threshold) : 5;
+							const stockNum = Number(p.stock || 0);
+							const isLow = threshold > 0 && stockNum <= threshold;
+						%>
+						<tr
+							class="border-b ui-border hover:bg-[color:var(--bg-elevated)]/50 transition-colors"
+							data-shopadmin-product-card
+							data-name="<%= String(p.name || '') %>"
+							data-category="<%= String(p.category_name || '') %>"
+							data-sizes="<%= String(sizeOptions.join(' ')) %>"
+							data-colors="<%= String(colorOptions.join(' ')) %>"
+							data-active="<%= p.is_active ? 'true' : 'false' %>"
+							data-stock="<%= String(stockNum) %>"
+							data-threshold="<%= String(threshold) %>"
+						>
+							<td class="py-2 px-2 align-middle">
+								<div class="w-10 h-10 rounded-lg border ui-border bg-[color:var(--bg-elevated)] overflow-hidden flex-shrink-0">
+									<% if (p.image_url) { %>
+										<img src="<%= p.image_url %>" alt="" class="w-full h-full object-cover" />
+									<% } %>
+								</div>
+							</td>
+							<td class="py-2 px-2 align-middle min-w-0 max-w-[200px]">
+								<div class="shopadmin-product-name-cell max-w-full">
+									<a href="/products/<%= p.id %>" class="font-semibold hover:underline block truncate"><%= p.name %></a>
+									<% if (sizeOptions.length || colorOptions.length) { %>
+										<p class="text-xs ui-muted truncate">
+											<% if (sizeOptions.length) { %><%= sizeOptions.join(', ') %><% } %>
+											<% if (sizeOptions.length && colorOptions.length) { %> · <% } %>
+											<% if (colorOptions.length) { %><%= colorOptions.join(', ') %><% } %>
+										</p>
+									<% } %>
+								</div>
+							</td>
+							<td class="py-2 px-2 align-middle hidden md:table-cell ui-muted truncate max-w-[120px]"><%= p.category_name || '—' %></td>
+							<td class="py-2 px-2 align-middle whitespace-nowrap">
+								<%= Number(showMin).toFixed(2) %> ₺<% if (Number.isFinite(showMin) && Number.isFinite(showMax) && Math.abs(showMax - showMin) >= 0.01) { %> – <%= Number(showMax).toFixed(2) %> ₺<% } %>
+							</td>
+							<td class="py-2 px-2 align-middle whitespace-nowrap">
+								<span class="<%= isLow ? 'text-amber-200 font-medium' : '' %>"><%= p.stock %></span>
+							</td>
+							<td class="py-2 px-2 align-middle hidden lg:table-cell whitespace-nowrap ui-muted"><%= threshold %></td>
+							<td class="py-2 px-2 align-middle whitespace-nowrap">
+								<span class="text-xs border ui-border rounded-full px-2 py-0.5 <%= p.is_active ? '' : 'ui-muted' %>"><%= p.is_active ? 'Yayında' : 'Pasif' %></span>
+								<% if (isLow) { %>
+									<span class="text-xs border border-amber-400/40 rounded-full px-2 py-0.5 text-amber-200 ml-1">Düşük</span>
+								<% } %>
+							</td>
+							<td class="py-2 px-2 align-middle text-right">
+								<div class="flex flex-nowrap items-center justify-end gap-1">
+									<a class="ui-btn ui-btn-secondary text-xs py-1.5 px-2" href="/products/<%= p.id %>">Detay</a>
+									<form class="inline" method="post" action="/products/<%= p.id %>/toggle">
+										<input type="hidden" name="is_active" value="<%= p.is_active ? 'false' : 'true' %>" />
+										<button class="ui-btn ui-btn-secondary text-xs py-1.5 px-2" type="submit"><%= p.is_active ? 'Pasif' : 'Yayın' %></button>
+									</form>
+									<form class="inline" method="post" action="/products/<%= p.id %>/delete" onsubmit="return confirm('Ürün silinsin mi?');">
+										<button class="ui-btn ui-btn-secondary text-xs py-1.5 px-2 text-red-200 hover:text-red-100" type="submit">Sil</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+					<% }) %>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t ui-border pt-4" data-products-pagination aria-hidden="true">
+				<p class="ui-muted text-sm" data-products-range>1–0 / 0</p>
+				<div class="flex items-center gap-2">
+					<button type="button" class="ui-btn ui-btn-secondary text-sm py-1.5 px-3" data-products-prev disabled>Önceki</button>
+					<span class="text-sm ui-muted" data-products-pages>Sayfa 1</span>
+					<button type="button" class="ui-btn ui-btn-secondary text-sm py-1.5 px-3" data-products-next disabled>Sonraki</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="/public/js/admin/product-variant-stock.js" defer></script>
+<script src="/public/js/shopAdmin/products.js" defer></script>

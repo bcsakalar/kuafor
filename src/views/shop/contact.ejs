@@ -1,0 +1,77 @@
+<%
+	const initialForm = (typeof form === 'object' && form) ? form : {};
+	const formFullName = String(initialForm.fullName || '').trim();
+	const formEmail = String(initialForm.email || '').trim();
+	const formPhone = String(initialForm.phone || '').trim();
+	const formSubject = String(initialForm.subject || '').trim();
+	const formMessage = String(initialForm.message || '').trim();
+%>
+
+<section class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card ui-border rounded-2xl p-6 sm:p-8">
+		<p class="text-xs ui-muted tracking-widest uppercase">Destek</p>
+		<h1 class="mt-2 text-2xl sm:text-3xl font-semibold">İletişim</h1>
+		<p class="mt-3 ui-muted">
+			Sipariş, teslimat, iade veya ürünler hakkında destek almak için formu doldurabilir veya aşağıdaki kanallardan bize ulaşabilirsiniz.
+		</p>
+
+		<% if (success) { %>
+			<div class="mt-5 p-3 rounded border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 text-sm"><%= String(success) %></div>
+		<% } %>
+		<% if (error) { %>
+			<div class="mt-5 p-3 rounded border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/30 text-rose-800 dark:text-rose-200 text-sm"><%= String(error) %></div>
+		<% } %>
+
+		<div class="mt-8 grid gap-6 lg:grid-cols-2">
+			<div class="grid gap-6">
+				<div class="border ui-border rounded-xl p-4">
+					<% const s = (typeof settings === 'object' && settings) ? settings : {}; %>
+					<h2 class="font-semibold">İletişim Bilgileri</h2>
+						<div class="mt-3">
+							<%- include('../partials/legalContactBlock', { settings: s, showTax: false }) %>
+						</div>
+				</div>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">Bize Yazın</h2>
+
+				<form class="mt-4 grid gap-3" method="post" action="/iletisim" autocomplete="on">
+					<div class="grid gap-1">
+						<label class="text-sm ui-muted" for="fullName">Ad Soyad</label>
+						<input id="fullName" name="fullName" required value="<%= formFullName %>" class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm" placeholder="Ad Soyad" />
+					</div>
+
+					<div class="grid gap-1">
+						<label class="text-sm ui-muted" for="email">E-posta</label>
+						<input id="email" name="email" type="email" required value="<%= formEmail %>" class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm" placeholder="ornek@domain.com" />
+					</div>
+
+					<div class="grid gap-1">
+						<label class="text-sm ui-muted" for="phone">Telefon (opsiyonel)</label>
+						<input id="phone" name="phone" value="<%= formPhone %>" class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm" placeholder="05xx..." />
+					</div>
+
+					<div class="grid gap-1">
+						<label class="text-sm ui-muted" for="subject">Konu</label>
+						<input id="subject" name="subject" required value="<%= formSubject %>" class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm" placeholder="Örn: Sipariş hakkında" />
+					</div>
+
+					<div class="grid gap-1">
+						<label class="text-sm ui-muted" for="message">Mesaj</label>
+						<textarea id="message" name="message" rows="6" required class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm" placeholder="Mesajınızı yazın..."><%= formMessage %></textarea>
+					</div>
+
+					<div class="flex items-center justify-between gap-3">
+						<button class="ui-btn ui-btn-secondary" type="submit">Gönder</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<div class="mt-8 flex items-center gap-2">
+			<a href="/" class="ui-btn ui-btn-secondary">Mağazaya Dön</a>
+			<a href="/hakkimizda" class="ui-btn ui-btn-secondary">Hakkımızda</a>
+		</div>
+	</div>
+</section>

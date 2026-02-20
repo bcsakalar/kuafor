@@ -1,0 +1,54 @@
+<section class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card ui-border rounded-2xl p-6">
+		<h1 class="text-2xl font-semibold">Siparişiniz Onaylandı</h1>
+		<p class="mt-2 ui-muted">Ödemeniz başarıyla alındı. Sipariş detaylarını aşağıdan takip edebilirsiniz.</p>
+
+		<div class="mt-6 grid gap-3 text-sm">
+			<div class="flex items-center justify-between gap-4">
+				<span class="ui-muted">Sipariş No</span>
+				<span class="font-mono"><%= String(orderId || '') %></span>
+			</div>
+			<% if (trackingCode) { %>
+				<div class="flex items-center justify-between gap-4">
+					<span class="ui-muted">Takip Kodu</span>
+					<span class="font-mono"><%= String(trackingCode) %></span>
+				</div>
+			<% } %>
+			<% if (totalAmount != null) { %>
+				<div class="flex items-center justify-between gap-4">
+					<span class="ui-muted">Toplam</span>
+					<span class="font-semibold"><%= Number(totalAmount || 0).toFixed(2) %> ₺</span>
+				</div>
+			<% } %>
+			<% if (paymentId) { %>
+				<div class="flex items-center justify-between gap-4">
+					<span class="ui-muted">Ödeme ID</span>
+					<span class="font-mono"><%= String(paymentId) %></span>
+				</div>
+			<% } %>
+		</div>
+
+		<div class="mt-8 flex flex-wrap gap-3">
+			<% if (trackingCode) { %>
+				<a class="ui-btn ui-btn-primary" href="/track?code=<%= encodeURIComponent(String(trackingCode)) %>">Siparişimi Takip Et</a>
+			<% } else { %>
+				<a class="ui-btn ui-btn-primary" href="/orders">Siparişlerim</a>
+			<% } %>
+			<a class="ui-btn ui-btn-secondary" href="/order-success?orderId=<%= encodeURIComponent(String(orderId)) %>" target="_blank" rel="noopener">Yeni Sekmede Aç</a>
+			<a class="ui-btn ui-btn-secondary" href="/products">Alışverişe Devam Et</a>
+		</div>
+	</div>
+</section>
+
+<script>
+	// If Iyzipay renders/redirects inside an iframe, ensure we land on the success page at the top level.
+	(function () {
+		try {
+			if (window.top && window.top !== window) {
+				window.top.location.href = window.location.href;
+			}
+		} catch (e) {
+			// ignore
+		}
+	})();
+</script>

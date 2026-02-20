@@ -1,0 +1,44 @@
+	<section class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card rounded-2xl p-5 sm:p-7" data-reveal>
+		<h1 class="text-3xl font-semibold tracking-tight">Galeri</h1>
+		<p class="ui-muted mt-3">Çalışmalarımızdan ve salonumuzdan kareler.</p>
+
+		<div class="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+			<% (Array.isArray(galleryItems) ? galleryItems : []).forEach((it) => { %>
+				<%
+					const c = (it && it.category) ? String(it.category) : 'both';
+					const dataFor = (c === 'men' || c === 'women') ? c : '';
+				%>
+				<div class="rounded-2xl border ui-border overflow-hidden bg-[color:var(--bg-elevated)]" <%= dataFor ? `data-for=\"${dataFor}\"` : '' %>>
+					<img src="<%= it.src %>" alt="<%= it.alt || 'Galeri görseli' %>" class="w-full aspect-video object-cover" />
+					<div class="p-3 text-sm ui-muted">Galeri</div>
+				</div>
+			<% }) %>
+		</div>
+
+		<%
+			const pag = pagination || { page: 1, totalPages: 1, totalItems: 0 };
+			const cat = (typeof currentCategory === 'string' && currentCategory === 'women') ? 'women' : 'men';
+			const prevPage = Math.max(1, (pag.page || 1) - 1);
+			const nextPage = Math.min((pag.totalPages || 1), (pag.page || 1) + 1);
+			const base = `/galeri?category=${encodeURIComponent(cat)}`;
+		%>
+		<div class="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+			<a
+				class="ui-btn ui-btn-ghost text-sm <%= (pag.page || 1) <= 1 ? 'pointer-events-none opacity-50' : '' %>"
+				href="<%= base + '&page=' + prevPage %>"
+			>Önceki</a>
+
+			<p class="text-sm ui-muted">
+				Sayfa <span class="font-medium"><%= pag.page || 1 %></span> / <span class="font-medium"><%= pag.totalPages || 1 %></span>
+			</p>
+
+			<a
+				class="ui-btn ui-btn-ghost text-sm <%= (pag.page || 1) >= (pag.totalPages || 1) ? 'pointer-events-none opacity-50' : '' %>"
+				href="<%= base + '&page=' + nextPage %>"
+			>Sonraki</a>
+		</div>
+	</div>
+	</section>
+
+<script src="/public/js/gallery.js" defer></script>

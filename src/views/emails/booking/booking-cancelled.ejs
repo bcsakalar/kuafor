@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="tr">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="x-apple-disable-message-reformatting" />
+		<title>Randevu İptali</title>
+	</head>
+	<body style="margin:0; padding:0; background-color:#111827; font-family:Arial, Helvetica, sans-serif; color:#e5e7eb;">
+		<%
+			const variantKey = String((typeof variant !== 'undefined' ? variant : 'customer') || 'customer').trim().toLowerCase();
+			const servicesArr = Array.isArray(services) ? services : [];
+			const dateTextValue = String((typeof dateText !== 'undefined' ? dateText : '') || '').trim();
+			const timeTextValue = String((typeof timeText !== 'undefined' ? timeText : '') || '').trim();
+			const staffNameText = String((typeof staffName !== 'undefined' ? staffName : '') || '').trim();
+			const customerNameText = String((typeof customerName !== 'undefined' ? customerName : '') || '').trim();
+			const customerPhoneText = String((typeof customerPhone !== 'undefined' ? customerPhone : '') || '').trim();
+			const customerEmailText = String((typeof customerEmail !== 'undefined' ? customerEmail : '') || '').trim();
+			const notesText = String((typeof notes !== 'undefined' ? notes : '') || '').trim();
+			const cancelReasonText = String((typeof cancelReason !== 'undefined' ? cancelReason : '') || '').trim();
+			const contactEmailText = String((typeof contactEmail !== 'undefined' ? contactEmail : '') || '').trim();
+			const contactPhoneText = String((typeof contactPhone !== 'undefined' ? contactPhone : '') || '').trim();
+			const adminUrl = appBaseUrl ? `${String(appBaseUrl).replace(/\/$/, '')}/admin/calendar` : '';
+		%>
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#111827; padding:24px 12px;">
+			<tr>
+				<td align="center">
+					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:680px; background-color:#0b1220; color:#e5e7eb; border-radius:16px; overflow:hidden;">
+						<%- await include('../partials/brandHeader') %>
+						<tr>
+							<td style="padding:22px 22px 0 22px;">
+								<p style="margin:0; font-size:14px; color:#94a3b8; letter-spacing:0.08em; text-transform:uppercase;">Randevu İptali</p>
+								<h1 style="margin:10px 0 0 0; font-size:22px; line-height:30px;">
+									<%= variantKey === 'admin' ? 'Bir randevu iptal edildi' : 'Randevunuz iptal edildi' %>
+								</h1>
+								<p style="margin:12px 0 0 0; font-size:15px; line-height:24px; color:#cbd5e1;">
+									<% if (variantKey === 'admin') { %>
+										Aşağıdaki randevu kaydı iptal edildi.
+									<% } else { %>
+										Merhaba<% if (customerNameText) { %> <strong><%= customerNameText %></strong><% } %>, aşağıdaki randevu kaydı iptal edilmiştir.
+									<% } %>
+								</p>
+							</td>
+						</tr>
+
+						<% if (variantKey === 'admin') { %>
+						<tr>
+							<td style="padding:18px 22px 0 22px;">
+								<h2 style="margin:0; font-size:16px;">Müşteri</h2>
+								<div style="margin-top:10px; border:1px solid #334155; border-radius:12px; padding:12px; font-size:14px; line-height:22px; color:#cbd5e1; background-color:#0f172a;">
+									<div><strong><%= customerNameText || '—' %></strong></div>
+									<div>Telefon: <%= customerPhoneText || '—' %></div>
+									<% if (customerEmailText) { %><div>E-posta: <%= customerEmailText %></div><% } %>
+								</div>
+							</td>
+						</tr>
+						<% if (cancelReasonText) { %>
+						<tr>
+							<td style="padding:18px 22px 0 22px;">
+								<h2 style="margin:0; font-size:16px;">İptal Nedeni</h2>
+								<div style="margin-top:10px; border:1px solid #334155; border-radius:12px; padding:12px; font-size:14px; line-height:22px; color:#cbd5e1; background-color:#0f172a; white-space:pre-wrap;"><%= cancelReasonText %></div>
+							</td>
+						</tr>
+						<% } %>
+						<% if (notesText) { %>
+						<tr>
+							<td style="padding:18px 22px 0 22px;">
+								<h2 style="margin:0; font-size:16px;">Not</h2>
+								<div style="margin-top:10px; border:1px solid #334155; border-radius:12px; padding:12px; font-size:14px; line-height:22px; color:#cbd5e1; background-color:#0f172a; white-space:pre-wrap;"><%= notesText %></div>
+							</td>
+						</tr>
+						<% } %>
+						<% } %>
+
+						<% if (variantKey !== 'admin' && cancelReasonText) { %>
+						<tr>
+							<td style="padding:18px 22px 0 22px;">
+								<h2 style="margin:0; font-size:16px;">İptal Nedeni</h2>
+								<div style="margin-top:10px; border:1px solid #334155; border-radius:12px; padding:12px; font-size:14px; line-height:22px; color:#cbd5e1; background-color:#0f172a; white-space:pre-wrap;"><%= cancelReasonText %></div>
+							</td>
+						</tr>
+						<% } %>
+
+						<tr>
+							<td style="padding:16px 22px 0 22px;">
+								<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #334155; border-radius:12px; background-color:#0f172a;">
+									<tr>
+										<td style="padding:12px 14px;">
+											<p style="margin:0; font-size:12px; color:#94a3b8;">Tarih</p>
+											<p style="margin:6px 0 0 0; font-size:14px; color:#f8fafc;"><strong><%= dateTextValue || '—' %></strong></p>
+										</td>
+										<td style="padding:12px 14px;" align="right">
+											<p style="margin:0; font-size:12px; color:#94a3b8;">Saat</p>
+											<p style="margin:6px 0 0 0; font-size:14px; color:#f8fafc;"><strong><%= timeTextValue || '—' %></strong></p>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:18px 22px 0 22px;">
+								<h2 style="margin:0; font-size:16px;">Hizmet / Personel</h2>
+								<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px; border:1px solid #334155; border-radius:12px; overflow:hidden;">
+									<tr>
+										<td style="padding:10px 12px; background-color:#111827; font-size:12px; color:#94a3b8;">Hizmet(ler)</td>
+										<td style="padding:10px 12px; background-color:#111827; font-size:12px; color:#94a3b8;" align="right">Personel</td>
+									</tr>
+									<tr>
+										<td style="padding:12px; font-size:14px; color:#e5e7eb; border-top:1px solid #334155; background-color:#0f172a;">
+											<% if (servicesArr.length === 0) { %>
+												—
+											<% } else { %>
+												<%= servicesArr.map((s) => s && s.name).filter(Boolean).join(', ') %>
+											<% } %>
+										</td>
+										<td style="padding:12px; font-size:14px; color:#e5e7eb; border-top:1px solid #334155; background-color:#0f172a;" align="right"><strong style="color:#f8fafc;"><%= staffNameText || '—' %></strong></td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:18px 22px 22px 22px;">
+								<% if (variantKey !== 'admin' && (contactEmailText || contactPhoneText)) { %>
+									<div style="margin:0 0 14px 0; border:1px solid #334155; border-radius:12px; padding:12px; font-size:14px; line-height:22px; color:#cbd5e1; background-color:#0f172a;">
+										Sorularınız için bizimle iletişime geçebilirsiniz:
+										<% if (contactPhoneText) { %><div style="margin-top:6px;">Telefon: <strong><%= contactPhoneText %></strong></div><% } %>
+										<% if (contactEmailText) { %><div style="margin-top:6px;">E-posta: <strong><%= contactEmailText %></strong></div><% } %>
+									</div>
+								<% } %>
+								<% if (variantKey === 'admin' && adminUrl) { %>
+									<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:2px;">
+										<tr>
+											<td align="center" bgcolor="#2563eb" style="border-radius:12px;">
+												<a href="<%= adminUrl %>" style="display:inline-block; padding:12px 16px; font-size:14px; color:#ffffff; text-decoration:none; border-radius:12px;">Takvimde Görüntüle</a>
+											</td>
+										</tr>
+									</table>
+								<% } %>
+								<p style="margin:18px 0 0 0; font-size:12px; line-height:18px; color:#94a3b8;">Bu e-posta otomatik olarak gönderilmiştir.</p>
+								<p style="margin:10px 0 0 0; font-size:12px; line-height:18px; color:#94a3b8;">© <%= year %> <%= brandName %></p>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

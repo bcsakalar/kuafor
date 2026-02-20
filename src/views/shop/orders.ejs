@@ -1,0 +1,298 @@
+<%
+	function safeText(v, fallback) {
+		const s = String(v || '').trim();
+		return s ? s : (fallback || '—');
+	}
+
+	function formatTRDateTime(value) {
+		if (!value) return '—';
+		try { return new Date(value).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' }); } catch { return '—'; }
+	}
+
+	function formatTRY(amount) {
+		const n = Number(amount);
+		if (!Number.isFinite(n)) return '0.00';
+		return n.toFixed(2);
+	}
+
+	function statusPillClass(status) {
+		const s = String(status || '');
+		return s === 'cancelled' ? 'ui-muted' : 'ui-accent';
+	}
+
+	function cancelReqLabel(status) {
+		const s = String(status || '').trim().toLowerCase();
+		if (s === 'approved') return { text: 'İade Talebi Onaylandı', cls: 'ui-accent' };
+		if (s === 'rejected') return { text: 'İade Talebi Reddedildi', cls: 'ui-muted' };
+		if (s === 'cancelled') return { text: 'İade Talebi İptal', cls: 'ui-muted' };
+		return { text: 'İade Talebi Alındı', cls: 'ui-accent' };
+	}
+
+	function shortNote(v) {
+		const s = String(v || '').trim();
+		if (!s) return '';
+		return s.length > 90 ? (s.slice(0, 90) + '…') : s;
+	}
+
+	const q = (typeof query === 'object' && query) ? query : {};
+	const cancelOk = String(q.cancel_ok || '') === '1';
+	const cancelReqOk = String(q.cancel_req_ok || '') === '1';
+	const cancelReqExists = String(q.cancel_req_exists || '') === '1';
+	const cancelErr = String(q.cancel_err || '');
+	const payErr = String(q.pay_err || '');
+%>
+
+<section class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card ui-border rounded-2xl p-6 sm:p-8">
+		<div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+			<div>
+				<p class="text-xs ui-muted tracking-widest uppercase">Siparişlerim</p>
+				<h1 class="mt-2 text-2xl sm:text-3xl font-semibold">Siparişlerin</h1>
+				<p class="mt-2 ui-muted">Hesabınla ilişkilendirilmiş sipariş geçmişin burada listelenir.</p>
+			</div>
+			<div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center items-stretch gap-2">
+				<a href="/account" class="ui-btn ui-btn-secondary sm:whitespace-nowrap text-center">Hesabım</a>
+				<a href="/track" class="ui-btn ui-btn-secondary sm:whitespace-nowrap text-center">Takip Kodu ile Sorgula</a>
+				<a href="/" class="ui-btn ui-btn-secondary sm:whitespace-nowrap text-center">Mağaza</a>
+			</div>
+		</div>
+
+		<div class="mt-6">
+			<% if (cancelOk) { %>
+				<div class="mt-4 border ui-border rounded-xl p-4 bg-[color:var(--bg-elevated)]">
+					<p class="font-semibold">Siparişiniz başarıyla iptal edildi.</p>
+					<p class="mt-1 text-sm ui-muted">Stoklar otomatik olarak güncellendi.</p>
+				</div>
+			<% } %>
+			<% if (cancelReqOk || cancelReqExists) { %>
+				<div class="mt-4 border ui-border rounded-xl p-4 bg-[color:var(--bg-elevated)]">
+					<p class="font-semibold">İade talebiniz alındı.</p>
+					<p class="mt-1 text-sm ui-muted">
+						<% if (cancelReqExists) { %>
+							Bu sipariş için zaten açık bir iade talebi bulunuyor.
+						<% } else { %>
+							Siparişiniz henüz kargoya verilmediyse, inceleme sonrası iade işlemi başlatılacaktır.
+						<% } %>
+					</p>
+				</div>
+			<% } %>
+			<% if (cancelErr) { %>
+				<div class="mt-4 border ui-border rounded-xl p-4 bg-[color:var(--bg-elevated)]">
+					<p class="font-semibold">Sipariş iptal edilemedi.</p>
+					<p class="mt-1 text-sm ui-muted">
+						<% if (cancelErr === 'status') { %>
+							Bu sipariş artık iptal edilemez (kargoya verilmiş ya da tamamlanmış olabilir).
+						<% } else if (cancelErr === 'paid') { %>
+							Ödeme alınmış siparişler doğrudan iptal edilemez. Bu sayfadan iade talebi oluşturabilirsiniz.
+						<% } else if (cancelErr === 'forbidden') { %>
+							Bu sipariş üzerinde işlem yetkiniz yok.
+						<% } else if (cancelErr === 'notfound') { %>
+							Sipariş bulunamadı.
+						<% } else { %>
+							Lütfen daha sonra tekrar deneyin.
+						<% } %>
+					</p>
+				</div>
+			<% } %>
+			<% if (payErr) { %>
+				<div class="mt-4 border ui-border rounded-xl p-4 bg-[color:var(--bg-elevated)]">
+					<p class="font-semibold">Ödeme başarısız oldu.</p>
+					<p class="mt-1 text-sm ui-muted">Bankanız/ödeme sağlayıcısı işlemi onaylamadı. Tekrar deneyebilir veya farklı bir kart kullanabilirsiniz.</p>
+				</div>
+			<% } %>
+
+			<% if (!orders || orders.length === 0) { %>
+				<div class="mt-4 border ui-border rounded-xl p-4">
+					<p class="font-semibold">Henüz siparişin yok.</p>
+					<p class="mt-1 text-sm ui-muted">Ödeme tamamlandıktan sonra burada listelenir. Takip kodun varsa “Sipariş Takibi” ile direkt görüntüleyebilirsin.</p>
+					<div class="mt-4 flex flex-col sm:flex-row gap-2">
+						<a class="ui-btn ui-btn-primary" href="/">Ürünlere Git</a>
+						<a class="ui-btn ui-btn-secondary" href="/track">Takip Kodu ile Sorgula</a>
+					</div>
+				</div>
+			<% } else { %>
+				<!-- Desktop table -->
+				<div class="hidden md:block mt-4 border ui-border rounded-xl overflow-hidden">
+					<table class="w-full text-sm">
+						<thead class="border-b ui-border">
+							<tr class="text-left">
+								<th class="px-4 py-3 ui-muted font-semibold">Tarih</th>
+								<th class="px-4 py-3 ui-muted font-semibold">Takip Kodu</th>
+								<th class="px-4 py-3 ui-muted font-semibold">Durum</th>
+								<th class="px-4 py-3 ui-muted font-semibold text-right">Tutar</th>
+								<th class="px-4 py-3 ui-muted font-semibold text-right">İşlem</th>
+							</tr>
+						</thead>
+						<tbody>
+							<% orders.forEach((o) => { %>
+								<%
+									const activeReq = (cancelRequestsByOrderId && typeof cancelRequestsByOrderId.get === 'function') ? cancelRequestsByOrderId.get(o.id) : null;
+									const isPending = String(o.status || '').toLowerCase() === 'pending';
+									const ps = String(o.payment_status || '').toLowerCase();
+									const refundedAmount = Number(o.refunded_amount || 0) || 0;
+									const showRefundInfo = (ps === 'partial_refunded' || ps === 'refunded') && refundedAmount > 0;
+									const isRefundFinal = ps === 'refunded' || ps === 'partial_refunded';
+									const overallLabel = (typeof orderStatusLabelTR === 'function' ? orderStatusLabelTR(o) : statusLabelTR(o.status));
+									const payLabel = (typeof paymentStatusLabelTR === 'function' ? paymentStatusLabelTR(o.payment_status) : safeText(o.payment_status, '—'));
+									const showPaymentPill = !!payLabel && payLabel !== overallLabel;
+									const canCreateRequest = !isRefundFinal && isPending && (ps === 'paid');
+									const canDirectCancel = !isRefundFinal && isPending && !(ps === 'paid' || ps === 'partial_refunded');
+								%>
+								<tr class="border-b ui-border last:border-b-0">
+									<td class="px-4 py-3"><%= formatTRDateTime(o.created_at) %></td>
+									<td class="px-4 py-3 font-mono"><%= safeText(o.tracking_code, '—') %></td>
+									<td class="px-4 py-3">
+										<div class="flex flex-wrap items-center gap-2">
+											<span class="inline-flex items-center rounded-full border ui-border px-2 py-1 text-xs font-semibold <%= statusPillClass(o.status) %>" data-order-status data-order-id="<%= o.id %>">
+												<%= overallLabel %>
+											</span>
+											<% if (showPaymentPill) { %>
+												<span class="inline-flex items-center rounded-full border ui-border px-2 py-1 text-xs font-semibold ui-muted">
+													<%= payLabel %>
+												</span>
+											<% } %>
+											<% if (showRefundInfo) { %>
+												<span class="text-xs ui-muted">
+													İade: <%= formatTRY(refundedAmount) %> ₺<% if (o.refunded_at) { %> • <%= formatTRDateTime(o.refunded_at) %><% } %>
+												</span>
+											<% } %>
+											<%
+												const hasCancelReq = !isRefundFinal && !!(activeReq && activeReq.status);
+												const cancelReqL = hasCancelReq ? cancelReqLabel(activeReq.status) : null;
+												const hasRejectedNote = !!(activeReq && String(activeReq.status || '').toLowerCase() === 'rejected' && activeReq.admin_note);
+											%>
+											<% if (hasCancelReq) { %>
+											<span
+												class="inline-flex items-center rounded-full border ui-border px-2 py-1 text-xs font-semibold <%= cancelReqL.cls %>"
+												data-rt-cancel-badge
+												data-order-id="<%= o.id %>"
+												data-rt-cancel-status="<%= String(activeReq.status) %>"
+											>
+												<%= cancelReqL.text %>
+											</span>
+											<% } %>
+											<% if (hasRejectedNote) { %>
+											<span
+												class="text-xs ui-muted"
+												data-rt-cancel-note
+												data-order-id="<%= o.id %>"
+											>
+												Not: <span data-rt-cancel-note-text><%= shortNote(activeReq.admin_note) %></span>
+											</span>
+											<% } %>
+										</div>
+									</td>
+									<td class="px-4 py-3 text-right font-semibold"><%= Number(o.total_amount).toFixed(2) %> ₺</td>
+									<td class="px-4 py-3 text-right">
+										<div class="inline-flex items-center gap-2">
+											<% if (ps === 'pending' || ps === 'failed') { %>
+												<a class="ui-btn ui-btn-secondary" href="/order-success?orderId=<%= encodeURIComponent(o.id) %>">Ödeme Durumu</a>
+											<% } else { %>
+												<a class="ui-btn ui-btn-secondary" href="/track?code=<%= encodeURIComponent(o.tracking_code) %>">Takip</a>
+											<% } %>
+											<% if (canDirectCancel) { %>
+												<form method="post" action="/account/orders/<%= encodeURIComponent(o.id) %>/cancel" onsubmit="return confirm('Bu siparişi iptal etmek istediğinize emin misiniz? İşlem geri alınamaz.');" style="display:inline;">
+													<button type="submit" class="ui-btn ui-btn-ghost">Siparişi İptal Et</button>
+												</form>
+											<% } else if (canCreateRequest && (!activeReq || String(activeReq.status) !== 'requested')) { %>
+														<form method="post" action="/account/orders/<%= encodeURIComponent(o.id) %>/cancel" onsubmit="return confirm('Ödeme alınmış siparişlerde iade talebi oluşturulur. Sipariş kargoya verilmediyse inceleme sonrası iade işlemi başlatılır. Devam edilsin mi?');" style="display:inline;">
+															<button type="submit" class="ui-btn ui-btn-ghost">Siparişi İade Et</button>
+												</form>
+											<% } %>
+										</div>
+									</td>
+								</tr>
+							<% }) %>
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Mobile cards -->
+				<div class="md:hidden mt-4 grid gap-3">
+					<% orders.forEach((o) => { %>
+						<%
+							const activeReqM = (cancelRequestsByOrderId && typeof cancelRequestsByOrderId.get === 'function') ? cancelRequestsByOrderId.get(o.id) : null;
+							const isPendingM = String(o.status || '').toLowerCase() === 'pending';
+							const psM = String(o.payment_status || '').toLowerCase();
+										const refundedAmountM = Number(o.refunded_amount || 0) || 0;
+										const showRefundInfoM = (psM === 'partial_refunded' || psM === 'refunded') && refundedAmountM > 0;
+										const isRefundFinalM = psM === 'refunded' || psM === 'partial_refunded';
+										const overallLabelM = (typeof orderStatusLabelTR === 'function' ? orderStatusLabelTR(o) : statusLabelTR(o.status));
+										const payLabelM = (typeof paymentStatusLabelTR === 'function' ? paymentStatusLabelTR(o.payment_status) : safeText(o.payment_status, '—'));
+										const showPaymentPillM = !!payLabelM && payLabelM !== overallLabelM;
+										const canCreateRequestM = !isRefundFinalM && isPendingM && (psM === 'paid');
+										const canDirectCancelM = !isRefundFinalM && isPendingM && !(psM === 'paid' || psM === 'partial_refunded');
+						%>
+						<div class="border ui-border rounded-xl p-4 flex flex-col gap-3">
+							<div class="flex items-start justify-between gap-3">
+								<div class="min-w-0">
+									<p class="font-semibold">Takip: <span class="font-mono"><%= safeText(o.tracking_code, '—') %></span></p>
+									<p class="mt-1 text-xs ui-muted"><%= formatTRDateTime(o.created_at) %></p>
+								</div>
+									<div class="flex flex-col items-end gap-2 shrink-0">
+										<span class="inline-flex items-center rounded-full border ui-border px-2 py-1 text-xs font-semibold <%= statusPillClass(o.status) %>" data-order-status-mobile data-order-id="<%= o.id %>">
+													<%= overallLabelM %>
+										</span>
+												<% if (showPaymentPillM) { %>
+													<span class="inline-flex items-center rounded-full border ui-border px-2 py-1 text-xs font-semibold ui-muted">
+														<%= payLabelM %>
+													</span>
+												<% } %>
+												<% if (showRefundInfoM) { %>
+													<p class="text-xs ui-muted">
+														İade: <%= formatTRY(refundedAmountM) %> ₺<% if (o.refunded_at) { %> • <%= formatTRDateTime(o.refunded_at) %><% } %>
+													</p>
+												<% } %>
+										<%
+													const hasCancelReqM = !isRefundFinalM && !!(activeReqM && activeReqM.status);
+											const cancelReqLM = hasCancelReqM ? cancelReqLabel(activeReqM.status) : null;
+											const hasRejectedNoteM = !!(activeReqM && String(activeReqM.status || '').toLowerCase() === 'rejected' && activeReqM.admin_note);
+										%>
+										<% if (hasCancelReqM) { %>
+										<span
+											class="inline-flex items-center rounded-full border ui-border px-2 py-1 text-xs font-semibold <%= cancelReqLM.cls %>"
+											data-rt-cancel-badge
+											data-order-id="<%= o.id %>"
+											data-rt-cancel-status="<%= String(activeReqM.status) %>"
+										>
+														<%= cancelReqLM.text %>
+										</span>
+										<% } %>
+										<% if (hasRejectedNoteM) { %>
+										<span
+											class="text-xs ui-muted"
+											data-rt-cancel-note
+											data-order-id="<%= o.id %>"
+										>
+											Not: <span data-rt-cancel-note-text><%= shortNote(activeReqM.admin_note) %></span>
+										</span>
+										<% } %>
+									</div>
+							</div>
+							<div class="flex items-center justify-between gap-3">
+								<p class="text-sm ui-muted">Tutar</p>
+								<p class="font-semibold"><%= Number(o.total_amount).toFixed(2) %> ₺</p>
+							</div>
+							<% if (psM === 'pending' || psM === 'failed') { %>
+								<a class="ui-btn ui-btn-primary w-full" href="/order-success?orderId=<%= encodeURIComponent(o.id) %>">Ödeme Durumu</a>
+							<% } else { %>
+								<a class="ui-btn ui-btn-primary w-full" href="/track?code=<%= encodeURIComponent(o.tracking_code) %>">Takip / Detay</a>
+							<% } %>
+							<% if (canDirectCancelM) { %>
+								<form method="post" action="/account/orders/<%= encodeURIComponent(o.id) %>/cancel" onsubmit="return confirm('Bu siparişi iptal etmek istediğinize emin misiniz? İşlem geri alınamaz.');">
+									<button type="submit" class="ui-btn ui-btn-secondary w-full">Siparişi İptal Et</button>
+								</form>
+							<% } else if (canCreateRequestM && (!activeReqM || String(activeReqM.status) !== 'requested')) { %>
+														<form method="post" action="/account/orders/<%= encodeURIComponent(o.id) %>/cancel" onsubmit="return confirm('Ödeme alınmış siparişlerde iade talebi oluşturulur. Sipariş kargoya verilmediyse inceleme sonrası iade işlemi başlatılır. Devam edilsin mi?');">
+															<button type="submit" class="ui-btn ui-btn-secondary w-full">Siparişi İade Et</button>
+								</form>
+							<% } %>
+						</div>
+					<% }) %>
+				</div>
+			<% } %>
+		</div>
+	</div>
+</section>
+
+<script src="/public/js/shop/orders.js" defer></script>

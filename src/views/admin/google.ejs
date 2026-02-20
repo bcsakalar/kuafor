@@ -1,0 +1,22 @@
+<section class="ui-card ui-border rounded-2xl p-5 sm:p-6">
+	<h1 class="text-2xl font-semibold">Google Entegrasyonu</h1>
+	<p class="ui-muted mt-2 leading-relaxed">
+		Google Takvim bağlantısını buradan yönetebilirsiniz. Bağlantı kurulduğunda randevular takvime eklenebilir ve müsaitlik kontrolü daha sağlıklı yapılır.
+	</p>
+
+	<% if (typeof error !== 'undefined' && error) { %>
+		<div class="mt-4 p-3 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200 text-sm"><%= error %></div>
+	<% } %>
+
+	<% if (typeof query !== 'undefined' && query.ok) { %>
+		<div class="mt-4 p-3 rounded border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 text-sm">Bağlantı tamamlandı.</div>
+	<% } %>
+
+	<div class="mt-6 flex flex-col sm:flex-row sm:items-center gap-3">
+		<a id="googleConnectBtn" class="ui-btn ui-btn-primary" href="<%= (adminBasePath || '') + '/google/auth' %>">Google ile Bağlan</a>
+		<button id="googleDisconnectBtn" type="button" class="ui-btn ui-btn-ghost">Bağlantıyı Kaldır</button>
+		<p id="googleStatus" class="text-sm ui-muted"></p>
+	</div>
+</section>
+
+<script src="/public/js/admin/google.js" defer></script>

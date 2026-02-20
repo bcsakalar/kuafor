@@ -1,0 +1,169 @@
+	<section class="relative overflow-hidden">
+		<div class="pointer-events-none absolute inset-0 mix-blend-soft-light" aria-hidden="true">
+			<div class="absolute -top-44 -left-56 h-[820px] w-[820px] rounded-full bg-blue-500/10 opacity-[0.28] blur-3xl"></div>
+			<div class="absolute -bottom-56 -right-56 h-[880px] w-[880px] rounded-full bg-[color:var(--accent)] opacity-[0.06] blur-3xl"></div>
+		</div>
+		<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+		<%
+			const dayNames = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+			function normalizeHours(rows) {
+				const arr = Array.isArray(rows) ? rows : [];
+				return arr.slice().sort((a, b) => Number(a.day_of_week) - Number(b.day_of_week));
+			}
+			const hoursMenSorted = normalizeHours(hoursMen);
+			const hoursWomenSorted = normalizeHours(hoursWomen);
+			function displayHourRow(r) {
+				if (!r) return '—';
+				if (r.is_closed) return 'Kapalı';
+				const s = String(r.start_time || '').slice(0, 5);
+				const e = String(r.end_time || '').slice(0, 5);
+				return `${s} - ${e}`;
+			}
+			function pickMapEmbedUrl(contact) {
+				return (contact && contact.mapsEmbedUrl) ? String(contact.mapsEmbedUrl) : (mapsEmbedUrl || '');
+			}
+		%>
+		<div class="grid lg:grid-cols-2 gap-6">
+			<div class="ui-card rounded-2xl p-5 sm:p-7" data-reveal>
+				<h1 class="text-3xl font-semibold tracking-tight">İletişim</h1>
+				<p class="ui-muted mt-3">
+					Seçtiğiniz şubeye göre iletişim ve konum bilgileri gösterilir.
+				</p>
+
+				<% if (sent) { %>
+					<div class="mt-5 border ui-border rounded-xl p-3 text-sm">
+						<p class="font-semibold">Mesajınız başarıyla iletildi</p>
+						<p class="ui-muted mt-1">Teşekkürler. Ekibimiz en kısa sürede sizinle iletişime geçecek.</p>
+					</div>
+				<% } %>
+				<% if (hasError) { %>
+					<div class="mt-5 border ui-border rounded-xl p-3 text-sm">
+						<p class="font-semibold">Mesajınız gönderilemedi</p>
+						<p class="ui-muted mt-1">Lütfen alanları kontrol edip tekrar deneyin. Sorun devam ederse e-posta/telefon üzerinden ulaşabilirsiniz.</p>
+					</div>
+				<% } %>
+
+				<div class="mt-6 grid gap-4">
+					<div class="ui-glass rounded-xl p-4" data-for="men">
+						<p class="font-semibold"><%= (contactMen && contactMen.title) ? contactMen.title : 'Erkek Kuaförü' %></p>
+						<% const menMap = pickMapEmbedUrl(contactMen); %>
+						<% if (menMap) { %>
+							<iframe
+								src="<%= menMap %>"
+								class="mt-4 w-full aspect-video rounded-xl border ui-border"
+								loading="lazy"
+								referrerpolicy="no-referrer-when-downgrade"
+								allowfullscreen
+							></iframe>
+						<% } %>
+						<% if (contactMen && contactMen.address) { %>
+							<p class="mt-3 text-sm ui-muted">Adres: <%= contactMen.address %></p>
+						<% } %>
+						<% if (contactMen && contactMen.phone) { %>
+							<p class="mt-1 text-sm ui-muted">Telefon: <%= contactMen.phone %></p>
+						<% } %>
+						<% if (contactMen && contactMen.email) { %>
+							<p class="mt-1 text-sm ui-muted">E-posta: <%= contactMen.email %></p>
+						<% } %>
+						<% if (contactMen && contactMen.whatsapp) { %>
+							<p class="mt-1 text-sm ui-muted">WhatsApp: <%= contactMen.whatsapp %></p>
+						<% } %>
+					</div>
+
+					<div class="ui-glass rounded-xl p-4" data-for="women">
+						<p class="font-semibold"><%= (contactWomen && contactWomen.title) ? contactWomen.title : 'Güzellik Salonu' %></p>
+						<% const womenMap = pickMapEmbedUrl(contactWomen); %>
+						<% if (womenMap) { %>
+							<iframe
+								src="<%= womenMap %>"
+								class="mt-4 w-full aspect-video rounded-xl border ui-border"
+								loading="lazy"
+								referrerpolicy="no-referrer-when-downgrade"
+								allowfullscreen
+							></iframe>
+						<% } %>
+						<% if (contactWomen && contactWomen.address) { %>
+							<p class="mt-3 text-sm ui-muted">Adres: <%= contactWomen.address %></p>
+						<% } %>
+						<% if (contactWomen && contactWomen.phone) { %>
+							<p class="mt-1 text-sm ui-muted">Telefon: <%= contactWomen.phone %></p>
+						<% } %>
+						<% if (contactWomen && contactWomen.email) { %>
+							<p class="mt-1 text-sm ui-muted">E-posta: <%= contactWomen.email %></p>
+						<% } %>
+						<% if (contactWomen && contactWomen.whatsapp) { %>
+							<p class="mt-1 text-sm ui-muted">WhatsApp: <%= contactWomen.whatsapp %></p>
+						<% } %>
+					</div>
+				</div>
+
+				<div class="ui-glass mt-6 rounded-xl p-4" data-for="men">
+					<p class="font-semibold">Çalışma Saatleri</p>
+					<div class="mt-3 grid gap-1 text-sm ui-muted">
+						<% (hoursMenSorted || []).forEach((r) => { %>
+							<p><%= dayNames[Number(r.day_of_week)] %>: <%= displayHourRow(r) %></p>
+						<% }) %>
+						<% if (!hoursMenSorted || hoursMenSorted.length === 0) { %>
+							<p>Çalışma saatleri tanımlı değil.</p>
+						<% } %>
+					</div>
+				</div>
+
+				<div class="ui-glass mt-6 rounded-xl p-4" data-for="women">
+					<p class="font-semibold">Çalışma Saatleri</p>
+					<div class="mt-3 grid gap-1 text-sm ui-muted">
+						<% (hoursWomenSorted || []).forEach((r) => { %>
+							<p><%= dayNames[Number(r.day_of_week)] %>: <%= displayHourRow(r) %></p>
+						<% }) %>
+						<% if (!hoursWomenSorted || hoursWomenSorted.length === 0) { %>
+							<p>Çalışma saatleri tanımlı değil.</p>
+						<% } %>
+					</div>
+				</div>
+			</div>
+
+			<div class="ui-card rounded-2xl p-5 sm:p-7" data-reveal>
+				<p class="font-semibold">Randevu</p>
+				<p class="mt-2 text-sm ui-muted">Online randevu ile hızlıca yerinizi ayırtın.</p>
+				<div class="mt-4">
+					<a class="ui-btn ui-btn-primary" href="/randevu" data-book-trigger>Randevu Al</a>
+				</div>
+
+				<div class="ui-glass mt-6 rounded-xl p-4">
+					<p class="font-semibold">Bize Yazın</p>
+					<p class="mt-2 text-sm ui-muted">Sorularınız için formu doldurun, size dönüş yapalım.</p>
+					<form class="mt-4 grid gap-3" method="post" action="/iletisim">
+						<div class="grid sm:grid-cols-2 gap-3">
+							<label class="grid gap-1 text-sm">
+								<span class="text-sm ui-muted">Ad Soyad</span>
+								<input name="name" type="text" required minlength="2" maxlength="120" autocomplete="name" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+							</label>
+							<label class="grid gap-1 text-sm">
+								<span class="text-sm ui-muted">E-posta</span>
+								<input name="email" type="email" required maxlength="200" autocomplete="email" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+							</label>
+						</div>
+						<label class="grid gap-1 text-sm">
+							<span class="text-sm ui-muted">Konu</span>
+							<input name="subject" type="text" required minlength="2" maxlength="200" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+						</label>
+						<label class="grid gap-1 text-sm">
+							<span class="text-sm ui-muted">Mesaj</span>
+							<textarea name="message" required minlength="5" maxlength="4000" rows="5" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2"></textarea>
+						</label>
+						<button type="submit" class="ui-btn ui-btn-primary w-full">Mesaj Gönder</button>
+					</form>
+				</div>
+				<div class="ui-glass mt-6 rounded-xl p-4">
+					<p class="font-semibold">İletişim (Yasal)</p>
+					<div class="mt-2">
+						<% const s = (typeof settings === 'object' && settings) ? settings : {}; %>
+						<%- include('../partials/legalContactBlock', { settings: s, showTax: false }) %>
+					</div>
+				</div>
+			</div>
+		</div>
+		</div>
+	</section>
+
+<script src="/public/js/contact.js" defer></script>

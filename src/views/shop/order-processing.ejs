@@ -1,0 +1,86 @@
+<section class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card ui-border rounded-2xl p-6">
+		<h1 class="text-2xl font-semibold">Ödemeniz İşleniyor</h1>
+		<p class="mt-2 ui-muted">
+			Ödeme sağlayıcısından dönüş alındı. Sipariş durumunuz birkaç saniye içinde güncellenecek.
+			Bu sayfa otomatik olarak yenilenecek.
+		</p>
+
+		<div class="mt-6 grid gap-3 text-sm">
+			<div class="flex items-center justify-between gap-4">
+				<span class="ui-muted">Sipariş No</span>
+				<span class="font-mono"><%= String(orderId || '') %></span>
+			</div>
+			<% if (trackingCode) { %>
+				<div class="flex items-center justify-between gap-4">
+					<span class="ui-muted">Takip Kodu</span>
+					<span class="font-mono"><%= String(trackingCode) %></span>
+				</div>
+			<% } %>
+		</div>
+
+		<div class="mt-8 flex flex-wrap gap-3">
+			<a class="ui-btn ui-btn-primary" href="/order-success?orderId=<%= encodeURIComponent(String(orderId)) %>">Tekrar Kontrol Et</a>
+			<a class="ui-btn ui-btn-secondary" href="/order-success?orderId=<%= encodeURIComponent(String(orderId)) %>" target="_blank" rel="noopener">Yeni Sekmede Aç</a>
+			<a class="ui-btn ui-btn-secondary" href="/orders">Siparişlerim</a>
+		</div>
+
+		<p class="mt-4 text-xs ui-muted">
+			Yönlendirme bazen ödeme sağlayıcısı ekranında takılı kalabilir. Bu durumda “Yeni Sekmede Aç” ile sipariş onay ekranını açabilirsiniz.
+		</p>
+	</div>
+</section>
+
+<script>
+	(function () {
+		var orderId = '<%= String(orderId || "") %>';
+		var tries = 0;
+		var maxTries = 25; // ~50s
+		var pollMs = 2000;
+
+		function goSuccess() {
+			window.location.href = '/order-success?orderId=' + encodeURIComponent(orderId);
+		}
+
+		function tick() {
+			tries += 1;
+			// Prefer polling endpoint (fast + can self-finalize); requires login.
+			fetch('/order-status?orderId=' + encodeURIComponent(orderId), {
+				method: 'GET',
+				credentials: 'same-origin',
+				headers: { 'Accept': 'application/json' }
+			})
+				.then(function (r) {
+					var ct = (r.headers && r.headers.get) ? (r.headers.get('content-type') || '') : '';
+					if (!ct.toLowerCase().includes('application/json')) throw new Error('non_json');
+					return r.json();
+				})
+				.then(function (data) {
+					if (data && data.ok && String(data.status || '').toLowerCase() === 'paid') {
+						goSuccess();
+						return;
+					}
+					if (tries >= maxTries) {
+						goSuccess();
+						return;
+					}
+					setTimeout(tick, pollMs);
+				})
+				.catch(function () {
+					// Fallback: refresh the safe endpoint (it will attempt server-side finalize).
+					if (tries >= 4) {
+						goSuccess();
+						return;
+					}
+					setTimeout(tick, pollMs);
+				});
+		}
+
+		try {
+			setTimeout(tick, 1000);
+		} catch (e) {
+			// ignore
+			setTimeout(function () { goSuccess(); }, 3500);
+		}
+	})();
+</script>

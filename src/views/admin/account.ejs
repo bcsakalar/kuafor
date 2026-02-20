@@ -1,0 +1,74 @@
+<section class="max-w-3xl mx-auto">
+	<h1 class="text-2xl font-semibold">Hesap Ayarları</h1>
+	<p class="mt-2 text-sm ui-muted">Admin e-posta adresini ve/veya şifreni buradan güncelleyebilirsin.</p>
+
+	<% if (query && String(query.ok || '') === '1') { %>
+		<div class="mt-4 p-3 rounded border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 text-sm">Kaydedildi.</div>
+	<% } %>
+
+	<% if (query && query.err) { %>
+		<div class="mt-4 p-3 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200 text-sm"><%= String(query.err) %></div>
+	<% } %>
+
+	<div class="mt-6 ui-card ui-border rounded-2xl p-6">
+		<form class="grid gap-4" method="post" action="<%= (adminBasePath || '') + '/hesap' %>">
+			<div class="grid gap-2">
+				<label class="grid gap-1 text-sm">
+					<span class="ui-muted">Yeni E-posta (opsiyonel)</span>
+					<input
+						name="email"
+						type="email"
+						class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2"
+						placeholder="ornek@domain.com"
+						value=""
+						autocomplete="email"
+					/>
+				</label>
+				<p class="text-xs ui-muted">Mevcut e-posta: <strong><%= admin && admin.email ? admin.email : '-' %></strong></p>
+			</div>
+
+			<div class="grid gap-2">
+				<label class="grid gap-1 text-sm">
+					<span class="ui-muted">Yeni Şifre (opsiyonel)</span>
+					<input
+						name="newPassword"
+						type="password"
+						class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2"
+						placeholder="••••••••"
+						autocomplete="new-password"
+					/>
+				</label>
+				<label class="grid gap-1 text-sm">
+					<span class="ui-muted">Yeni Şifre (Tekrar)</span>
+					<input
+						name="newPasswordConfirm"
+						type="password"
+						class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2"
+						placeholder="••••••••"
+						autocomplete="new-password"
+					/>
+				</label>
+			</div>
+
+			<div class="grid gap-2">
+				<label class="grid gap-1 text-sm">
+					<span class="ui-muted">Mevcut Şifre (zorunlu)</span>
+					<input
+						name="currentPassword"
+						type="password"
+						required
+						class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2"
+						placeholder="••••••••"
+						autocomplete="current-password"
+					/>
+				</label>
+				<p class="text-xs ui-muted">Güvenlik için değişiklik yaparken mevcut şifreni doğrularız.</p>
+			</div>
+
+			<div class="flex items-center gap-3">
+				<button class="ui-btn ui-btn-primary" type="submit">Kaydet</button>
+				<a class="ui-btn ui-btn-ghost" href="<%= (adminBasePath || '') + '/' %>">Vazgeç</a>
+			</div>
+		</form>
+	</div>
+</section>

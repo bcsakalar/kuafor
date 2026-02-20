@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: berber_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-berber}
+      POSTGRES_USER: ${DB_USER:-berber}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-berber}
+      # Data integrity checksums during init (only used on first init of a new volume)
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+      # Set timezone inside container for logs and backups consistency
+      TZ: ${TZ:-Europe/Istanbul}
+    ports:
+      - "${DB_BIND_ADDR:-127.0.0.1}:${DB_PUBLISH_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      # DB kalıcılık: docker compose down/up yapsanız bile volume silinmez (down -v hariç).
+      - pgdata:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./sql/02-security.sql:/docker-entrypoint-initdb.d/02-security.sql:ro
+      - ./sql/03-admin.sql:/docker-entrypoint-initdb.d/03-admin.sql:ro
+
+  # Opsiyonel otomatik yedekleme servisi.
+  # Etkinleştirmek için: docker compose --profile backup up -d db_backup
+  db_backup:
+    image: prodrigestivill/postgres-backup-local:16
+    container_name: berber_db_backup
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: ${DB_NAME:-berber}
+      POSTGRES_USER: ${DB_USER:-berber}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-berber}
+      SCHEDULE: "@daily"
+      BACKUP_DIR: /backups
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+      TZ: ${TZ:-Europe/Istanbul}
+    volumes:
+      - db_backups:/backups
+    profiles: ["backup"]
+
+volumes:
+  pgdata:
+  db_backups:

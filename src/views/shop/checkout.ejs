@@ -1,0 +1,230 @@
+<section class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+	<div class="flex items-start justify-between gap-6">
+		<a href="/cart" class="ui-btn ui-btn-secondary">← Sepete Dön</a>
+	</div>
+
+	<div class="mt-8 grid grid-cols-1 lg:grid-cols-5 gap-6">
+		<div class="ui-card ui-border rounded-2xl p-6 lg:col-span-3">
+			<h1 class="text-2xl font-semibold">Ödeme</h1>
+			<p class="mt-2 ui-muted">Teslimat adresinizi girip siparişi oluşturun.</p>
+
+		<% if (query && query.ok && query.orderId) { %>
+			<div class="mt-4 p-3 rounded border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 text-sm">
+				<p>Siparişiniz alındı. Sipariş No: <span class="font-mono"><%= query.orderId %></span></p>
+				<% if (query.track) { %>
+					<div class="mt-2 flex flex-wrap items-center gap-2">
+						<span>Takip Kodu:</span>
+						<span class="font-mono"><%= query.track %></span>
+						<button class="ui-btn ui-btn-secondary px-3 py-1.5 text-xs" type="button" data-copy-value="<%= query.track %>">Kopyala</button>
+					</div>
+					<p class="mt-2"><a class="underline" href="/track?code=<%= encodeURIComponent(query.track) %>">Siparişimi takip et</a></p>
+				<% } %>
+			</div>
+		<% } %>
+		<% if (query && query.error) { %>
+			<div class="mt-4 p-3 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200 text-sm">
+				<%
+					const r = String(query.reason || '').trim();
+					let msg = 'Sipariş oluşturulamadı. Lütfen tekrar deneyin.';
+					if (r === 'contract') msg = 'Sipariş için sözleşme onay kutusunu işaretlemelisiniz.';
+					else if (r === 'kvkk') msg = 'KVKK Aydınlatma Metni ve Çerez Politikası bilgilendirmesini onaylamalısınız.';
+					else if (r === 'address') msg = 'Teslimat adresini girmeniz gerekiyor.';
+					else if (r === 'name') msg = 'Ad Soyad alanını doldurmanız gerekiyor.';
+					else if (r === 'phone') msg = 'Telefon alanını doldurmanız gerekiyor.';
+					else if (r === 'cart') msg = 'Sepet boş görünüyor. Lütfen sepeti kontrol edin.';
+					else if (r === 'variant') msg = 'Ürün varyant seçimi geçersiz. Sepetten ürünü kaldırıp tekrar ekleyin.';
+					else if (r === 'stock') msg = 'Stok yetersiz görünüyor. Sepeti güncelleyip tekrar deneyin.';
+					else if (r === 'product') msg = 'Ürün şu an satışa uygun değil. Sepeti güncelleyip tekrar deneyin.';
+				%>
+				<%= msg %>
+				<% if (query.errorId) { %>
+					<span class="block mt-2 text-xs opacity-80">Hata Kodu: <span class="font-mono"><%= String(query.errorId) %></span></span>
+				<% } %>
+			</div>
+		<% } %>
+
+		<% const u = (typeof shopUser === 'object' && shopUser) ? shopUser : null; %>
+
+			<% if (paymentError) { %>
+				<div class="mt-4 p-3 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200 text-sm">
+					<%= String(paymentError) %>
+				</div>
+			<% } %>
+
+			<% if (checkoutFormContent) { %>
+				<div class="mt-6">
+					<p class="ui-muted text-sm">Ödeme formu aşağıda açıldı. Ödemenizi tamamladıktan sonra sonuç otomatik işlenecek.</p>
+					<% if (paymentOrderId) { %>
+						<p class="mt-2 text-xs ui-muted">Form görünmüyorsa <a class="underline" href="/checkout/hosted?orderId=<%= encodeURIComponent(String(paymentOrderId)) %>">iyzico ödeme sayfasını burada aç</a>.</p>
+					<% } %>
+					<div class="mt-4" id="iyzico-checkout-form" data-iyzico-token="<%= paymentToken ? String(paymentToken) : '' %>">
+						<%- checkoutFormContent %>
+					</div>
+					<% if (paymentOrderId) { %>
+						<div id="order-status-poller"
+							data-order-id="<%= String(paymentOrderId) %>"
+							data-success-url="/order-success?orderId=<%= encodeURIComponent(String(paymentOrderId)) %>">
+						</div>
+					<% } %>
+				</div>
+			<% } else { %>
+				<form class="mt-6 grid gap-3" method="post" action="/checkout">
+					<input type="hidden" name="payMode" id="checkoutPayMode" value="auto" />
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+				<label class="grid gap-1 text-sm">
+					<span class="ui-muted">Ad Soyad</span>
+					<input name="fullName" value="<%= u && u.full_name ? String(u.full_name) : '' %>" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Ad Soyad" />
+				</label>
+				<label class="grid gap-1 text-sm">
+					<span class="ui-muted">Telefon</span>
+					<input name="phone" value="<%= u && u.phone ? String(u.phone) : '' %>" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="05xx..." />
+				</label>
+			</div>
+			<label class="grid gap-1 text-sm">
+				<span class="ui-muted">E-posta (opsiyonel)</span>
+				<input name="email" type="email" value="<%= u && u.email ? String(u.email) : '' %>" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="ornek@mail.com" />
+			</label>
+			<label class="grid gap-1 text-sm">
+				<span class="ui-muted">Teslimat Adresi</span>
+				<textarea name="shippingAddress" required rows="4" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Adresinizi yazın..."></textarea>
+			</label>
+			<label class="mt-2 flex items-start gap-3 text-sm ui-muted">
+				<input
+					type="checkbox"
+					name="contractApproval"
+					required
+					class="mt-1"
+					aria-label="Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi onayı"
+				/>
+				<span class="block">
+					<span class="block">
+						Ön Bilgilendirme Formu'nu ve
+						<a class="underline" href="/sozlesmeler/mesafeli-satis" data-contract-modal-open>Mesafeli Satış Sözleşmesi</a>'ni okudum, onaylıyorum.
+					</span>
+					<span class="mt-1 block text-xs ui-muted">
+						Özet: Teslimden itibaren 14 gün içinde cayma hakkı; bazı ürünlerde (özellikle hijyen/ambalajı açılmış kişisel bakım ürünleri) mevzuat gereği istisnalar uygulanabilir.
+						Detay: <a class="underline" href="/sozlesmeler/iptal-iade">İptal & İade</a>
+					</span>
+				</span>
+			</label>
+			<label class="mt-1 flex items-start gap-3 text-sm ui-muted">
+				<input
+					type="checkbox"
+					name="kvkkNotice"
+					required
+					class="mt-1"
+					aria-label="KVKK Aydınlatma Metni ve Çerez Politikası bilgilendirmesi"
+				/>
+				<span class="block">
+					<span class="block">
+						<a class="underline" href="/sozlesmeler/gizlilik">KVKK Aydınlatma Metni ve Çerez Politikası</a>'nı okudum.
+					</span>
+					<span class="mt-1 block text-xs ui-muted">
+						Not: Bu onay kutusu "açık rıza" değildir; yalnızca bilgilendirme metnini gördüğünüzü/okuduğunuzu teyit eder.
+					</span>
+				</span>
+			</label>
+				<button class="mt-2 ui-btn ui-btn-primary" type="submit">Siparişi Oluştur</button>
+			</form>
+			<% } %>
+		</div>
+
+		<aside class="ui-card ui-border rounded-2xl p-6 lg:col-span-2 order-summary">
+			<h2 class="text-lg font-semibold">Sipariş Özeti</h2>
+			<div class="mt-4 order-summary__items">
+				<% (lines || []).forEach((l) => { %>
+					<div class="order-summary__item">
+						<p class="order-summary__name"><%= l.product.name %></p>
+						<p class="order-summary__price"><%= Number(l.lineTotal).toFixed(2) %>&nbsp;₺</p>
+						<p class="order-summary__meta">
+							Adet: <%= l.quantity %> • <%= Number(l.unitPrice ?? l.product.price).toFixed(2) %>&nbsp;₺
+							<% if (l.selectedSize) { %> • Boyut: <%= l.selectedSize %><% } %>
+							<% if (l.selectedColor) { %> • Renk: <%= l.selectedColor %><% } %>
+						</p>
+					</div>
+				<% }) %>
+			</div>
+			<div class="mt-6 pt-4 border-t ui-border flex items-center justify-between">
+				<p class="ui-muted">Toplam</p>
+				<p class="text-lg font-semibold whitespace-nowrap"><%= Number(total || 0).toFixed(2) %>&nbsp;₺</p>
+			</div>
+			<div class="mt-4 ui-card ui-border rounded-2xl p-5">
+				<p class="text-sm font-semibold">Güvenli Ödeme</p>
+				<div class="mt-3 flex items-center gap-2">
+					<span class="inline-flex items-center justify-center w-14 h-9 rounded-lg bg-[#1A1F71] shrink-0 overflow-hidden">
+						<img src="/public/svg/Visa_Brandmark_White_RGB_2021.png" alt="Visa" class="payment-logo h-5 w-auto max-w-full object-contain" width="56" height="20" loading="lazy" decoding="async" />
+					</span>
+					<span class="inline-flex items-center justify-center w-14 h-9 rounded-lg bg-[#252530] shrink-0 overflow-hidden">
+						<img src="/public/svg/ma_symbol.svg" alt="Mastercard" class="payment-logo h-5 w-auto max-w-full object-contain" width="56" height="20" loading="lazy" decoding="async" />
+					</span>
+					<span class="inline-flex items-center justify-center min-w-[4rem] h-9 rounded-lg bg-[#5B2EFF] shrink-0 overflow-hidden px-1">
+						<img src="/public/svg/iyzico-pay-horizontal-color-eng.svg" alt="iyzico ile öde" class="payment-logo h-5 w-auto max-w-full object-contain" width="80" height="28" loading="lazy" decoding="async" />
+					</span>
+				</div>
+				<div class="mt-3 flex items-center gap-2 text-xs ui-muted">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="text-emerald-500">
+						<path d="M17 11V8a5 5 0 10-10 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						<path d="M7 11h10a2 2 0 012 2v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+					</svg>
+					<span>256-Bit SSL Güvenli Ödeme</span>
+				</div>
+			</div>
+			<div class="mt-4 ui-card ui-border rounded-2xl p-5">
+				<p class="text-sm font-semibold">Güven & bilgilendirme</p>
+				<ul class="mt-3 text-sm ui-muted space-y-1">
+					<li><a class="underline" href="/sozlesmeler/iptal-iade">Teslimat & İade</a></li>
+					<li><a class="underline" href="/sozlesmeler/gizlilik">Gizlilik & Çerez</a></li>
+				</ul>
+			</div>
+		</aside>
+	</div>
+</section>
+
+<% const s = (typeof settings === 'object' && settings) ? settings : {}; %>
+<div id="contractModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="contractModalTitle">
+	<div data-contract-modal-backdrop class="absolute inset-0 bg-black/50"></div>
+	<div class="relative max-w-3xl mx-auto px-4 sm:px-6 py-10">
+		<div class="ui-card ui-border rounded-2xl overflow-hidden">
+			<div class="px-5 py-4 border-b ui-border flex items-center justify-between gap-4">
+				<div>
+					<h2 id="contractModalTitle" class="text-lg font-semibold">Mesafeli Satış Sözleşmesi</h2>
+					<p class="text-xs ui-muted">Özet metin (sipariş toplamı ve satıcı bilgileriyle)</p>
+				</div>
+				<button type="button" class="ui-btn ui-btn-secondary px-3 py-2" data-contract-modal-close data-contract-modal-initial-focus aria-label="Kapat">Kapat</button>
+			</div>
+
+			<div class="px-5 py-5 max-h-[70vh] overflow-auto">
+				<div class="grid gap-6">
+					<div class="grid gap-2">
+						<p class="text-sm font-semibold">Sipariş Özeti</p>
+						<div class="text-sm ui-muted">
+							Toplam Tutar: <span class="font-semibold text-[color:var(--text-primary)]"><%= Number(total || 0).toFixed(2) %>&nbsp;₺</span>
+						</div>
+					</div>
+
+					<div class="grid gap-2">
+						<p class="text-sm font-semibold">Satıcı Bilgileri</p>
+						<%- include('../partials/legalContactBlock', { settings: s, showTax: true }) %>
+					</div>
+
+					<div class="grid gap-3">
+						<p class="text-sm font-semibold">Sözleşme Özeti</p>
+						<div class="text-sm ui-muted grid gap-2 leading-relaxed">
+							<p>İşbu sözleşme, 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği kapsamında, alıcı ile satıcı arasında mesafeli satışa ilişkin şartları düzenler.</p>
+							<p><span class="font-medium text-[color:var(--text-primary)]">Konu:</span> Alıcı’nın, satıcıya ait internet sitesi üzerinden sepetine ekleyerek satın aldığı ürünlerin satışı ve teslimi.</p>
+							<p><span class="font-medium text-[color:var(--text-primary)]">Bedel:</span> Sipariş toplam bedeli <%= Number(total || 0).toFixed(2) %>&nbsp;₺ olup ödeme, ödeme altyapısı üzerinden güvenli şekilde alınır.</p>
+							<p><span class="font-medium text-[color:var(--text-primary)]">Teslimat:</span> Ürünler, alıcının formda belirttiği teslimat adresine gönderilir. Kargo/teslimat süreçleri ve masraflar için bilgilendirme ilgili sayfalarda yer alır.</p>
+							<p><span class="font-medium text-[color:var(--text-primary)]">Cayma Hakkı:</span> Alıcı, teslimden itibaren 14 gün içinde cayma hakkını kullanabilir. Ancak hijyen niteliği taşıyan ve ambalajı açıldıktan sonra iadesi sağlık ve hijyen açısından uygun olmayan ürünlerde mevzuat gereği istisnalar uygulanabilir.</p>
+							<p><span class="font-medium text-[color:var(--text-primary)]">Uyuşmazlık:</span> İlgili mevzuat kapsamında tüketici hakem heyetleri ve tüketici mahkemeleri yetkilidir.</p>
+							<p class="text-xs ui-muted">Tam metin için: <a class="underline" href="/sozlesmeler/mesafeli-satis">Mesafeli Satış Sözleşmesi</a> • <a class="underline" href="/sozlesmeler/iptal-iade">İptal & İade</a> • <a class="underline" href="/sozlesmeler/gizlilik">KVKK & Çerez</a></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="/public/js/shop-track.js" defer></script>
+<script src="/public/js/shop/contract-modal.js" defer></script>
+<script src="/public/js/shop/checkout-payment.js" defer></script>

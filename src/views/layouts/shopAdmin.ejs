@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="tr" class="h-full">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title><%= title %> | <%= (typeof brandName === 'string' && brandName.trim()) ? brandName : 'BySamet Erkek Kuaförü' %> | Shop Admin</title>
+	<link rel="icon" href="/public/logo/logo.ico" type="image/x-icon" />
+	<script src="/public/js/theme-init.js"></script>
+	<link rel="stylesheet" href="/public/css/tailwind.css" />
+	<link rel="stylesheet" href="/public/css/styles.css" />
+</head>
+<body
+	data-app="shopadmin"
+	data-rt-order-id="<%= typeof rtOrderId === 'string' ? rtOrderId : '' %>"
+	data-rt-tracking-code="<%= typeof rtTrackingCode === 'string' ? rtTrackingCode : '' %>"
+	class="relative overflow-x-hidden min-h-screen flex flex-col bg-[color:var(--bg-primary)] text-[color:var(--text-primary)]"
+>
+	<% if (!(typeof hideShopAdminNav !== 'undefined' && hideShopAdminNav)) { %>
+		<%- include('../partials/shopAdminHeader') %>
+	<% } %>
+	<main class="flex-1 w-full">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+			<%- body %>
+		</div>
+	</main>
+	<script src="/socket.io/socket.io.js" defer></script>
+	<script src="/public/js/realtime.js" defer></script>
+	<script src="/public/js/shopAdmin/size-options.js" defer></script>
+	<script src="/public/js/nav.js" defer></script>
+	<script src="/public/js/theme.js" defer></script>
+</body>
+</html>

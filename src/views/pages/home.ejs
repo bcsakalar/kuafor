@@ -1,0 +1,285 @@
+<!-- Hero -->
+<section class="relative overflow-hidden">
+	<div class="pointer-events-none absolute inset-0" aria-hidden="true">
+		<div class="absolute -top-28 -left-28 h-[520px] w-[520px] rounded-full bg-[color:var(--accent)] opacity-[0.14] blur-3xl"></div>
+		<div class="absolute -bottom-32 -right-32 h-[560px] w-[560px] rounded-full bg-blue-500/10 blur-3xl"></div>
+	</div>
+	<div class="absolute inset-0" aria-hidden="true">
+		<img
+			src="<%= (media && media.slots && media.slots['home.heroBackground'] && media.slots['home.heroBackground'].src) ? media.slots['home.heroBackground'].src : '/public/images/placeholder.svg' %>"
+			alt="<%= (media && media.slots && media.slots['home.heroBackground'] && media.slots['home.heroBackground'].alt) ? media.slots['home.heroBackground'].alt : '' %>"
+			class="w-full h-full object-cover"
+		/>
+		<div class="absolute inset-0 bg-[color:var(--hero-overlay)]"></div>
+	</div>
+
+	<div class="relative max-w-6xl mx-auto px-4 py-16 sm:py-20">
+		<div class="max-w-2xl" data-reveal data-reveal-delay="0">
+			<p class="text-xs tracking-[0.28em] ui-accent font-semibold">
+				İKİ BÖLÜM
+			</p>
+
+			<h1 class="mt-4 text-4xl sm:text-5xl font-semibold leading-tight h-font">
+				<span data-for="men">Erkek Kuaförü</span>
+				<span data-for="women">Güzellik Salonu</span>
+			</h1>
+
+			<p class="mt-4 text-base sm:text-lg ui-muted">
+				<span data-for="men">Saç ve sakal için özenli işçilik, net çizgiler.</span>
+				<span data-for="women">Cilt bakımı ve kişisel bakım uygulamalarında konfor, hijyen, net sonuç.</span>
+			</p>
+
+			<div class="mt-7 flex flex-wrap gap-3">
+				<a href="/randevu" class="ui-btn ui-btn-primary">Randevu Oluştur</a>
+				<a href="/hizmetler" class="ui-btn ui-btn-ghost">Hizmetleri Gör</a>
+			</div>
+
+			<div class="mt-6 flex flex-wrap gap-2">
+				<button type="button" data-category-set="men" class="ui-btn ui-btn-ghost text-xs">KUAFÖR</button>
+				<button type="button" data-category-set="women" class="ui-btn ui-btn-ghost text-xs">GÜZELLİK</button>
+				<span class="text-xs ui-muted self-center">Üst menüden Kuaför / Güzellik seçebilirsin.</span>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Value props -->
+<section class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+	<div class="grid md:grid-cols-3 gap-4">
+		<div class="ui-card rounded-2xl p-6" data-reveal data-reveal-delay="0">
+			<p class="font-semibold">Kolay randevu</p>
+			<p class="mt-2 text-sm ui-muted">Şube → hizmet → tarih/saat. Birkaç adımda tamamla.</p>
+		</div>
+		<div class="ui-card rounded-2xl p-6" data-reveal data-reveal-delay="80">
+			<p class="font-semibold">Müsaitlik kontrolü</p>
+			<p class="mt-2 text-sm ui-muted">Onaydan önce doluluk ve çalışma saatleri kontrol edilir.</p>
+		</div>
+		<div class="ui-card rounded-2xl p-6" data-reveal data-reveal-delay="160">
+			<p class="font-semibold">İki şube</p>
+			<p class="mt-2 text-sm ui-muted">Erkek Kuaförü ve Güzellik Salonu aynı sitede.</p>
+		</div>
+	</div>
+</section>
+
+<!-- Services -->
+<section id="services" class="relative overflow-hidden">
+	<div class="pointer-events-none absolute inset-0 mix-blend-soft-light" aria-hidden="true">
+		<div class="absolute -top-40 left-1/2 h-[720px] w-[720px] -translate-x-1/2 rounded-full bg-[color:var(--accent)] opacity-[0.06] blur-3xl"></div>
+	</div>
+	<div class="max-w-6xl mx-auto px-4 py-10">
+		<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6" data-reveal data-reveal-delay="0">
+		<div>
+			<p class="text-xs tracking-[0.28em] ui-accent font-semibold">HİZMETLER & FİYATLAR</p>
+			<h2 class="mt-2 text-3xl font-semibold h-font">Hizmetlerimiz</h2>
+			<p class="mt-2 ui-muted text-sm">Fiyatlar şeffaf. Konseptini seç, saniyeler içinde randevu al.</p>
+		</div>
+		<a href="/randevu" class="hidden sm:inline-flex ui-btn ui-btn-primary">Randevu Al</a>
+		</div>
+
+		<div class="mt-6 grid lg:grid-cols-2 gap-6">
+		<div class="ui-card rounded-2xl p-6" data-reveal data-reveal-delay="80">
+			<h3 class="font-semibold">Erkek Kuaförü</h3>
+			<p class="mt-1 text-sm ui-muted">Saç, sakal ve bakım hizmetleri.</p>
+			<div class="mt-4 space-y-3" data-for="men">
+				<% menServices.forEach(s => { %>
+					<div class="flex items-baseline gap-3">
+						<span class="text-sm"><%= s.name %> <span class="ui-muted text-xs">(<%= s.duration_minutes %> dk)</span></span>
+						<span class="flex-1 border-b border-dotted ui-border opacity-60"></span>
+						<span class="text-sm font-semibold ui-accent"><%= (s.price_cents/100).toFixed(2) %> TL</span>
+					</div>
+				<% }) %>
+			</div>
+			<div class="mt-4 space-y-3" data-for="women">
+				<p class="ui-muted text-sm">Kuaför fiyatlarını görmek için temayı “KUAFÖR” yap.</p>
+			</div>
+		</div>
+
+		<div class="ui-card rounded-2xl p-6" data-reveal data-reveal-delay="160">
+			<h3 class="font-semibold">Güzellik Salonu</h3>
+			<p class="mt-1 text-sm ui-muted">Cilt bakımı ve kişisel bakım uygulamaları.</p>
+			<div class="mt-4 space-y-3" data-for="women">
+				<% womenServices.forEach(s => { %>
+					<div class="flex items-baseline gap-3">
+						<span class="text-sm"><%= s.name %> <span class="ui-muted text-xs">(<%= s.duration_minutes %> dk)</span></span>
+						<span class="flex-1 border-b border-dotted ui-border opacity-60"></span>
+						<span class="text-sm font-semibold ui-accent"><%= (s.price_cents/100).toFixed(2) %> TL</span>
+					</div>
+				<% }) %>
+			</div>
+			<div class="mt-4 space-y-3" data-for="men">
+				<p class="ui-muted text-sm">Güzellik fiyatlarını görmek için temayı “GÜZELLİK” yap.</p>
+			</div>
+		</div>
+		</div>
+	</div>
+</section>
+
+<!-- Staff -->
+<section id="staff" class="relative overflow-hidden">
+	<div class="pointer-events-none absolute inset-0 mix-blend-soft-light" aria-hidden="true">
+		<div class="absolute -top-44 -right-56 h-[820px] w-[820px] rounded-full bg-blue-500/10 opacity-[0.35] blur-3xl"></div>
+	</div>
+	<div class="max-w-6xl mx-auto px-4 py-10">
+		<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6" data-reveal data-reveal-delay="0">
+		<div>
+			<p class="text-xs tracking-[0.28em] ui-accent font-semibold">EKİP</p>
+			<h2 class="mt-2 text-3xl font-semibold h-font">Ekibimiz</h2>
+			<p class="mt-2 ui-muted text-sm">İstersen personel seç, istersen sistem otomatik atar.</p>
+		</div>
+		</div>
+
+		<div class="mt-6" data-for="men">
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+			<% menStaff.forEach((p, idx) => { %>
+				<div class="ui-card rounded-2xl p-5" data-reveal data-reveal-delay="<%= Math.min(220, idx * 60) %>">
+					<p class="font-semibold"><%= p.full_name %></p>
+					<p class="mt-1 text-sm ui-muted"><%= p.role ? p.role : 'Uzman' %></p>
+				</div>
+			<% }) %>
+		</div>
+		</div>
+
+		<div class="mt-6" data-for="women">
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+			<% womenStaff.forEach((p, idx) => { %>
+				<div class="ui-card rounded-2xl p-5" data-reveal data-reveal-delay="<%= Math.min(220, idx * 60) %>">
+					<p class="font-semibold"><%= p.full_name %></p>
+					<p class="mt-1 text-sm ui-muted"><%= p.role ? p.role : 'Uzman' %></p>
+				</div>
+			<% }) %>
+		</div>
+		</div>
+	</div>
+</section>
+
+<!-- Galeri (Önizleme) -->
+<section class="max-w-6xl mx-auto px-4 py-10">
+	<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6" data-reveal data-reveal-delay="0">
+		<div>
+			<p class="text-xs tracking-[0.28em] ui-accent font-semibold">GALERİ</p>
+			<h2 class="mt-2 text-3xl font-semibold h-font">Çalışmalarımız</h2>
+			<p class="mt-2 ui-muted text-sm">Çalışmalarımızdan seçmeler.</p>
+		</div>
+		<a href="/galeri" class="hidden sm:inline-flex ui-btn ui-btn-ghost">Tümünü Gör</a>
+	</div>
+
+	<div class="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+		<%
+			const allGallery = (media && Array.isArray(media.gallery)) ? media.gallery : [];
+			const galleryMen = allGallery.filter((it) => {
+				const c = (it && it.category) ? String(it.category) : 'both';
+				return c === 'men' || c === 'both';
+			}).slice(-6).reverse();
+			const galleryWomen = allGallery.filter((it) => {
+				const c = (it && it.category) ? String(it.category) : 'both';
+				return c === 'women' || c === 'both';
+			}).slice(-6).reverse();
+		%>
+
+		<div data-for="men" class="contents">
+			<% for (let i = 0; i < galleryMen.length; i++) { const it = galleryMen[i]; %>
+				<div class="rounded-2xl border ui-border overflow-hidden bg-[color:var(--bg-elevated)]" data-reveal data-reveal-delay="<%= 60 + i * 40 %>">
+					<img src="<%= it.src %>" alt="<%= it.alt || 'Galeri görseli' %>" class="w-full aspect-video object-cover" />
+					<div class="p-3 text-sm ui-muted">Galeri</div>
+				</div>
+			<% } %>
+			<% if (galleryMen.length === 0) { %>
+				<p class="ui-muted text-sm">Bu kategori için galeri görseli yok.</p>
+			<% } %>
+		</div>
+
+		<div data-for="women" class="contents">
+			<% for (let i = 0; i < galleryWomen.length; i++) { const it = galleryWomen[i]; %>
+				<div class="rounded-2xl border ui-border overflow-hidden bg-[color:var(--bg-elevated)]" data-reveal data-reveal-delay="<%= 60 + i * 40 %>">
+					<img src="<%= it.src %>" alt="<%= it.alt || 'Galeri görseli' %>" class="w-full aspect-video object-cover" />
+					<div class="p-3 text-sm ui-muted">Galeri</div>
+				</div>
+			<% } %>
+			<% if (galleryWomen.length === 0) { %>
+				<p class="ui-muted text-sm">Bu kategori için galeri görseli yok.</p>
+			<% } %>
+		</div>
+	</div>
+	<div class="mt-6 sm:hidden">
+		<a href="/galeri" class="ui-btn ui-btn-ghost w-full">Tüm Galeri</a>
+	</div>
+</section>
+
+<!-- Contact -->
+<section id="contact" class="relative overflow-hidden">
+	<div class="pointer-events-none absolute inset-0 mix-blend-soft-light" aria-hidden="true">
+		<div class="absolute -bottom-56 left-10 h-[820px] w-[820px] rounded-full bg-[color:var(--accent)] opacity-[0.06] blur-3xl"></div>
+	</div>
+	<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+		<div class="ui-card rounded-2xl p-5 sm:p-8" data-reveal data-reveal-delay="0">
+		<div class="grid lg:grid-cols-2 gap-8 items-start">
+			<div>
+				<p class="text-xs tracking-[0.28em] ui-accent font-semibold">İLETİŞİM</p>
+				<h2 class="mt-2 text-3xl font-semibold h-font">Bize Ulaşın</h2>
+				<p class="mt-2 ui-muted">İki şube için ayrı iletişim bilgileri.</p>
+
+				<div class="mt-6 grid sm:grid-cols-2 gap-4">
+					<div class="ui-card rounded-xl p-4" data-for="men">
+						<p class="font-semibold"><%= (contactMen && contactMen.title) ? contactMen.title : 'Erkek Kuaförü' %></p>
+						<% if (contactMen && contactMen.address) { %>
+							<p class="mt-2 text-sm ui-muted"><%= contactMen.address %></p>
+						<% } %>
+						<% if (contactMen && contactMen.phone) { %>
+							<p class="mt-1 text-sm ui-muted"><%= contactMen.phone %></p>
+						<% } %>
+					</div>
+					<div class="ui-card rounded-xl p-4" data-for="women">
+						<p class="font-semibold"><%= (contactWomen && contactWomen.title) ? contactWomen.title : 'Güzellik Salonu' %></p>
+						<% if (contactWomen && contactWomen.address) { %>
+							<p class="mt-2 text-sm ui-muted"><%= contactWomen.address %></p>
+						<% } %>
+						<% if (contactWomen && contactWomen.phone) { %>
+							<p class="mt-1 text-sm ui-muted"><%= contactWomen.phone %></p>
+						<% } %>
+					</div>
+				</div>
+
+				<div class="mt-6 flex gap-3">
+					<a href="/randevu" class="ui-btn ui-btn-primary">Randevu Al</a>
+					<a href="/iletisim" class="ui-btn ui-btn-ghost">Detaylar</a>
+				</div>
+			</div>
+
+			<div>
+				<p class="font-semibold">Harita</p>
+				<p class="mt-2 text-sm ui-muted">Şubelerimizi haritada görüntüleyin.</p>
+				<%
+					const menMap = (contactMen && contactMen.mapsEmbedUrl) ? String(contactMen.mapsEmbedUrl) : '';
+					const womenMap = (contactWomen && contactWomen.mapsEmbedUrl) ? String(contactWomen.mapsEmbedUrl) : '';
+				%>
+				<% if (menMap || mapsEmbedUrl) { %>
+					<iframe
+						src="<%= menMap || mapsEmbedUrl %>"
+						data-for="men"
+						class="mt-4 w-full aspect-video rounded-xl border ui-border"
+						loading="lazy"
+						referrerpolicy="no-referrer-when-downgrade"
+						allowfullscreen
+					></iframe>
+				<% } %>
+				<% if (womenMap || mapsEmbedUrl) { %>
+					<iframe
+						src="<%= womenMap || mapsEmbedUrl %>"
+						data-for="women"
+						class="mt-4 w-full aspect-video rounded-xl border ui-border"
+						loading="lazy"
+						referrerpolicy="no-referrer-when-downgrade"
+						allowfullscreen
+					></iframe>
+				<% } %>
+				<% if (!menMap && !womenMap && !mapsEmbedUrl) { %>
+					<div class="mt-4 w-full rounded-xl border ui-border p-4 text-sm ui-muted">
+						Konum bilgisi henüz eklenmedi.
+					</div>
+				<% } %>
+			</div>
+		</div>
+		</div>
+	</div>
+</section>
+<script src="/public/js/home.js" defer></script>

@@ -1,0 +1,89 @@
+<%
+	const s = (typeof settings === 'object' && settings) ? settings : {};
+	const footerMode = (typeof mode === 'string' && mode) ? mode : 'site';
+	const yearNow = new Date().getFullYear();
+	const bn = (typeof brandName === 'string' && brandName.trim()) ? brandName.trim() : (s.company_name || 'BySamet Erkek Kuaförü');
+%>
+
+<footer class="border-t ui-border bg-[color:var(--bg-primary)]">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+		<div class="grid grid-cols-2 <%= footerMode === 'shop' ? 'md:grid-cols-5' : 'md:grid-cols-3' %> gap-8 text-sm">
+			<% if (footerMode === 'shop') { %>
+				<div>
+					<p class="font-semibold text-[color:var(--text-primary)]">Mağaza</p>
+					<ul class="mt-3 space-y-2 ui-muted">
+						<li><a class="hover:underline" href="/products">Ürünler</a></li>
+						<li><a class="hover:underline" href="/track">Sipariş Takibi</a></li>
+						<li><a class="hover:underline" href="/shipping-returns">Kargo ve İade</a></li>
+					</ul>
+				</div>
+				<div>
+					<p class="font-semibold text-[color:var(--text-primary)]">Hesabım</p>
+					<ul class="mt-3 space-y-2 ui-muted">
+						<% if (typeof isShopLoggedIn !== 'undefined' && isShopLoggedIn) { %>
+							<li><a class="hover:underline" href="/account">Hesabım</a></li>
+							<li><a class="hover:underline" href="/orders">Siparişlerim</a></li>
+						<% } else { %>
+							<li><a class="hover:underline" href="/login">Giriş Yap</a></li>
+							<li><a class="hover:underline" href="/register">Kayıt Ol</a></li>
+						<% } %>
+						<li><a class="hover:underline" href="/cart">Sepet</a></li>
+					</ul>
+				</div>
+				<div>
+					<p class="font-semibold text-[color:var(--text-primary)]">Hakkımızda</p>
+					<ul class="mt-3 space-y-2 ui-muted">
+						<li><a class="hover:underline" href="/hakkimizda">Hakkımızda</a></li>
+						<li><a class="hover:underline" href="/iletisim">İletişim</a></li>
+						<li><a class="hover:underline" href="/privacy">Gizlilik</a></li>
+					</ul>
+				</div>
+				<div>
+					<p class="font-semibold text-[color:var(--text-primary)]">Destek</p>
+					<ul class="mt-3 space-y-2 ui-muted">
+						<li><a class="hover:underline" href="/sozlesmeler/mesafeli-satis">Mesafeli Satış</a></li>
+						<li><a class="hover:underline" href="/sozlesmeler/gizlilik">Gizlilik & Güvenlik</a></li>
+						<li><a class="hover:underline" href="/sozlesmeler/iptal-iade">İptal & İade</a></li>
+						<li><a class="hover:underline" href="/cookies">Çerez</a></li>
+					</ul>
+				</div>
+			<% } else { %>
+				<div>
+					<p class="font-semibold text-[color:var(--text-primary)]">Kurumsal</p>
+					<ul class="mt-3 space-y-2 ui-muted">
+						<li><a class="hover:underline" href="/hakkimizda">Hakkımızda</a></li>
+						<li><a class="hover:underline" href="/hizmetler">Hizmetler & Fiyatlar</a></li>
+						<li><a class="hover:underline" href="/ekibimiz">Uzmanlarımız</a></li>
+						<li><a class="hover:underline" href="/galeri">Fotoğraflar</a></li>
+						<li><a class="hover:underline" href="/iletisim">İletişim & Konum</a></li>
+					</ul>
+				</div>
+				<div>
+					<p class="font-semibold text-[color:var(--text-primary)]">Randevu</p>
+					<ul class="mt-3 space-y-2 ui-muted">
+						<li><a class="hover:underline" href="/randevu">Randevu Al</a></li>
+						<li><a class="hover:underline" href="/randevu/berber">Berber Randevusu</a></li>
+						<li><a class="hover:underline" href="/randevu/guzellik">Güzellik Randevusu</a></li>
+					</ul>
+				</div>
+			<% } %>
+
+		<div class="col-span-2 md:col-span-1 flex justify-start md:justify-end">
+			<a href="/" class="inline-flex items-center gap-3 max-w-[150px] sm:max-w-[180px]">
+				<img 
+					src="/public/logo/logo.jpg" 
+					alt="Logo" 
+					class="h-9 sm:h-12 w-auto max-w-full max-h-14 rounded object-contain" 
+					loading="lazy" 
+					decoding="async"
+					style="background: rgba(255,255,255,0.05); padding: 4px;"
+				/>
+			</a>
+		</div>
+		</div>
+
+		<div class="mt-10 pt-6 border-t ui-border flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+			<p class="text-xs ui-muted">© <%= yearNow %> <%= bn %>. Tüm hakları saklıdır.</p>
+		</div>
+	</div>
+</footer>

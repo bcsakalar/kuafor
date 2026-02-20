@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="tr">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="x-apple-disable-message-reformatting" />
+		<title>Yeni Sipariş Var</title>
+	</head>
+	<body style="margin:0; padding:0; background-color:#111827; font-family:Arial, Helvetica, sans-serif; color:#e5e7eb;">
+		<%
+			function moneyTR(value) {
+				const n = Number(value);
+				if (!Number.isFinite(n)) return '0,00 ₺';
+				return n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺';
+			}
+			function variantTR(it) {
+				const s = it && (it.selected_size || it.selectedSize) ? String(it.selected_size || it.selectedSize).trim() : '';
+				const c = it && (it.selected_color || it.selectedColor) ? String(it.selected_color || it.selectedColor).trim() : '';
+				const parts = [];
+				if (s) parts.push(`Boyut: ${s}`);
+				if (c) parts.push(`Renk: ${c}`);
+				return parts.join(' • ');
+			}
+			const itemsArr = Array.isArray(items) ? items : [];
+			const adminOrderUrl = (appBaseUrl && orderId)
+				? `${String(appBaseUrl).replace(/\/$/, '')}/orders/${encodeURIComponent(String(orderId))}`
+				: '';
+		%>
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#111827; padding:24px 12px;">
+			<tr>
+				<td align="center">
+					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:680px; background-color:#0b1220; color:#e5e7eb; border-radius:16px; overflow:hidden;">
+						<%- await include('../partials/brandHeader') %>
+						<tr>
+							<td style="padding:22px 22px 0 22px;">
+								<p style="margin:0; font-size:14px; color:#94a3b8; letter-spacing:0.08em; text-transform:uppercase;">Yeni Sipariş Var!</p>
+								<h1 style="margin:10px 0 0 0; font-size:22px; line-height:30px;">Sipariş bildirimi</h1>
+								<p style="margin:12px 0 0 0; font-size:15px; line-height:24px; color:#cbd5e1;">Yeni bir sipariş oluşturuldu.</p>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:16px 22px 0 22px;">
+								<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #334155; border-radius:12px; background-color:#0f172a;">
+									<tr>
+										<td style="padding:12px 14px;">
+											<p style="margin:0; font-size:12px; color:#94a3b8;">Takip Kodu</p>
+											<p style="margin:6px 0 0 0; font-size:14px; color:#f8fafc;"><strong><%= trackingCode || '—' %></strong></p>
+										</td>
+										<td style="padding:12px 14px;" align="right">
+											<p style="margin:0; font-size:12px; color:#94a3b8;">Toplam</p>
+											<p style="margin:6px 0 0 0; font-size:14px; color:#f8fafc;"><strong><%= moneyTR(totalAmount) %></strong></p>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:18px 22px 0 22px;">
+								<h2 style="margin:0; font-size:16px;">Müşteri</h2>
+								<div style="margin-top:10px; border:1px solid #334155; border-radius:12px; padding:12px; font-size:14px; line-height:22px; color:#cbd5e1; background-color:#0f172a;">
+									<div><strong><%= customerName || '—' %></strong></div>
+									<div><%= customerEmail || '—' %></div>
+									<div><%= customerPhone || '—' %></div>
+								</div>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:18px 22px 0 22px;">
+								<h2 style="margin:0; font-size:16px;">Ürünler</h2>
+								<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px; border:1px solid #334155; border-radius:12px; overflow:hidden; background-color:#0f172a;">
+									<tr>
+										<td style="padding:10px 12px; background-color:#111827; font-size:12px; color:#94a3b8;">Ürün</td>
+										<td style="padding:10px 12px; background-color:#111827; font-size:12px; color:#94a3b8;" align="center">Adet</td>
+										<td style="padding:10px 12px; background-color:#111827; font-size:12px; color:#94a3b8;" align="right">Tutar</td>
+									</tr>
+									<% if (itemsArr.length === 0) { %>
+										<tr>
+											<td colspan="3" style="padding:12px; font-size:14px; color:#cbd5e1;">Ürün kalemi bulunamadı.</td>
+										</tr>
+									<% } %>
+									<% itemsArr.forEach((it) => { %>
+										<%
+											const qty = Number(it.quantity) || 0;
+											const unit = Number(it.price_at_purchase) || 0;
+											const lineTotal = qty * unit;
+										%>
+										<tr>
+											<td style="padding:12px; font-size:14px; color:#f8fafc; border-top:1px solid #334155;">
+												<div><%= it.product_name || 'Ürün' %></div>
+												<% const v = variantTR(it); if (v) { %>
+													<div style="margin-top:2px; font-size:12px; color:#94a3b8;"><%= v %></div>
+												<% } %>
+											</td>
+											<td style="padding:12px; font-size:14px; color:#cbd5e1; border-top:1px solid #334155;" align="center"><%= qty %></td>
+											<td style="padding:12px; font-size:14px; color:#f8fafc; border-top:1px solid #334155;" align="right"><%= moneyTR(lineTotal) %></td>
+										</tr>
+									<% }) %>
+									<tr>
+										<td colspan="2" style="padding:12px; font-size:14px; color:#94a3b8; border-top:1px solid #334155;" align="right">Toplam</td>
+										<td style="padding:12px; font-size:14px; color:#f8fafc; border-top:1px solid #334155;" align="right"><strong><%= moneyTR(totalAmount) %></strong></td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:18px 22px 22px 22px;">
+								<h2 style="margin:0; font-size:16px;">Kargo Adresi</h2>
+								<div style="margin-top:10px; border:1px solid #334155; border-radius:12px; padding:12px; font-size:14px; line-height:22px; color:#cbd5e1; background-color:#0f172a; white-space:pre-wrap;"><%= shippingAddress || '—' %></div>
+
+								<% if (adminOrderUrl) { %>
+									<p style="margin:14px 0 0 0; font-size:12px; line-height:18px; color:#94a3b8;">
+										Detay linki: <a href="<%= adminOrderUrl %>" style="color:#93c5fd; text-decoration:underline;"><%= adminOrderUrl %></a>
+									</p>
+								<% } %>
+
+								<p style="margin:18px 0 0 0; font-size:12px; line-height:18px; color:#94a3b8;">© <%= year %> <%= brandName %></p>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

@@ -1,0 +1,52 @@
+<header class="ui-card border-b ui-border" data-mobile-nav-root>
+	<div class="max-w-7xl mx-auto px-4 py-4 grid grid-cols-[1fr_auto] lg:grid-cols-[1fr_auto_1fr] items-center gap-3">
+		<a class="lg:justify-self-start block min-w-0 max-w-[150px] sm:max-w-[180px]" href="<%= (adminBasePath || '') + '/' %>">
+			<img src="/public/logo/logo.jpg" alt="Logo" class="h-8 sm:h-10 w-auto max-w-full max-h-12 rounded object-contain" />
+		</a>
+
+		<nav class="hidden lg:flex items-center justify-center gap-4 text-sm whitespace-nowrap lg:justify-self-center">
+			<a class="ui-muted hover:underline" href="<%= (adminBasePath || '') + '/' %>">Genel Bakış</a>
+			<a class="ui-muted hover:underline" href="<%= (adminBasePath || '') + '/takvim' %>">Randevu Takvimi</a>
+			<a class="ui-muted hover:underline" href="<%= (adminBasePath || '') + '/ayarlar' %>">İşletme Ayarları</a>
+			<a class="ui-muted hover:underline" href="<%= (adminBasePath || '') + '/inbox' %>">İletişim Mesajları</a>
+			<a class="ui-muted hover:underline" href="<%= (adminBasePath || '') + '/hesap' %>">Hesap Ayarları</a>
+			<a class="ui-muted hover:underline" href="<%= (adminBasePath || '') + '/google' %>">Google Takvim</a>
+			<a class="ui-muted hover:underline" href="<%= (adminBasePath || '') + '/medya' %>">Görseller</a>
+		</nav>
+
+		<div class="flex items-center justify-end lg:justify-self-end gap-4">
+			<form action="<%= (adminBasePath || '') + '/logout' %>" method="post" class="hidden lg:inline">
+				<button type="submit" class="ui-muted hover:underline">Çıkış</button>
+			</form>
+
+		<button
+			type="button"
+			class="lg:hidden ui-btn ui-btn-ghost px-3 py-2"
+			data-mobile-nav-toggle
+			aria-expanded="false"
+			aria-label="Admin menüsü"
+		>
+			<span class="hamburger" aria-hidden="true">
+				<span class="hamburger-line"></span>
+				<span class="hamburger-line"></span>
+				<span class="hamburger-line"></span>
+			</span>
+		</button>
+		</div>
+	</div>
+
+	<div class="lg:hidden border-t ui-border mobile-nav-panel" data-mobile-nav-panel data-open="false">
+		<div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-2 text-sm">
+			<a class="ui-muted hover:underline py-1" href="<%= (adminBasePath || '') + '/' %>">Genel Bakış</a>
+			<a class="ui-muted hover:underline py-1" href="<%= (adminBasePath || '') + '/takvim' %>">Randevu Takvimi</a>
+			<a class="ui-muted hover:underline py-1" href="<%= (adminBasePath || '') + '/ayarlar' %>">İşletme Ayarları</a>
+			<a class="ui-muted hover:underline py-1" href="<%= (adminBasePath || '') + '/inbox' %>">İletişim Mesajları</a>
+			<a class="ui-muted hover:underline py-1" href="<%= (adminBasePath || '') + '/hesap' %>">Hesap Ayarları</a>
+			<a class="ui-muted hover:underline py-1" href="<%= (adminBasePath || '') + '/google' %>">Google Takvim</a>
+			<a class="ui-muted hover:underline py-1" href="<%= (adminBasePath || '') + '/medya' %>">Görseller</a>
+			<form action="<%= (adminBasePath || '') + '/logout' %>" method="post" class="pt-2">
+				<button type="submit" class="ui-muted hover:underline text-left py-1">Çıkış</button>
+			</form>
+		</div>
+	</div>
+</header>

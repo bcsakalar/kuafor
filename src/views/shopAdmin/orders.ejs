@@ -1,0 +1,241 @@
+<header class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+	<div>
+		<h1 class="text-2xl font-semibold">Siparişler</h1>
+		<p class="mt-1 ui-muted text-sm">Sipariş durumlarını güncelleyin.</p>
+		<%
+			const q = (typeof query === 'object' && query) ? query : {};
+			const scope = String(q.scope || 'paid').trim().toLowerCase();
+			const scopeNormalized = (scope === 'all' || scope === 'history') ? 'all' : 'paid';
+			const payment = String(q.payment || 'all').trim().toLowerCase();
+			const status = String(q.status || 'all').trim().toLowerCase();
+		%>
+		<% if (scopeNormalized === 'paid') { %>
+			<p class="mt-2 ui-muted text-sm">Bu sayfada varsayılan olarak yalnızca <span class="font-semibold">ödemesi alınmış</span> siparişler listelenir.</p>
+		<% } else { %>
+			<p class="mt-2 ui-muted text-sm">Geçmiş siparişler (iade/iptal dahil) bu görünümde listelenir.</p>
+		<% } %>
+	</div>
+</header>
+
+<% if (query && query.ok) { %>
+	<div class="mb-4 p-3 rounded border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 text-sm">İşlem başarılı.</div>
+<% } %>
+
+<% if (query && query.err) { %>
+	<div class="mb-4 p-3 rounded border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/30 text-rose-800 dark:text-rose-200 text-sm">
+		<% if (String(query.err) === 'status_locked') { %>
+			Bu siparişin durumu artık değiştirilemez.
+		<% } else if (String(query.err) === 'invalid_transition') { %>
+			Geçersiz durum geçişi. Sipariş durumu sadece ileri taşınabilir.
+		<% } else { %>
+			İşlem başarısız.
+		<% } %>
+	</div>
+<% } %>
+
+<div class="ui-card ui-border rounded-2xl p-5">
+	<div class="mb-4 grid gap-3">
+		<div class="flex flex-wrap items-center gap-2">
+			<a class="ui-btn <%= scopeNormalized === 'paid' ? 'ui-btn-primary' : 'ui-btn-secondary' %>" href="/orders?scope=paid">Aktif (Ödendi)</a>
+			<a class="ui-btn <%= scopeNormalized === 'all' ? 'ui-btn-primary' : 'ui-btn-secondary' %>" href="/orders?scope=all">Tümü (Geçmiş)</a>
+			<a class="ui-btn ui-btn-secondary" href="/orders?scope=all&payment=refunded">İade Edilenler</a>
+			<a class="ui-btn ui-btn-secondary" href="/orders?scope=all&payment=partial_refunded">Kısmi İadeler</a>
+			<a class="ui-btn ui-btn-secondary" href="/orders?scope=all&status=cancelled">İptaller</a>
+			<!-- payment=failed intentionally hidden -->
+		</div>
+		<form class="grid grid-cols-1 sm:grid-cols-4 gap-2" method="get" action="/orders">
+			<input type="hidden" name="scope" value="<%= scopeNormalized %>" />
+			<div>
+				<label class="text-xs ui-muted" for="orders-filter-q">Arama</label>
+				<input
+					id="orders-filter-q"
+					name="q"
+					value="<%= String(q.q || '') %>"
+					placeholder="Takip kodu / Email / Sipariş ID / payment_id"
+					class="mt-1 w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm"
+				/>
+			</div>
+			<div>
+				<label class="text-xs ui-muted" for="orders-filter-payment">Ödeme</label>
+				<select id="orders-filter-payment" name="payment" class="mt-1 w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm">
+					<option value="all" <%= payment === 'all' ? 'selected' : '' %>>Tümü</option>
+					<option value="paid" <%= payment === 'paid' ? 'selected' : '' %>>Ödendi</option>
+					<option value="partial_refunded" <%= payment === 'partial_refunded' ? 'selected' : '' %>>Kısmi İade</option>
+					<option value="refunded" <%= payment === 'refunded' ? 'selected' : '' %>>İade Edildi</option>
+				</select>
+			</div>
+			<div>
+				<label class="text-xs ui-muted" for="orders-filter-status">Sipariş Durumu</label>
+				<select id="orders-filter-status" name="status" class="mt-1 w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm">
+					<option value="all" <%= status === 'all' ? 'selected' : '' %>>Tümü</option>
+					<option value="pending" <%= status === 'pending' ? 'selected' : '' %>>Sipariş Alındı</option>
+					<option value="shipped" <%= status === 'shipped' ? 'selected' : '' %>>Kargoya Verildi</option>
+					<option value="completed" <%= status === 'completed' ? 'selected' : '' %>>Teslim Edildi</option>
+					<option value="cancelled" <%= status === 'cancelled' ? 'selected' : '' %>>İptal Edildi</option>
+				</select>
+			</div>
+			<div class="flex items-end gap-2">
+				<button class="ui-btn ui-btn-secondary w-full" type="submit">Filtrele</button>
+				<a class="ui-btn ui-btn-ghost w-full text-center" href="/orders?scope=<%= encodeURIComponent(scopeNormalized) %>">Temizle</a>
+			</div>
+		</form>
+		<p class="text-xs ui-muted">Toplam: <span class="font-semibold"><%= (orders || []).length %></span> sipariş</p>
+	</div>
+
+	<div class="grid gap-3" id="shopAdminOrdersList">
+		<%
+			function paymentBadgeClass(status) {
+				const s = String(status || '').trim().toLowerCase();
+				if (s === 'paid') return 'border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200';
+				if (s === 'partial_refunded') return 'border-sky-200 dark:border-sky-900 bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-200';
+				if (s === 'refunded') return 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 text-slate-800 dark:text-slate-200';
+				if (s === 'failed') return 'border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/30 text-rose-800 dark:text-rose-200';
+				return 'border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200';
+			}
+		%>
+		<% (orders || []).forEach((o) => { %>
+			<%
+				const statusLabel = (typeof orderStatusLabelTR === 'function')
+					? orderStatusLabelTR(o)
+					: ((typeof orderStageLabelTR === 'function')
+						? orderStageLabelTR(o.status)
+						: (o.status === 'pending'
+							? 'Sipariş Alındı'
+							: (o.status === 'shipped'
+								? 'Kargoya Verildi'
+								: (o.status === 'completed'
+									? 'Teslim Edildi'
+									: (o.status === 'cancelled' ? 'İptal Edildi' : String(o.status || ''))))));
+				const activeReq = (cancelRequestsByOrderId && typeof cancelRequestsByOrderId.get === 'function') ? cancelRequestsByOrderId.get(o.id) : null;
+			%>
+			<div class="shopadmin-order-card border ui-border rounded-2xl p-4 sm:p-5" data-rt-order-row data-order-id="<%= o.id %>">
+				<div class="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-start">
+					<div class="min-w-0">
+						<div class="flex flex-wrap items-baseline justify-between gap-2">
+							<p class="font-semibold">
+								<a class="underline" href="/orders/<%= o.id %>">Sipariş #<%= o.id %></a>
+							</p>
+							<p class="text-xs ui-muted whitespace-nowrap"><%= new Date(o.created_at).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' }) %></p>
+						</div>
+
+						<p class="mt-2 text-sm ui-muted flex flex-wrap items-center gap-x-2 gap-y-1">
+							<span class="border ui-border rounded-full px-2 py-0.5 text-xs" data-rt-order-status-label data-order-id="<%= o.id %>"><%= statusLabel %></span>
+							<span data-rt-cancel-container data-order-id="<%= o.id %>" class="<%= (activeReq && String(activeReq.status) === 'requested') ? '' : 'hidden' %>">
+								<span class="border ui-border rounded-full px-2 py-0.5 text-xs" data-rt-cancel-badge data-order-id="<%= o.id %>" data-rt-cancel-status="<%= (activeReq && activeReq.status) ? String(activeReq.status) : '' %>">İade Talebi</span>
+							</span>
+							<span>•</span>
+							<span><%= (o.items_count || 0) %> ürün</span>
+							<span>•</span>
+							<span class="shopadmin-money"><%= Number(o.total_amount).toFixed(2) %>&nbsp;₺</span>
+						</p>
+
+						<p class="mt-2 text-xs ui-muted">
+							<%
+								const payLabel = (typeof paymentStatusLabelTR === 'function' ? paymentStatusLabelTR(o.payment_status) : String(o.payment_status || 'pending'));
+							%>
+							<span class="font-semibold">Ödeme:</span>
+							<span class="border rounded-full px-2 py-0.5 text-xs font-semibold <%= paymentBadgeClass(o.payment_status) %>"><%= payLabel %></span>
+							<% if (o.payment_id) { %>
+								<span class="ui-muted">• payment_id:</span> <span class="font-mono"><%= String(o.payment_id) %></span>
+							<% } %>
+						</p>
+
+						<div class="mt-3 grid gap-2">
+							<% if (o.tracking_code) { %>
+								<p class="text-xs ui-muted"><span class="font-semibold">Takip Kodu:</span> <span class="font-mono"><%= o.tracking_code %></span></p>
+							<% } %>
+							<% if (o.customer_full_name || o.customer_phone || o.customer_email) { %>
+								<p class="text-xs ui-muted">
+									<span class="font-semibold">Müşteri:</span> <%= o.customer_full_name || '—' %>
+									<% if (o.customer_phone) { %> • <%= o.customer_phone %><% } %>
+									<% if (o.customer_email) { %> • <%= o.customer_email %><% } %>
+								</p>
+							<% } %>
+						</div>
+
+						<%
+							const items = (itemsByOrderId && itemsByOrderId.get) ? (itemsByOrderId.get(o.id) || []) : [];
+						%>
+						<details class="mt-3 shopadmin-order-details">
+							<summary class="cursor-pointer text-sm font-semibold">Adres</summary>
+							<p class="mt-2 text-sm ui-muted whitespace-pre-line break-words"><%= o.shipping_address %></p>
+						</details>
+
+						<% if (items.length) { %>
+							<details class="mt-2 shopadmin-order-details">
+								<summary class="cursor-pointer text-sm font-semibold">Ürünler (<%= items.length %>)</summary>
+								<ul class="mt-2 text-sm ui-muted list-disc pl-5">
+									<% items.slice(0, 10).forEach((it) => { %>
+										<li>
+											<%= it.product_name || 'Ürün' %>
+											<% if (it.selected_size) { %> • Boyut: <%= it.selected_size %><% } %>
+											<% if (it.selected_color) { %> • Renk: <%= it.selected_color %><% } %>
+											 • x<%= it.quantity %>
+										</li>
+									<% }) %>
+								</ul>
+								<% if (items.length > 10) { %>
+									<p class="mt-1 text-xs ui-muted">+<%= items.length - 10 %> ürün daha</p>
+								<% } %>
+							</details>
+						<% } %>
+
+						<% if (String(o.payment_status || '').toLowerCase() === 'failed') { %>
+							<details class="mt-3 shopadmin-order-details">
+								<summary class="cursor-pointer text-sm font-semibold">Ödeme Detay</summary>
+								<div class="mt-2 text-sm ui-muted grid gap-1">
+									<% if (o.payment_error_message) { %>
+										<p><span class="font-semibold">Hata:</span> <%= String(o.payment_error_message) %></p>
+									<% } else { %>
+										<p>Hata mesajı yok (loglara bakın).</p>
+									<% } %>
+									<% if (o.payment_error_code) { %>
+										<p><span class="font-semibold">Kod:</span> <span class="font-mono"><%= String(o.payment_error_code) %></span></p>
+									<% } %>
+									<% if (o.payment_error_group) { %>
+										<p><span class="font-semibold">Grup:</span> <%= String(o.payment_error_group) %></p>
+									<% } %>
+									<% if (o.payment_error_at) { %>
+										<p><span class="font-semibold">Zaman:</span> <%= new Date(o.payment_error_at).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' }) %></p>
+									<% } %>
+								</div>
+							</details>
+						<% } %>
+					</div>
+
+					<form class="shopadmin-order-actions grid gap-2" method="post" action="/orders/<%= o.id %>/status">
+						<%
+							const stageNow = String(o.status || '').trim().toLowerCase();
+							const payNow = String(o.payment_status || '').trim().toLowerCase();
+							const allowedByCurrent = {
+								pending: new Set(['pending', 'shipped', 'completed', 'cancelled']),
+								shipped: new Set(['shipped', 'completed']),
+								completed: new Set(['completed']),
+								cancelled: new Set(['cancelled']),
+							};
+							const allowed = allowedByCurrent[stageNow] || new Set([stageNow || 'pending']);
+							const isLocked = payNow === 'refunded' || stageNow === 'cancelled' || stageNow === 'completed';
+						%>
+						<label class="text-xs ui-muted" for="order-status-<%= o.id %>">Sipariş durumu</label>
+						<select id="order-status-<%= o.id %>" name="status" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm" data-rt-order-status-select data-order-id="<%= o.id %>" <%= isLocked ? 'disabled' : '' %>>
+							<option value="pending" <%= o.status === 'pending' ? 'selected' : '' %> <%= (!allowed.has('pending') ? 'disabled' : '') %>>Sipariş Alındı</option>
+							<option value="shipped" <%= o.status === 'shipped' ? 'selected' : '' %> <%= (!allowed.has('shipped') ? 'disabled' : '') %>>Kargoya Verildi</option>
+							<option value="completed" <%= o.status === 'completed' ? 'selected' : '' %> <%= (!allowed.has('completed') ? 'disabled' : '') %>>Teslim Edildi</option>
+							<option value="cancelled" <%= o.status === 'cancelled' ? 'selected' : '' %> <%= (!allowed.has('cancelled') ? 'disabled' : '') %>>İptal Edildi</option>
+						</select>
+						<div class="flex flex-wrap items-center gap-2">
+							<button class="ui-btn ui-btn-secondary" type="submit" <%= isLocked ? 'disabled' : '' %>>Güncelle</button>
+							<a class="ui-btn ui-btn-secondary" href="/orders/<%= o.id %>">Detay</a>
+						</div>
+						<p class="text-[11px] ui-muted">Durum değişince “Güncelle”ye basın.</p>
+					</form>
+				</div>
+			</div>
+		<% }) %>
+		<% if (!orders || orders.length === 0) { %>
+			<p class="ui-muted text-sm">Henüz sipariş yok.</p>
+		<% } %>
+	</div>
+</div>
+
+<script src="/public/js/shopAdmin/orders.js" defer></script>

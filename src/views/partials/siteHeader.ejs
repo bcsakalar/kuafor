@@ -1,0 +1,93 @@
+<header class="sticky top-0 z-40 border-b ui-border bg-[color:var(--bg-primary)]/85 backdrop-blur" data-mobile-nav-root>
+	<div class="max-w-7xl mx-auto px-6 lg:px-8 py-3 flex items-center justify-between gap-6 lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center">
+		<a class="flex items-center justify-start shrink-0 min-w-0 max-w-[165px] sm:max-w-[195px]" href="/" aria-label="Ana sayfa">
+			<img src="/public/logo/logo.jpg" alt="Logo" class="h-8 sm:h-10 w-auto max-w-full max-h-12 object-contain" />
+		</a>
+
+		<nav class="hidden lg:flex items-center justify-center gap-5 xl:gap-7 text-sm whitespace-nowrap">
+			<a class="hover:underline ui-muted" href="/">Anasayfa</a>
+			<a class="hover:underline ui-muted" href="/hakkimizda">Hakkımızda</a>
+			<a class="hover:underline ui-muted" href="/hizmetler">Hizmetler & Fiyatlar</a>
+			<a class="hover:underline ui-muted" href="/ekibimiz">Uzmanlarımız</a>
+			<a class="hover:underline ui-muted" href="/galeri">Fotoğraflar</a>
+			<a class="hover:underline ui-muted" href="/iletisim">İletişim & Konum</a>
+		</nav>
+
+		<div class="flex items-center justify-end gap-3 sm:gap-4 shrink-0">
+			<a
+				href="<%= (typeof shopBaseUrl === 'string' && shopBaseUrl) ? shopBaseUrl : '/products' %>"
+				class="hidden sm:inline-flex ui-btn ui-btn-secondary px-4 py-2"
+			>Mağaza</a>
+
+			<a href="/randevu" data-book-trigger class="hidden sm:inline-flex items-center gap-2 ui-muted hover:underline text-sm">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5" aria-hidden="true">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M4 9h16" />
+					<path stroke-linecap="round" stroke-linejoin="round" d="M5 6h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z" />
+				</svg>
+				<span>Randevu</span>
+			</a>
+
+			<button
+				type="button"
+				data-category-toggle
+				class="hidden sm:inline-flex relative overflow-hidden items-center gap-2 rounded-full border ui-border px-2 py-1 text-[11px] tracking-widest font-semibold select-none"
+				aria-pressed="false"
+				aria-label="Bölüm seç: Erkek Kuaförü / Güzellik Salonu"
+			>
+				<span class="absolute inset-0 pointer-events-none" aria-hidden="true">
+					<span class="js-toggle-pill absolute top-[3px] left-[3px] h-[22px] rounded-full bg-[color:var(--accent)] transition-transform duration-500 ease-in-out"></span>
+				</span>
+				<span data-toggle-side="men" class="relative z-10 px-2">KUAFÖR</span>
+				<span data-toggle-side="women" class="relative z-10 px-2">GÜZELLİK</span>
+			</button>
+
+			<button
+				type="button"
+				class="lg:hidden ui-btn ui-btn-ghost px-3 py-2"
+				data-mobile-nav-toggle
+				aria-expanded="false"
+				aria-label="Menü"
+			>
+				<span class="hamburger" aria-hidden="true">
+					<span class="hamburger-line"></span>
+					<span class="hamburger-line"></span>
+					<span class="hamburger-line"></span>
+				</span>
+			</button>
+		</div>
+	</div>
+
+	<div class="lg:hidden border-t ui-border bg-white/5 backdrop-blur-md mobile-nav-panel" data-mobile-nav-panel data-open="false">
+		<div class="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex flex-col gap-3 text-sm">
+			<div class="flex flex-col gap-2">
+				<a class="ui-muted hover:underline py-1" href="/">Anasayfa</a>
+				<a class="ui-muted hover:underline py-1" href="/hakkimizda">Hakkımızda</a>
+				<a class="ui-muted hover:underline py-1" href="/hizmetler">Hizmetler & Fiyatlar</a>
+				<a class="ui-muted hover:underline py-1" href="/ekibimiz">Uzmanlarımız</a>
+				<a class="ui-muted hover:underline py-1" href="/galeri">Fotoğraflar</a>
+				<a class="ui-muted hover:underline py-1" href="/iletisim">İletişim & Konum</a>
+			</div>
+
+			<div class="pt-2 flex flex-col gap-2">
+				<a
+					href="<%= (typeof shopBaseUrl === 'string' && shopBaseUrl) ? shopBaseUrl : '/products' %>"
+					class="ui-btn ui-btn-secondary w-full"
+				>Mağaza</a>
+				<a href="/randevu" data-book-trigger class="ui-muted hover:underline py-1">Randevu</a>
+				<button
+					type="button"
+					data-category-toggle
+					class="relative overflow-hidden inline-flex items-center justify-center gap-2 rounded-full border ui-border px-2 py-2 text-[11px] tracking-widest font-semibold select-none"
+					aria-pressed="false"
+					aria-label="Bölüm seç: Erkek Kuaförü / Güzellik Salonu"
+				>
+					<span class="absolute inset-0 pointer-events-none" aria-hidden="true">
+						<span class="js-toggle-pill absolute top-[3px] left-[3px] h-[28px] rounded-full bg-[color:var(--accent)] transition-transform duration-500 ease-in-out"></span>
+					</span>
+					<span data-toggle-side="men" class="relative z-10 px-3">KUAFÖR</span>
+					<span data-toggle-side="women" class="relative z-10 px-3">GÜZELLİK</span>
+				</button>
+			</div>
+		</div>
+	</div>
+</header>

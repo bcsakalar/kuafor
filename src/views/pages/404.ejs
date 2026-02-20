@@ -1,0 +1,36 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+	<div class="min-h-[55vh] flex items-center justify-center">
+		<section class="ui-card ui-border rounded-2xl p-6 sm:p-10 w-full max-w-2xl text-center">
+			<p class="ui-muted text-sm">Hata kodu: 404</p>
+			<h1 class="mt-2 text-3xl font-semibold tracking-tight">
+				<%
+					const t = (typeof title === 'string') ? title.trim() : '';
+					const heading = (!t || t.toLowerCase() === 'bulunamadı' || t.toLowerCase() === 'sayfa bulunamadı')
+						? 'Sayfa bulunamadı'
+						: t;
+				%>
+				<%= heading %>
+			</h1>
+			<p class="ui-muted mt-3">
+				Bağlantı yanlış olabilir, sayfa taşınmış olabilir veya artık mevcut olmayabilir.
+			</p>
+
+			<div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+				<% if (isShopAdminHost) { %>
+					<a class="ui-btn ui-btn-primary" href="/">Shop Admin ana sayfa</a>
+					<a class="ui-btn ui-btn-ghost" href="/orders">Siparişler</a>
+				<% } else if (isShopHost) { %>
+					<a class="ui-btn ui-btn-primary" href="/products">Ürünlere git</a>
+					<a class="ui-btn ui-btn-ghost" href="/track">Sipariş takip</a>
+				<% } else { %>
+					<a class="ui-btn ui-btn-primary" href="/">Ana sayfaya dön</a>
+					<a class="ui-btn ui-btn-ghost" href="/iletisim">İletişim</a>
+				<% } %>
+			</div>
+
+			<p class="ui-muted mt-6 text-sm">
+				Üst menüden sayfalara devam edebilirsin.
+			</p>
+		</section>
+	</div>
+</div>

@@ -1,0 +1,393 @@
+<section class="grid lg:grid-cols-2 gap-6 min-w-0">
+	<%
+		const q = (typeof query === 'object' && query) ? query : {};
+		const legalOk = String(q.okLegal || '') === '1';
+		const legalErr = q.errLegal ? String(q.errLegal) : '';
+		const legal = (typeof companySettings === 'object' && companySettings) ? companySettings : {};
+	%>
+	<div class="lg:col-span-2 ui-card ui-border rounded-2xl p-4 flex flex-wrap gap-2 items-center">
+		<a class="ui-btn ui-btn-ghost px-3 py-2" href="#services">Genel</a>
+		<a class="ui-btn ui-btn-ghost px-3 py-2" href="#contact">İletişim</a>
+		<a class="ui-btn ui-btn-ghost px-3 py-2" href="#legal">Yasal Bilgiler</a>
+		<a class="ui-btn ui-btn-ghost px-3 py-2" href="#hours">Çalışma Saatleri</a>
+	</div>
+
+	<%
+		const dayNames = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+		function byDow(rows) {
+			const m = {};
+			(rows || []).forEach((r) => { m[String(r.day_of_week)] = r; });
+			return m;
+		}
+		const hoursMenByDow = byDow(hoursMen);
+		const hoursWomenByDow = byDow(hoursWomen);
+	%>
+	<div id="services" class="ui-card ui-border rounded-2xl p-6 min-w-0">
+		<h1 class="text-2xl font-semibold">Ayarlar</h1>
+		<p class="ui-muted mt-2">Hizmetleri ve personeli şubelere göre yönetin.</p>
+		<div class="mt-4 border ui-border rounded-xl p-4 bg-[color:var(--bg-primary)]">
+			<p class="font-semibold">Önerilen Akış</p>
+			<p class="mt-1 text-sm ui-muted leading-relaxed">
+				Önce bölümlerin hizmetlerini ekleyin, sonra personeli ekleyin. Personelin hangi bölümde çalıştığını “Erkek Kuaförü / Güzellik Salonu / Her ikisi” olarak seçebilirsiniz.
+			</p>
+		</div>
+
+		<h2 class="mt-6 font-semibold">Yeni Hizmet</h2>
+		<div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+			<input id="svcName" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Hizmet adı" />
+			<select id="svcCategory" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2">
+				<option value="men">Erkek Kuaförü</option>
+				<option value="women">Güzellik Salonu</option>
+			</select>
+			<input id="svcDuration" type="number" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Süre (dk)" value="30" min="0" />
+			<input id="svcPrice" type="number" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Fiyat (TL)" value="450" min="0" step="0.01" />
+		</div>
+		<button id="addServiceBtn" class="mt-3 ui-btn ui-btn-primary">Hizmet Ekle</button>
+		<p id="serviceMsg" class="mt-2 text-sm"></p>
+
+		<h2 class="mt-8 font-semibold">Mevcut Hizmetler (Erkek Kuaförü)</h2>
+		<ul class="mt-3 space-y-2 text-sm">
+			<% if (!servicesMen || servicesMen.length === 0) { %>
+				<li class="ui-muted">Hizmet yok.</li>
+			<% } %>
+			<% (servicesMen || []).forEach(s => { %>
+				<li
+					class="border ui-border rounded-xl px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-[color:var(--bg-elevated)]"
+					data-service-id="<%= s.id %>"
+					data-service-name="<%- String(s.name || '') %>"
+					data-service-duration="<%= s.duration_minutes %>"
+					data-service-price-cents="<%= s.price_cents %>"
+					data-service-category="<%= s.category %>"
+				>
+					<span class="break-words"><%= s.name %></span>
+					<span class="flex flex-wrap items-center gap-3">
+						<span class="ui-muted break-words"><%= s.duration_minutes %> dk / <%= (s.price_cents/100).toFixed(2) %> TL</span>
+						<button class="editService text-sm ui-muted hover:underline" type="button">Düzenle</button>
+						<button class="deleteService text-sm ui-muted hover:underline" type="button">Sil</button>
+					</span>
+				</li>
+			<% }) %>
+		</ul>
+
+		<h2 class="mt-8 font-semibold">Mevcut Hizmetler (Güzellik Salonu)</h2>
+		<ul class="mt-3 space-y-2 text-sm">
+			<% if (!servicesWomen || servicesWomen.length === 0) { %>
+				<li class="ui-muted">Hizmet yok.</li>
+			<% } %>
+			<% (servicesWomen || []).forEach(s => { %>
+				<li
+					class="border ui-border rounded-xl px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-[color:var(--bg-elevated)]"
+					data-service-id="<%= s.id %>"
+					data-service-name="<%- String(s.name || '') %>"
+					data-service-duration="<%= s.duration_minutes %>"
+					data-service-price-cents="<%= s.price_cents %>"
+					data-service-category="<%= s.category %>"
+				>
+					<span class="break-words"><%= s.name %></span>
+					<span class="flex flex-wrap items-center gap-3">
+						<span class="ui-muted break-words"><%= s.duration_minutes %> dk / <%= (s.price_cents/100).toFixed(2) %> TL</span>
+						<button class="editService text-sm ui-muted hover:underline" type="button">Düzenle</button>
+						<button class="deleteService text-sm ui-muted hover:underline" type="button">Sil</button>
+					</span>
+				</li>
+			<% }) %>
+		</ul>
+	</div>
+
+	<div class="ui-card ui-border rounded-2xl p-6 min-w-0">
+		<h2 class="text-xl font-semibold">Personel</h2>
+		<p class="mt-2 text-sm ui-muted">
+			Google Takvim kullanıyorsanız, ilgili personelin takvim kimliğini (Calendar ID) ekleyebilirsiniz.
+		</p>
+		<div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+			<input id="staffName" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Ad Soyad" />
+			<select id="staffCategory" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2">
+				<option value="men">Erkek Kuaförü</option>
+				<option value="women">Güzellik Salonu</option>
+				<option value="both">Her ikisi</option>
+			</select>
+			<input id="staffCalendarId" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 sm:col-span-2" placeholder="Google Takvim ID (isteğe bağlı)" />
+		</div>
+		<button id="addStaffBtn" class="mt-3 ui-btn ui-btn-primary">Personel Ekle</button>
+		<p id="staffMsg" class="mt-2 text-sm"></p>
+
+		<h3 class="mt-8 font-semibold">Mevcut Personel (Erkek Kuaförü)</h3>
+		<ul class="mt-3 space-y-2 text-sm">
+			<% if (!staffMen || staffMen.length === 0) { %>
+				<li class="ui-muted">Personel yok.</li>
+			<% } %>
+			<% (staffMen || []).forEach(p => { %>
+				<li
+					class="border ui-border rounded-xl px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-[color:var(--bg-elevated)]"
+					data-staff-id="<%= p.id %>"
+					data-staff-full-name="<%- String(p.full_name || '') %>"
+					data-staff-category="<%= p.category %>"
+					data-staff-calendar-id="<%- String(p.google_calendar_id || '') %>"
+				>
+					<span class="break-words"><%= p.full_name %></span>
+					<span class="flex flex-wrap items-center gap-3">
+						<span class="ui-muted break-all"><%= p.google_calendar_id || '-' %></span>
+						<button class="editStaff text-sm ui-muted hover:underline" type="button">Düzenle</button>
+						<button class="deleteStaff text-sm ui-muted hover:underline" type="button">Sil</button>
+					</span>
+				</li>
+			<% }) %>
+		</ul>
+
+		<h3 class="mt-8 font-semibold">Mevcut Personel (Güzellik Salonu)</h3>
+		<ul class="mt-3 space-y-2 text-sm">
+			<% if (!staffWomen || staffWomen.length === 0) { %>
+				<li class="ui-muted">Personel yok.</li>
+			<% } %>
+			<% (staffWomen || []).forEach(p => { %>
+				<li
+					class="border ui-border rounded-xl px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-[color:var(--bg-elevated)]"
+					data-staff-id="<%= p.id %>"
+					data-staff-full-name="<%- String(p.full_name || '') %>"
+					data-staff-category="<%= p.category %>"
+					data-staff-calendar-id="<%- String(p.google_calendar_id || '') %>"
+				>
+					<span class="break-words"><%= p.full_name %></span>
+					<span class="flex flex-wrap items-center gap-3">
+						<span class="ui-muted break-all"><%= p.google_calendar_id || '-' %></span>
+						<button class="editStaff text-sm ui-muted hover:underline" type="button">Düzenle</button>
+						<button class="deleteStaff text-sm ui-muted hover:underline" type="button">Sil</button>
+					</span>
+				</li>
+			<% }) %>
+		</ul>
+
+		<h3 class="mt-8 font-semibold">Mevcut Personel (Her İkisi)</h3>
+		<ul class="mt-3 space-y-2 text-sm">
+			<% if (!staffBoth || staffBoth.length === 0) { %>
+				<li class="ui-muted">Personel yok.</li>
+			<% } %>
+			<% (staffBoth || []).forEach(p => { %>
+				<li
+					class="border ui-border rounded-xl px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-[color:var(--bg-elevated)]"
+					data-staff-id="<%= p.id %>"
+					data-staff-full-name="<%- String(p.full_name || '') %>"
+					data-staff-category="<%= p.category %>"
+					data-staff-calendar-id="<%- String(p.google_calendar_id || '') %>"
+				>
+					<span class="break-words"><%= p.full_name %></span>
+					<span class="flex flex-wrap items-center gap-3">
+						<span class="ui-muted break-all"><%= p.google_calendar_id || '-' %></span>
+						<button class="editStaff text-sm ui-muted hover:underline" type="button">Düzenle</button>
+						<button class="deleteStaff text-sm ui-muted hover:underline" type="button">Sil</button>
+					</span>
+				</li>
+			<% }) %>
+		</ul>
+	</div>
+
+	<div id="contact" class="ui-card ui-border rounded-2xl p-6 lg:col-span-2 min-w-0">
+		<h2 class="text-xl font-semibold">İletişim Bilgileri</h2>
+		<p class="mt-2 text-sm ui-muted">Bu bilgiler site tarafındaki “İletişim” sayfasında şubeye göre dinamik gösterilir.</p>
+
+		<div class="mt-6 grid lg:grid-cols-2 gap-6">
+			<div class="border ui-border rounded-2xl p-4 bg-[color:var(--bg-primary)]">
+				<h3 class="font-semibold">Erkek Kuaförü</h3>
+				<div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+					<input id="contact-men-title" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 sm:col-span-2" placeholder="Başlık (isteğe bağlı)" value="<%= (contactMen && contactMen.title) ? contactMen.title : '' %>" />
+					<input id="contact-men-address" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 sm:col-span-2" placeholder="Adres" value="<%= (contactMen && contactMen.address) ? contactMen.address : '' %>" />
+					<input id="contact-men-phone" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Telefon" value="<%= (contactMen && contactMen.phone) ? contactMen.phone : '' %>" />
+					<input id="contact-men-email" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="E-posta" value="<%= (contactMen && contactMen.email) ? contactMen.email : '' %>" />
+					<input id="contact-men-whatsapp" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="WhatsApp (isteğe bağlı)" value="<%= (contactMen && contactMen.whatsapp) ? contactMen.whatsapp : '' %>" />
+					<input id="contact-men-maps" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 sm:col-span-2" placeholder="Harita Embed Linki (isteğe bağlı)" value="<%= (contactMen && contactMen.mapsEmbedUrl) ? contactMen.mapsEmbedUrl : '' %>" />
+				</div>
+				<button id="saveContactMen" class="mt-3 ui-btn ui-btn-primary">Kaydet</button>
+				<p id="contactMsgMen" class="mt-2 text-sm"></p>
+			</div>
+
+			<div class="border ui-border rounded-2xl p-4 bg-[color:var(--bg-primary)]">
+				<h3 class="font-semibold">Güzellik Salonu</h3>
+				<div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+					<input id="contact-women-title" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 sm:col-span-2" placeholder="Başlık (isteğe bağlı)" value="<%= (contactWomen && contactWomen.title) ? contactWomen.title : '' %>" />
+					<input id="contact-women-address" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 sm:col-span-2" placeholder="Adres" value="<%= (contactWomen && contactWomen.address) ? contactWomen.address : '' %>" />
+					<input id="contact-women-phone" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Telefon" value="<%= (contactWomen && contactWomen.phone) ? contactWomen.phone : '' %>" />
+					<input id="contact-women-email" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="E-posta" value="<%= (contactWomen && contactWomen.email) ? contactWomen.email : '' %>" />
+					<input id="contact-women-whatsapp" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="WhatsApp (isteğe bağlı)" value="<%= (contactWomen && contactWomen.whatsapp) ? contactWomen.whatsapp : '' %>" />
+					<input id="contact-women-maps" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 sm:col-span-2" placeholder="Harita Embed Linki (isteğe bağlı)" value="<%= (contactWomen && contactWomen.mapsEmbedUrl) ? contactWomen.mapsEmbedUrl : '' %>" />
+				</div>
+				<button id="saveContactWomen" class="mt-3 ui-btn ui-btn-primary">Kaydet</button>
+				<p id="contactMsgWomen" class="mt-2 text-sm"></p>
+			</div>
+		</div>
+	</div>
+
+	<div id="legal" class="ui-card ui-border rounded-2xl p-6 lg:col-span-2 min-w-0">
+		<div class="flex items-start justify-between gap-4">
+			<div>
+				<h2 class="text-xl font-semibold">Yasal Bilgiler</h2>
+				<p class="mt-2 text-sm ui-muted">
+					ETBİS uyumluluğu için şirket bilgileri. Bu alanlar sitede footer/header/iletişim gibi yerlerde kullanılabilir.
+				</p>
+			</div>
+			<% if (legalOk) { %>
+				<p class="text-sm text-emerald-700">Kaydedildi.</p>
+			<% } else if (legalErr) { %>
+				<p class="text-sm text-red-700"><%= legalErr %></p>
+			<% } %>
+		</div>
+
+		<form class="mt-5 grid gap-4" method="post" action="<%= (adminBasePath || '') + '/ayarlar/yasal' %>">
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+				<input name="company_name" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 sm:col-span-2" placeholder="Resmi Ticari Unvan (örn: X Ltd. Şti.)" value="<%= legal.company_name || '' %>" />
+				<input name="representative_name" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Tüzel Kişi Temsilcisi" value="<%= legal.representative_name || '' %>" />
+				<input name="trade_registry_number" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Ticaret Sicil No" value="<%= legal.trade_registry_number || '' %>" />
+				<input name="tax_office" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Vergi Dairesi" value="<%= legal.tax_office || '' %>" />
+				<input name="tax_number" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Vergi Numarası" value="<%= legal.tax_number || '' %>" />
+				<input name="mersis_number" required class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="MERSİS No (zorunlu)" value="<%= legal.mersis_number || '' %>" />
+				<input name="kep_address" required class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="KEP Adresi (zorunlu)" value="<%= legal.kep_address || '' %>" />
+				<input name="contact_phone" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="İletişim Telefonu" value="<%= legal.contact_phone || '' %>" />
+				<input name="contact_email" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="İletişim E-postası" value="<%= legal.contact_email || '' %>" />
+				<input name="contact_address" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 sm:col-span-2" placeholder="Açık Adres" value="<%= legal.contact_address || '' %>" />
+			</div>
+			<div class="flex items-center gap-3">
+				<button type="submit" class="ui-btn ui-btn-primary">Kaydet</button>
+				<p class="text-sm ui-muted">MERSİS ve KEP zorunludur.</p>
+			</div>
+		</form>
+	</div>
+
+	<div id="hours" class="ui-card ui-border rounded-2xl p-6 lg:col-span-2 min-w-0">
+		<h2 class="text-xl font-semibold">Çalışma Saatleri</h2>
+		<p class="mt-2 text-sm ui-muted">
+			Şubelerin haftalık çalışma saatlerini belirleyin. Tatil veya yarım gün gibi özel günler için aşağıdan gün bazlı istisna ekleyebilirsiniz.
+		</p>
+
+		<div class="mt-6 grid lg:grid-cols-2 gap-6">
+			<div class="border ui-border rounded-2xl p-4 bg-[color:var(--bg-primary)] min-w-0">
+				<h3 class="font-semibold">Erkek Kuaförü</h3>
+				<div class="mt-3 overflow-x-auto min-w-0">
+					<table class="w-full text-sm">
+						<thead>
+							<tr class="text-left ui-muted">
+								<th class="py-2 pr-3">Gün</th>
+								<th class="py-2 pr-3">Kapalı</th>
+								<th class="py-2 pr-3">Açılış</th>
+								<th class="py-2">Kapanış</th>
+							</tr>
+						</thead>
+						<tbody>
+							<% for (let dow = 0; dow <= 6; dow++) { const r = hoursMenByDow[String(dow)] || {}; %>
+								<tr class="border-t ui-border">
+									<td class="py-2 pr-3"><%= dayNames[dow] %></td>
+									<td class="py-2 pr-3"><input id="bh-men-<%= dow %>-closed" type="checkbox" <%= r.is_closed ? 'checked' : '' %> /></td>
+									<td class="py-2 pr-3"><input id="bh-men-<%= dow %>-start" type="time" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-2 py-1" value="<%= (r.start_time || '09:00').slice(0,5) %>" /></td>
+									<td class="py-2"><input id="bh-men-<%= dow %>-end" type="time" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-2 py-1" value="<%= (r.end_time || '20:00').slice(0,5) %>" /></td>
+								</tr>
+							<% } %>
+						</tbody>
+					</table>
+				</div>
+				<button id="saveHoursMen" class="mt-3 ui-btn ui-btn-primary">Kaydet</button>
+				<p id="hoursMsgMen" class="mt-2 text-sm"></p>
+			</div>
+
+			<div class="border ui-border rounded-2xl p-4 bg-[color:var(--bg-primary)] min-w-0">
+				<h3 class="font-semibold">Güzellik Salonu</h3>
+				<div class="mt-3 overflow-x-auto min-w-0">
+					<table class="w-full text-sm">
+						<thead>
+							<tr class="text-left ui-muted">
+								<th class="py-2 pr-3">Gün</th>
+								<th class="py-2 pr-3">Kapalı</th>
+								<th class="py-2 pr-3">Açılış</th>
+								<th class="py-2">Kapanış</th>
+							</tr>
+						</thead>
+						<tbody>
+							<% for (let dow = 0; dow <= 6; dow++) { const r = hoursWomenByDow[String(dow)] || {}; %>
+								<tr class="border-t ui-border">
+									<td class="py-2 pr-3"><%= dayNames[dow] %></td>
+									<td class="py-2 pr-3"><input id="bh-women-<%= dow %>-closed" type="checkbox" <%= r.is_closed ? 'checked' : '' %> /></td>
+									<td class="py-2 pr-3"><input id="bh-women-<%= dow %>-start" type="time" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-2 py-1" value="<%= (r.start_time || '09:00').slice(0,5) %>" /></td>
+									<td class="py-2"><input id="bh-women-<%= dow %>-end" type="time" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-2 py-1" value="<%= (r.end_time || '20:00').slice(0,5) %>" /></td>
+								</tr>
+							<% } %>
+						</tbody>
+					</table>
+				</div>
+				<button id="saveHoursWomen" class="mt-3 ui-btn ui-btn-primary">Kaydet</button>
+				<p id="hoursMsgWomen" class="mt-2 text-sm"></p>
+			</div>
+		</div>
+
+		<h3 class="mt-8 font-semibold">Tatil / Yarım Gün (Gün Bazlı İstisnalar)</h3>
+		<p class="mt-2 text-sm ui-muted">
+			Belirli bir günü tamamen kapatabilir veya o gün için farklı saat aralığı tanımlayabilirsiniz.
+		</p>
+
+		<div class="mt-4 grid lg:grid-cols-2 gap-6 min-w-0">
+			<div class="border ui-border rounded-2xl p-4">
+				<h4 class="font-semibold">Erkek Kuaförü</h4>
+				<div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+					<input id="ov-men-date" type="date" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+					<label class="flex items-center gap-2 text-sm ui-muted">
+						<input id="ov-men-closed" type="checkbox" /> Kapalı
+					</label>
+					<input id="ov-men-start" type="time" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" value="09:00" />
+					<input id="ov-men-end" type="time" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" value="20:00" />
+					<input id="ov-men-note" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 sm:col-span-2" placeholder="Not (isteğe bağlı)" />
+				</div>
+				<button id="addOverrideMen" class="mt-3 ui-btn ui-btn-primary">İstisna Ekle / Güncelle</button>
+				<p id="overrideMsgMen" class="mt-2 text-sm"></p>
+
+				<ul class="mt-4 space-y-2 text-sm min-w-0">
+					<% if (!overridesMen || overridesMen.length === 0) { %>
+						<li class="ui-muted">İstisna yok.</li>
+					<% } %>
+					<% (overridesMen || []).forEach(o => { %>
+						<li class="border ui-border rounded-xl px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-[color:var(--bg-elevated)] min-w-0">
+							<div class="min-w-0">
+								<div class="font-semibold"><%= o.date %></div>
+								<div class="ui-muted break-words">
+									<% if (o.is_closed) { %>Kapalı<% } else { %><%= (o.start_time || '').slice(0,5) %> - <%= (o.end_time || '').slice(0,5) %><% } %>
+									<% if (o.note) { %> • <%= o.note %><% } %>
+								</div>
+							</div>
+							<button class="deleteOverride text-sm ui-muted hover:underline self-start sm:self-auto" data-id="<%= o.id %>" data-category="men">Sil</button>
+						</li>
+					<% }) %>
+				</ul>
+			</div>
+
+			<div class="border ui-border rounded-2xl p-4">
+				<h4 class="font-semibold">Güzellik Salonu</h4>
+				<div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+					<input id="ov-women-date" type="date" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+					<label class="flex items-center gap-2 text-sm ui-muted">
+						<input id="ov-women-closed" type="checkbox" /> Kapalı
+					</label>
+					<input id="ov-women-start" type="time" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" value="09:00" />
+					<input id="ov-women-end" type="time" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" value="20:00" />
+					<input id="ov-women-note" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 sm:col-span-2" placeholder="Not (isteğe bağlı)" />
+				</div>
+				<button id="addOverrideWomen" class="mt-3 ui-btn ui-btn-primary">İstisna Ekle / Güncelle</button>
+				<p id="overrideMsgWomen" class="mt-2 text-sm"></p>
+
+				<ul class="mt-4 space-y-2 text-sm min-w-0">
+					<% if (!overridesWomen || overridesWomen.length === 0) { %>
+						<li class="ui-muted">İstisna yok.</li>
+					<% } %>
+					<% (overridesWomen || []).forEach(o => { %>
+						<li class="border ui-border rounded-xl px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-[color:var(--bg-elevated)] min-w-0">
+							<div class="min-w-0">
+								<div class="font-semibold"><%= o.date %></div>
+								<div class="ui-muted break-words">
+									<% if (o.is_closed) { %>Kapalı<% } else { %><%= (o.start_time || '').slice(0,5) %> - <%= (o.end_time || '').slice(0,5) %><% } %>
+									<% if (o.note) { %> • <%= o.note %><% } %>
+								</div>
+							</div>
+							<button class="deleteOverride text-sm ui-muted hover:underline self-start sm:self-auto" data-id="<%= o.id %>" data-category="women">Sil</button>
+						</li>
+					<% }) %>
+				</ul>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script src="/public/js/admin/settings.js" defer></script>

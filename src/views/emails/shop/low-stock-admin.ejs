@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="tr">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="x-apple-disable-message-reformatting" />
+		<title>Düşük Stok Uyarısı</title>
+	</head>
+	<body style="margin:0; padding:0; background-color:#111827; font-family:Arial, Helvetica, sans-serif; color:#e5e7eb;">
+		<%
+			const safeId = String(productId || '').trim();
+			const safeName = String(productName || '').trim();
+			const stockNum = Number.isFinite(Number(stock)) ? Number(stock) : null;
+			const thresholdNum = Number.isFinite(Number(threshold)) ? Number(threshold) : 5;
+			const productUrl = (appBaseUrl && safeId)
+				? `${String(appBaseUrl).replace(/\/$/, '')}/products/${encodeURIComponent(safeId)}`
+				: '';
+		%>
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#111827; padding:24px 12px;">
+			<tr>
+				<td align="center">
+					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:680px; background-color:#0b1220; color:#e5e7eb; border-radius:16px; overflow:hidden;">
+						<%- await include('../partials/brandHeader') %>
+						<tr>
+							<td style="padding:22px 22px 0 22px;">
+								<p style="margin:0; font-size:14px; color:#94a3b8; letter-spacing:0.08em; text-transform:uppercase;">Stok Uyarısı</p>
+								<h1 style="margin:10px 0 0 0; font-size:22px; line-height:30px;">Düşük stok tespit edildi</h1>
+								<p style="margin:12px 0 0 0; font-size:15px; line-height:24px; color:#cbd5e1;">Bir ürün düşük stok eşiğinin altına indi.</p>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:16px 22px 0 22px;">
+								<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #334155; background-color:#0f172a; border-radius:12px;">
+									<tr>
+										<td style="padding:12px 14px;">
+											<p style="margin:0; font-size:12px; color:#94a3b8;">Ürün</p>
+											<p style="margin:6px 0 0 0; font-size:14px; color:#f8fafc;"><strong><%= safeName || `#${safeId}` %></strong></p>
+										</td>
+										<td style="padding:12px 14px;" align="right">
+											<p style="margin:0; font-size:12px; color:#94a3b8;">Stok / Eşik</p>
+											<p style="margin:6px 0 0 0; font-size:14px; color:#f8fafc;"><strong><%= stockNum !== null ? stockNum : '—' %> / <%= thresholdNum %></strong></p>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:18px 22px 22px 22px;">
+								<% if (productUrl) { %>
+									<p style="margin:0; font-size:12px; line-height:18px; color:#94a3b8;">
+										Ürün detayı: <a href="<%= productUrl %>" style="color:#93c5fd; text-decoration:underline;"><%= productUrl %></a>
+									</p>
+								<% } %>
+								<p style="margin:18px 0 0 0; font-size:12px; line-height:18px; color:#94a3b8;">© <%= year %> <%= brandName %></p>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

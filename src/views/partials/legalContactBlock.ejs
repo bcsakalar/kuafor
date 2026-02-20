@@ -1,0 +1,40 @@
+<%
+	const s = (typeof settings === 'object' && settings) ? settings : {};
+	const showTaxInfo = (typeof showTax === 'boolean') ? showTax : false;
+	const labelClass = 'font-medium text-[color:var(--text-primary)]';
+	const valueClass = 'break-words';
+%>
+
+<div class="text-sm ui-muted grid gap-1">
+	<p class="<%= valueClass %>"><span class="<%= labelClass %>">Ticari Unvan:</span> <%= s.company_name || '-' %></p>
+	<p class="<%= valueClass %>"><span class="<%= labelClass %>">MERSİS No:</span> <%= s.mersis_number || '-' %></p>
+	<p class="<%= valueClass %>"><span class="<%= labelClass %>">Merkez Adres:</span> <%= s.contact_address || '-' %></p>
+	<p class="<%= valueClass %>">
+		<span class="<%= labelClass %>">Telefon:</span>
+		<% if (s.contact_phone) { %>
+			<a class="underline" href="tel:<%= String(s.contact_phone).replace(/\s+/g, '') %>"><%= s.contact_phone %></a>
+		<% } else { %>
+			-
+		<% } %>
+	</p>
+	<p class="<%= valueClass %>">
+		<span class="<%= labelClass %>">E‑posta:</span>
+		<% if (s.contact_email) { %>
+			<a class="underline" href="mailto:<%= String(s.contact_email) %>"><%= s.contact_email %></a>
+		<% } else { %>
+			-
+		<% } %>
+	</p>
+	<p class="<%= valueClass %>">
+		<span class="<%= labelClass %>">KEP:</span>
+		<% if (s.kep_address) { %>
+			<a class="underline" href="mailto:<%= String(s.kep_address) %>"><%= s.kep_address %></a>
+		<% } else { %>
+			-
+		<% } %>
+	</p>
+
+	<% if (showTaxInfo) { %>
+		<p class="<%= valueClass %>"><span class="<%= labelClass %>">Vergi:</span> <%= s.tax_office || '-' %> / <%= s.tax_number || '-' %></p>
+	<% } %>
+</div>

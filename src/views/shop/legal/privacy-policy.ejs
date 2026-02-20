@@ -1,0 +1,113 @@
+<%
+	const s = (typeof settings === 'object' && settings) ? settings : {};
+%>
+
+<section class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card ui-border rounded-2xl p-6 sm:p-8">
+		<p class="text-xs ui-muted tracking-widest uppercase">KVKK & Çerez</p>
+		<h1 class="mt-2 text-2xl sm:text-3xl font-semibold">KVKK Aydınlatma Metni ve Çerez Politikası</h1>
+		<p class="mt-3 ui-muted">
+			Bu metin; 6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) kapsamında aydınlatma yükümlülüğünü yerine getirmek ve
+			çerez (cookie) kullanımına ilişkin temel bilgileri sunmak amacıyla hazırlanmıştır.
+		</p>
+
+		<div class="mt-6 rounded-xl border ui-border p-4 text-sm ui-muted">
+			<p class="font-semibold text-[color:var(--text-primary)]">Veri Sorumlusu</p>
+			<div class="mt-2">
+				<%- include('../../partials/legalContactBlock', { settings: s, showTax: false }) %>
+			</div>
+		</div>
+
+		<div class="mt-8 grid gap-6">
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">1) İşlenen kişisel veri kategorileri</h2>
+				<ul class="mt-2 text-sm ui-muted list-disc pl-5">
+					<li>Kimlik ve iletişim verileri (ad-soyad, telefon, e‑posta)</li>
+					<li>Müşteri işlem / sipariş verileri (sipariş kalemleri, tutarlar, teslimat bilgileri)</li>
+					<li>İşlem güvenliği verileri (oturum, IP, cihaz bilgisi, log kayıtları)</li>
+					<li>İletişim verileri (talep/şikayet mesajları)</li>
+				</ul>
+				<p class="mt-2 text-sm ui-muted">
+					Not: Ödeme işlemleri ödeme kuruluşlarının altyapısı üzerinden yürütülür; kart bilgileri veri sorumlusu sistemlerinde saklanmaz.
+				</p>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">2) Kişisel verilerin işlenme amaçları</h2>
+				<ul class="mt-2 text-sm ui-muted list-disc pl-5">
+					<li>Siparişin alınması, hazırlanması, teslim edilmesi ve satış sonrası destek süreçlerinin yürütülmesi</li>
+					<li>Müşteri taleplerinin/şikayetlerinin değerlendirilmesi ve iletişimin sağlanması</li>
+					<li>Mevzuattan doğan yükümlülüklerin yerine getirilmesi (muhasebe, fatura, denetim, saklama)</li>
+					<li>Bilgi güvenliği süreçlerinin yürütülmesi, kötüye kullanımın önlenmesi</li>
+					<li>Hizmet kalitesinin geliştirilmesi (analiz/raporlama; mümkünse anonimleştirilmiş/veri minimizasyonu ile)</li>
+				</ul>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">3) Hukuki sebepler</h2>
+				<p class="mt-2 text-sm ui-muted">
+					KVKK m.5 kapsamında; sözleşmenin kurulması/ifası, hukuki yükümlülüğün yerine getirilmesi ve veri sorumlusunun meşru menfaati gibi
+					hukuki sebeplere dayanarak işlenebilir. Açık rıza gerektiren hallerde ayrıca rıza alınır.
+				</p>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">4) Aktarım (kimlerle paylaşılabilir?)</h2>
+				<p class="mt-2 text-sm ui-muted">
+					Kişisel veriler; yalnızca amaçla sınırlı olmak üzere teslimat/kargo/lojistik firmaları, ödeme altyapısı sağlayıcıları, teknik hizmet sağlayıcılar
+					ve yasal yükümlülüklerin gerektirdiği hallerde ilgili kamu kurum ve kuruluşları ile paylaşılabilir.
+				</p>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">5) Saklama süreleri</h2>
+				<p class="mt-2 text-sm ui-muted">
+					Veriler; ilgili mevzuatta öngörülen süreler ve işleme amacının gerektirdiği süre boyunca saklanır.
+					Süre sonunda, uygun yöntemlerle silinir, yok edilir veya anonim hale getirilir.
+				</p>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">6) KVKK kapsamındaki haklar (KVKK m.11)</h2>
+				<p class="mt-2 text-sm ui-muted">
+					KVKK kapsamında; kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse bilgi talep etme, amacına uygun kullanılıp kullanılmadığını öğrenme,
+					düzeltme/silme isteme, aktarılan üçüncü kişileri bilme ve kanuna aykırı işleme nedeniyle zararın giderilmesini talep etme gibi haklara sahipsiniz.
+				</p>
+				<p class="mt-2 text-sm ui-muted">
+					Başvurularınızı <span class="font-medium"><%= s.contact_email || '-' %></span> (varsa KEP: <span class="font-medium"><%= s.kep_address || '-' %></span>) üzerinden iletebilirsiniz.
+				</p>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">7) Çerez Politikası</h2>
+				<p class="mt-2 text-sm ui-muted">
+					Web sitemizde; kullanıcı deneyimini iyileştirmek, oturum yönetimi sağlamak ve güvenlik amaçlarıyla çerezler kullanılabilir.
+					Çerezler; tarayıcınızda saklanan küçük metin dosyalarıdır.
+				</p>
+				<div class="mt-4 grid gap-3 text-sm ui-muted">
+					<div>
+						<p class="font-medium text-[color:var(--text-primary)]">7.1 Çerez türleri (örnek)</p>
+						<ul class="mt-1 list-disc pl-5">
+							<li><span class="font-medium">Zorunlu çerezler:</span> Siteyi çalıştırmak, oturum ve güvenlik için gerekli.</li>
+							<li><span class="font-medium">İşlevsel çerezler:</span> Tercihlerinizin hatırlanması gibi işlevler.</li>
+							<li><span class="font-medium">Analitik çerezler:</span> Ziyaretçi istatistikleri; mümkünse anonimleştirilmiş şekilde.</li>
+							<li><span class="font-medium">Pazarlama çerezleri:</span> Reklam/hedefleme; kullanılıyorsa açık rıza gerektirebilir.</li>
+						</ul>
+					</div>
+					<div>
+						<p class="font-medium text-[color:var(--text-primary)]">7.2 Çerezleri yönetme</p>
+						<p class="mt-1">Tarayıcı ayarlarınız üzerinden çerezleri silebilir, engelleyebilir veya uyarı alacak şekilde yapılandırabilirsiniz.</p>
+					</div>
+				</div>
+				<p class="mt-4 text-sm ui-muted">
+					Detaylı bilgi için <a class="underline" href="/cookies">Çerez</a> sayfasını inceleyebilirsiniz.
+				</p>
+			</div>
+		</div>
+
+		<div class="mt-8 flex items-center gap-2">
+			<a href="/" class="ui-btn ui-btn-secondary">Mağazaya Dön</a>
+			<a href="/sozlesmeler/mesafeli-satis" class="ui-btn ui-btn-secondary">Mesafeli Satış</a>
+		</div>
+	</div>
+</section>

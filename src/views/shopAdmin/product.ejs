@@ -1,0 +1,214 @@
+<%
+	const threshold = (typeof product.low_stock_threshold !== 'undefined' && product.low_stock_threshold !== null)
+		? Number(product.low_stock_threshold)
+		: 5;
+	const stockNum = Number(product.stock || 0);
+	const isLow = threshold > 0 && stockNum <= threshold;
+
+	const hasVariantStock = (Array.isArray(product.size_options) && product.size_options.filter(Boolean).length > 0)
+		|| (Array.isArray(product.color_options) && product.color_options.filter(Boolean).length > 0);
+%>
+
+<header class="mb-6 flex flex-col gap-4">
+	<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+		<div>
+			<h1 class="text-2xl font-semibold">Ürün Detayı</h1>
+			<p class="mt-1 ui-muted text-sm">Stok, eşik, varyant ve hareket geçmişi.</p>
+		</div>
+		<div class="flex flex-wrap items-center gap-2">
+			<a class="ui-btn ui-btn-secondary w-full sm:w-auto text-center" href="/products">Geri</a>
+			<form method="post" action="/products/<%= product.id %>/toggle">
+				<input type="hidden" name="is_active" value="<%= product.is_active ? 'false' : 'true' %>" />
+				<button class="ui-btn ui-btn-secondary w-full sm:w-auto" type="submit"><%= product.is_active ? 'Pasife Al' : 'Yayına Al' %></button>
+			</form>
+			<form method="post" action="/products/<%= product.id %>/delete" onsubmit="return confirm('Ürün silinsin mi?');">
+				<button class="ui-btn ui-btn-secondary w-full sm:w-auto" type="submit">Sil</button>
+			</form>
+		</div>
+	</div>
+</header>
+
+<% if (query && query.ok) { %>
+	<div class="mb-4 p-3 rounded border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 text-sm">İşlem başarılı.</div>
+<% } %>
+<% if (query && query.error) { %>
+	<div class="mb-4 p-3 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200 text-sm">İşlem başarısız. Alanları kontrol edin.</div>
+<% } %>
+
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+	<div class="ui-card ui-border rounded-2xl p-5 lg:col-span-2">
+		<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+			<div class="min-w-0 flex items-start gap-3">
+				<div class="w-16 h-16 rounded-xl border ui-border bg-[color:var(--bg-elevated)] overflow-hidden flex-shrink-0">
+					<% if (product.image_url) { %>
+						<img src="<%= product.image_url %>" alt="" class="w-full h-full object-cover" />
+					<% } %>
+				</div>
+				<div class="min-w-0">
+					<div class="flex flex-wrap items-center gap-2">
+						<p class="text-lg font-semibold truncate"><%= product.name %></p>
+						<span class="text-xs border ui-border rounded-full px-2 py-1 <%= product.is_active ? '' : 'ui-muted' %>"><%= product.is_active ? 'Yayında' : 'Pasif' %></span>
+						<% if (isLow) { %>
+							<span class="text-xs border border-amber-400/40 rounded-full px-2 py-1 text-amber-200">Düşük stok</span>
+						<% } %>
+					</div>
+					<p class="mt-1 text-sm ui-muted">
+						<%= product.category_name || 'Kategori yok' %>
+						<%
+							const minEff = Number((product.min_price ?? product.price));
+							const maxEff = Number((product.max_price ?? product.price));
+							const showMin = Number.isFinite(minEff) ? minEff : Number(product.price);
+							const showMax = Number.isFinite(maxEff) ? maxEff : Number(product.price);
+							const sizeOptions = Array.isArray(product.size_options) ? product.size_options.filter(Boolean) : [];
+							const colorOptions = Array.isArray(product.color_options) ? product.color_options.filter(Boolean) : [];
+						%>
+						• Fiyat: <%= Number(showMin).toFixed(2) %> ₺<% if (Number.isFinite(showMin) && Number.isFinite(showMax) && Math.abs(showMax - showMin) >= 0.01) { %> - <%= Number(showMax).toFixed(2) %> ₺<% } %>
+					</p>
+					<% if (sizeOptions.length || colorOptions.length) { %>
+						<p class="mt-1 text-xs ui-muted">
+							<% if (sizeOptions.length) { %>Boyut: <%= sizeOptions.join(' / ') %><% } %>
+							<% if (sizeOptions.length && colorOptions.length) { %> • <% } %>
+							<% if (colorOptions.length) { %>Renk: <%= colorOptions.join(' / ') %><% } %>
+						</p>
+					<% } %>
+					<% if (product.description) { %>
+						<p class="mt-3 text-sm ui-muted whitespace-pre-line break-words"><%= product.description %></p>
+					<% } %>
+				</div>
+			</div>
+			<div class="text-left sm:text-right">
+				<p class="text-sm ui-muted">Stok</p>
+				<p class="text-2xl font-semibold"><%= product.stock %></p>
+				<p class="mt-1 text-xs ui-muted">Uyarı eşiği: <%= threshold %></p>
+			</div>
+		</div>
+
+		<details class="mt-5 border ui-border rounded-2xl p-4 shopadmin-details" open>
+			<summary class="flex items-center justify-between gap-3 cursor-pointer select-none">
+				<div>
+					<h2 class="text-lg font-semibold">Stok / Varyant Güncelle</h2>
+					<p class="mt-1 ui-muted text-sm"><%= hasVariantStock ? 'Boyut/renk bazlı stok ve fiyat yönetimi.' : 'Tek stok yönetimi (hızlı stok açık).' %></p>
+				</div>
+				<span class="ui-muted text-sm">Aç/Kapat</span>
+			</summary>
+
+			<% if (!hasVariantStock) { %>
+				<div class="mt-4 flex flex-wrap items-center gap-2">
+					<p class="text-xs ui-muted">Hızlı stok:</p>
+					<form method="post" action="/products/<%= product.id %>/adjust-stock"><input type="hidden" name="delta" value="-10" /><button class="ui-btn ui-btn-secondary" type="submit">-10</button></form>
+					<form method="post" action="/products/<%= product.id %>/adjust-stock"><input type="hidden" name="delta" value="-5" /><button class="ui-btn ui-btn-secondary" type="submit">-5</button></form>
+					<form method="post" action="/products/<%= product.id %>/adjust-stock"><input type="hidden" name="delta" value="-1" /><button class="ui-btn ui-btn-secondary" type="submit">-1</button></form>
+					<form method="post" action="/products/<%= product.id %>/adjust-stock"><input type="hidden" name="delta" value="1" /><button class="ui-btn ui-btn-secondary" type="submit">+1</button></form>
+					<form method="post" action="/products/<%= product.id %>/adjust-stock"><input type="hidden" name="delta" value="5" /><button class="ui-btn ui-btn-secondary" type="submit">+5</button></form>
+					<form method="post" action="/products/<%= product.id %>/adjust-stock"><input type="hidden" name="delta" value="10" /><button class="ui-btn ui-btn-secondary" type="submit">+10</button></form>
+				</div>
+			<% } else { %>
+				<p class="mt-4 text-xs ui-muted">Bu üründe stok boyut/renk kombinasyonuna göre yönetiliyor. Hızlı stok butonları kapalı.</p>
+			<% } %>
+
+			<form class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3" method="post" action="/products/<%= product.id %>/update" enctype="multipart/form-data" data-variant-stock-editor>
+				<input type="hidden" name="stock" data-product-stock value="<%= product.stock %>" />
+				<label class="grid gap-1 text-sm">
+					<span class="ui-muted">Uyarı Eşiği</span>
+					<input name="low_stock_threshold" type="number" min="0" step="1" value="<%= threshold %>" required class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+				</label>
+				<label class="grid gap-1 text-sm sm:col-span-2">
+					<span class="ui-muted">Boyut Seçenekleri (ml / gr)</span>
+					<textarea name="size_options" rows="2" data-size-options required class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Örn: 50 ml, 100 ml, 150 ml veya 50 gr, 100 gr"><%= (Array.isArray(product.size_options) ? product.size_options.filter(Boolean).join(', ') : '') %></textarea>
+					<div class="mt-2 flex flex-wrap items-end gap-2">
+						<label class="grid gap-1 text-xs">
+							<span class="ui-muted">Hızlı ekle</span>
+							<input data-size-value type="number" min="1" step="1" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm" placeholder="150" />
+						</label>
+						<label class="grid gap-1 text-xs">
+							<span class="ui-muted">Birim</span>
+							<select data-size-unit class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm">
+								<option value="ml" selected>ml</option>
+								<option value="gr">gr</option>
+							</select>
+						</label>
+						<button class="ui-btn ui-btn-secondary" data-size-add type="button">Boyut Ekle</button>
+					</div>
+					<p class="text-xs ui-muted" data-size-help></p>
+				</label>
+				<label class="grid gap-1 text-sm sm:col-span-2">
+					<span class="ui-muted">Renk Seçenekleri (opsiyonel)</span>
+					<textarea name="color_options" rows="2" data-color-options class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Örn: Siyah, Beyaz, Kırmızı"><%= (Array.isArray(product.color_options) ? product.color_options.filter(Boolean).join(', ') : '') %></textarea>
+				</label>
+				<label class="flex items-start gap-2 text-sm sm:col-span-2">
+					<input type="checkbox" name="share_stock_across_colors" data-share-colors-stock class="mt-1" <%= product.share_stock_across_colors ? 'checked' : '' %> />
+					<span class="ui-muted">Renkler aynı stoku paylaşsın (stok boyuta göre tek havuz)</span>
+				</label>
+				<label class="flex items-start gap-2 text-sm sm:col-span-2">
+					<input type="checkbox" name="share_price_across_colors" data-share-colors-price class="mt-1" <%= product.share_price_across_colors ? 'checked' : '' %> />
+					<span class="ui-muted">Renkler aynı fiyatı paylaşsın (fiyat boyuta göre tek)</span>
+				</label>
+
+				<input type="hidden" name="variant_stocks_json" data-variant-stocks-json value="<%= JSON.stringify((productVariants || []).map((v) => ({ variantKey: v.variant_key, selectedSize: v.selected_size || '', selectedColor: v.selected_color || '', stock: v.stock, price: (v.price === undefined || v.price === null) ? null : Number(v.price) }))) %>" />
+				<div class="sm:col-span-2">
+					<p class="text-xs ui-muted" data-variant-hint style="display:none;">Her boyut/renk kombinasyonu için stok girin. Fiyat alanı zorunludur.</p>
+					<div class="border ui-border rounded-xl overflow-hidden" data-variant-stocks-table style="display:none;">
+						<table class="w-full">
+							<thead class="bg-[color:var(--bg-elevated)]">
+								<tr>
+									<th class="text-left text-xs ui-muted py-2 px-3">Boyut</th>
+									<th class="text-left text-xs ui-muted py-2 px-3">Renk</th>
+									<th class="text-left text-xs ui-muted py-2 px-3">Stok</th>
+									<th class="text-left text-xs ui-muted py-2 px-3">Varyant Fiyatı (₺)</th>
+								</tr>
+							</thead>
+							<tbody data-variant-stocks-tbody></tbody>
+						</table>
+						<div class="px-3 py-2 text-xs ui-muted">Toplam: <span class="font-semibold" data-variant-total></span></div>
+					</div>
+				</div>
+				<label class="grid gap-1 text-sm">
+					<span class="ui-muted">Görsel URL</span>
+					<input name="image_url" value="<%= product.image_url || '' %>" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="/public/images/uploads/..." />
+				</label>
+				<label class="grid gap-1 text-sm">
+					<span class="ui-muted">Görsel Yükle</span>
+					<input name="image" type="file" accept="image/*" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+				</label>
+				<div class="sm:col-span-2 flex items-center justify-end gap-2">
+					<button class="ui-btn ui-btn-secondary" type="submit">Güncelle</button>
+				</div>
+			</form>
+			<p class="mt-3 text-xs ui-muted">Not: Stok değişirse otomatik olarak "manual" stok hareketi kaydı oluşur.</p>
+		</details>
+	</div>
+
+	<div class="ui-card ui-border rounded-2xl p-5">
+		<h2 class="text-lg font-semibold">Stok Hareketi</h2>
+		<div class="mt-4 grid gap-2 max-h-[70vh] overflow-auto pr-1">
+			<% (stockEvents || []).forEach((ev) => { %>
+				<%
+					const reasonLabel = ev.reason === 'order' ? 'Sipariş' : (ev.reason === 'manual' ? 'Manuel' : String(ev.reason || ''));
+					const deltaNum = Number(ev.delta) || 0;
+					const deltaLabel = `${deltaNum > 0 ? '+' : ''}${deltaNum}`;
+				%>
+				<div class="border ui-border rounded-xl p-3">
+					<div class="flex items-center justify-between gap-3">
+						<div class="flex items-center gap-2">
+							<span class="text-xs border ui-border rounded-full px-2 py-1 ui-muted"><%= reasonLabel %></span>
+							<% if (ev.order_id) { %>
+								<a class="text-xs underline ui-muted" href="/orders/<%= ev.order_id %>">Sipariş</a>
+							<% } %>
+						</div>
+						<p class="text-sm font-semibold"><%= deltaLabel %></p>
+					</div>
+					<p class="mt-1 text-xs ui-muted">
+						<%= new Date(ev.created_at).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' }) %>
+						<% if (ev.changed_by_admin_name) { %> • <%= ev.changed_by_admin_name %><% } %>
+					</p>
+				</div>
+			<% }) %>
+			<% if (!stockEvents || stockEvents.length === 0) { %>
+				<p class="ui-muted text-sm">Hareket kaydı yok.</p>
+			<% } %>
+		</div>
+	</div>
+</div>
+
+<script src="/public/js/admin/product-variant-stock.js" defer></script>

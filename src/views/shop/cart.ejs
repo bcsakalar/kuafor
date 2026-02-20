@@ -1,0 +1,92 @@
+<section class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+	<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+		<div>
+			<h1 class="text-3xl font-semibold">Sepet</h1>
+			<p class="mt-2 ui-muted">Sepetinizdeki ürünleri kontrol edin.</p>
+		</div>
+		<a href="/" class="ui-btn ui-btn-secondary w-full sm:w-auto text-center">Ürünlere Dön</a>
+	</div>
+
+	<% if (query && query.error) { %>
+		<div class="mt-6 p-3 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200 text-sm">Sepet işlemi başarısız oldu.</div>
+	<% } %>
+	<% if (query && query.ok) { %>
+		<div class="mt-6 p-3 rounded border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 text-sm">Sepet güncellendi.</div>
+	<% } %>
+
+	<%
+		function formatTL(n) {
+			const v = Number(n);
+			if (!Number.isFinite(v)) return '';
+			const hasFraction = Math.abs(v % 1) > 1e-9;
+			return v.toLocaleString('tr-TR', {
+				minimumFractionDigits: hasFraction ? 2 : 0,
+				maximumFractionDigits: 2,
+			});
+		}
+	%>
+
+	<div class="mt-8 grid gap-4">
+		<% (lines || []).forEach((l) => { %>
+			<div class="ui-card ui-border rounded-2xl p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6 overflow-hidden">
+				<div class="min-w-0">
+					<p class="font-semibold flex flex-wrap items-start gap-2 min-w-0">
+						<a class="hover:underline block flex-1 min-w-0 break-words [overflow-wrap:anywhere]" href="/product/<%= l.product.id %>"><%= l.product.name %></a>
+						<% if (l.selectedSize) { %>
+							<span class="text-xs px-2 py-1 rounded-full border ui-border bg-[color:var(--bg-elevated)] flex-shrink-0 max-w-full truncate">Boyut: <%= l.selectedSize %></span>
+						<% } else if (l.product.size) { %>
+							<span class="text-xs px-2 py-1 rounded-full border ui-border bg-[color:var(--bg-elevated)] flex-shrink-0 max-w-full truncate"><%= l.product.size %></span>
+						<% } %>
+						<% if (l.selectedColor) { %>
+							<span class="text-xs px-2 py-1 rounded-full border ui-border bg-[color:var(--bg-elevated)] flex-shrink-0 max-w-full truncate">Renk: <%= l.selectedColor %></span>
+						<% } %>
+					</p>
+					<p class="mt-1 text-sm ui-muted tabular-nums whitespace-nowrap"><%= formatTL(l.unitPrice ?? l.product.price) %> ₺</p>
+				</div>
+				<div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-end gap-3 w-full md:w-auto">
+					<p class="font-semibold tabular-nums whitespace-nowrap"><%= formatTL(l.lineTotal) %> ₺</p>
+					<div class="flex items-center gap-2">
+						<form method="post" action="/cart/update">
+							<input type="hidden" name="productId" value="<%= l.product.id %>" />
+							<input type="hidden" name="variant_key" value="<%= l.variantKey || '' %>" />
+							<input type="hidden" name="quantity" value="<%= Math.max(1, l.quantity - 1) %>" />
+							<button class="ui-btn ui-btn-secondary" type="submit" <%= l.quantity <= 1 ? 'disabled aria-disabled="true"' : '' %>>-</button>
+						</form>
+						<form method="post" action="/cart/update">
+							<input type="hidden" name="productId" value="<%= l.product.id %>" />
+							<input type="hidden" name="variant_key" value="<%= l.variantKey || '' %>" />
+							<input type="hidden" name="quantity" value="<%= Math.min(50, l.quantity + 1) %>" />
+							<button class="ui-btn ui-btn-secondary" type="submit">+</button>
+						</form>
+					</div>
+					<form class="flex flex-wrap items-center gap-2" method="post" action="/cart/update">
+						<input type="hidden" name="productId" value="<%= l.product.id %>" />
+						<input type="hidden" name="variant_key" value="<%= l.variantKey || '' %>" />
+						<input name="quantity" type="number" min="1" max="50" value="<%= l.quantity %>" class="w-20 border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+						<button class="ui-btn ui-btn-secondary whitespace-nowrap" type="submit">Güncelle</button>
+					</form>
+					<form method="post" action="/cart/remove">
+						<input type="hidden" name="productId" value="<%= l.product.id %>" />
+						<input type="hidden" name="variant_key" value="<%= l.variantKey || '' %>" />
+						<button class="ui-btn ui-btn-secondary whitespace-nowrap" type="submit">Kaldır</button>
+					</form>
+				</div>
+			</div>
+		<% }) %>
+	</div>
+
+	<% if (!lines || lines.length === 0) { %>
+		<div class="mt-8 ui-card ui-border rounded-2xl p-6">
+			<p class="ui-muted">Sepetiniz boş.</p>
+		</div>
+	<% } else { %>
+		<div class="mt-8 ui-card ui-border rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+			<p class="text-lg">Toplam: <span class="font-semibold tabular-nums whitespace-nowrap"><%= formatTL(total) %> ₺</span></p>
+			<a href="/checkout" class="ui-btn ui-btn-primary w-full sm:w-auto text-center">Ödemeye Geç</a>
+		</div>
+		<div class="mt-4 ui-border rounded-xl p-4">
+			<p class="text-sm font-semibold">Güvenli alışveriş</p>
+			<p class="mt-2 text-sm ui-muted">Sipariş oluşturulduğunda takip kodu verilir. Detaylar için <a class="underline" href="/shipping-returns">Teslimat & İade</a> ve <a class="underline" href="/privacy">Gizlilik</a> sayfalarını inceleyebilirsin.</p>
+		</div>
+	<% } %>
+</section>

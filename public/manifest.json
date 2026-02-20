@@ -1,0 +1,46 @@
+{
+	"name": "Berber Salon",
+	"short_name": "Berber",
+	"description": "Unisex Beauty Salon & Barber Shop - Online Randevu ve Alışveriş",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#1a1a2e",
+	"theme_color": "#667eea",
+	"orientation": "portrait-primary",
+	"scope": "/",
+	"lang": "tr",
+	"icons": [
+		{
+			"src": "/public/logo/logo.jpg",
+			"sizes": "192x192",
+			"type": "image/jpeg",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/public/logo/logo.jpg",
+			"sizes": "512x512",
+			"type": "image/jpeg",
+			"purpose": "any maskable"
+		}
+	],
+	"categories": ["beauty", "lifestyle", "shopping"],
+	"shortcuts": [
+		{
+			"name": "Randevu Al",
+			"short_name": "Randevu",
+			"description": "Hemen randevu al",
+			"url": "/#booking",
+			"icons": [{ "src": "/public/logo/logo.jpg", "sizes": "96x96" }]
+		},
+		{
+			"name": "Ürünler",
+			"short_name": "Mağaza",
+			"description": "Ürünleri incele",
+			"url": "/products",
+			"icons": [{ "src": "/public/logo/logo.jpg", "sizes": "96x96" }]
+		}
+	],
+	"screenshots": [],
+	"related_applications": [],
+	"prefer_related_applications": false
+}

@@ -1,0 +1,84 @@
+	<section class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card rounded-2xl p-5 sm:p-7" data-reveal>
+	<div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+		<div class="max-w-2xl">
+			<h1 class="text-3xl font-semibold tracking-tight"><%= shopTitle ? shopTitle : 'Randevu Al' %></h1>
+			<p class="ui-muted mt-3 leading-relaxed">
+				<% if (presetCategory) { %>
+					Şube seçiminiz hazır. Aşağıdaki adımlarla randevunuzu hızlıca oluşturun.
+				<% } else { %>
+					Aşağıdaki adımlarla randevunuzu hızlıca oluşturun. Önce şubenizi seçin:
+					<span class="font-medium">Erkek Kuaförü</span> veya <span class="font-medium">Güzellik Salonu</span>.
+				<% } %>
+			</p>
+			<p class="mt-2 text-sm ui-muted">Seçtiğiniz tarih ve saate göre uygun personel otomatik olarak atanabilir.</p>
+		</div>
+		<img
+			src="<%= (media && media.slots && media.slots['booking.indexHero'] && media.slots['booking.indexHero'].src) ? media.slots['booking.indexHero'].src : '/public/images/placeholder.svg' %>"
+			alt="<%= (media && media.slots && media.slots['booking.indexHero'] && media.slots['booking.indexHero'].alt) ? media.slots['booking.indexHero'].alt : 'Randevu' %>"
+			class="w-full lg:w-80 aspect-video object-cover rounded-xl border ui-border"
+		/>
+	</div>
+
+	<div
+		id="bookingWizard"
+		class="mt-8 grid gap-4"
+		data-api-base="<%= apiBase ? apiBase : '/booking' %>"
+		data-preset-category="<%= presetCategory ? presetCategory : '' %>"
+	>
+		<div class="ui-glass rounded-xl p-4">
+			<h2 class="font-semibold">1) Şube / Kategori</h2>
+			<% if (presetCategory) { %>
+				<p class="mt-2 text-sm ui-muted">
+					Seçilen bölüm: <span class="font-medium"><%= presetCategory === 'men' ? 'Erkek Kuaförü' : 'Güzellik Salonu' %></span>
+				</p>
+			<% } else { %>
+				<div class="mt-3 flex flex-col sm:inline-flex sm:flex-row rounded-xl border ui-border overflow-hidden bg-white/5 backdrop-blur-md">
+					<button data-category="men" class="px-4 py-2 text-sm hover:opacity-95 transition-colors w-full sm:w-auto">Erkek Kuaförü</button>
+					<button data-category="women" class="px-4 py-2 text-sm hover:opacity-95 transition-colors w-full sm:w-auto sm:border-l ui-border">Güzellik Salonu</button>
+				</div>
+			<% } %>
+			<p id="categoryHint" class="text-sm ui-muted mt-2"></p>
+		</div>
+
+		<div class="ui-glass rounded-xl p-4">
+			<h2 class="font-semibold">2) Hizmet(ler)</h2>
+			<p class="mt-1 text-sm ui-muted">Birden fazla hizmet seçebilirsiniz.</p>
+			<div id="servicesList" class="mt-3 grid gap-2"></div>
+		</div>
+
+		<div class="ui-glass rounded-xl p-4">
+			<h2 class="font-semibold">3) Personel (İsteğe bağlı)</h2>
+			<select id="staffSelect" class="mt-3 border ui-border bg-[color:var(--bg-elevated)] rounded-xl px-3 py-2 w-full">
+				<option value="">Otomatik seç</option>
+			</select>
+			<p class="mt-2 text-xs ui-muted">Personel seçmezseniz sistem uygun olana otomatik atar.</p>
+		</div>
+
+		<div class="ui-glass rounded-xl p-4">
+			<h2 class="font-semibold">4) Tarih / Saat</h2>
+			<div class="mt-3 grid md:grid-cols-3 gap-3">
+				<input id="dateInput" type="date" class="border ui-border bg-[color:var(--bg-elevated)] rounded-xl px-3 py-2" />
+				<button id="loadSlotsBtn" class="ui-btn ui-btn-primary">Müsait Saatleri Getir</button>
+			</div>
+			<p id="slotsMsg" class="mt-2 text-sm"></p>
+			<p id="durationHint" class="mt-2 text-xs ui-muted">Randevu süresi standart 40 dakikadır (seçtiğiniz hizmetlerden bağımsız).</p>
+			<div id="slotsList" class="mt-4 grid md:grid-cols-3 gap-2"></div>
+		</div>
+
+		<div class="ui-glass rounded-xl p-4">
+			<h2 class="font-semibold">5) Bilgiler & Onay</h2>
+			<div class="mt-3 grid md:grid-cols-2 gap-3">
+				<input id="fullNameInput" class="border ui-border bg-[color:var(--bg-elevated)] rounded-xl px-3 py-2" placeholder="Ad Soyad" />
+				<input id="phoneInput" class="border ui-border bg-[color:var(--bg-elevated)] rounded-xl px-3 py-2" placeholder="Telefon" />
+				<input id="emailInput" class="border ui-border bg-[color:var(--bg-elevated)] rounded-xl px-3 py-2" placeholder="E-posta (isteğe bağlı)" />
+				<input id="notesInput" class="border ui-border bg-[color:var(--bg-elevated)] rounded-xl px-3 py-2" placeholder="Not (isteğe bağlı)" />
+			</div>
+			<button id="confirmBtn" class="mt-4 ui-btn ui-btn-primary">Randevuyu Onayla</button>
+			<p id="resultBox" class="mt-3 text-sm"></p>
+		</div>
+	</div>
+	</div>
+	</section>
+
+<script src="/public/js/booking.js" defer></script>

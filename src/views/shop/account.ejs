@@ -1,0 +1,158 @@
+<%
+	function safeText(v, fallback) {
+		const s = String(v || '').trim();
+		return s ? s : (fallback || '—');
+	}
+
+	function formatTRDateTime(value) {
+		if (!value) return '—';
+		try { return new Date(value).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' }); } catch { return '—'; }
+	}
+
+	function statusPillClass(status) {
+		const s = String(status || '');
+		return s === 'cancelled' ? 'ui-muted' : 'ui-accent';
+	}
+%>
+
+<section class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card ui-border rounded-2xl p-6 sm:p-8">
+		<div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+			<div>
+				<p class="text-xs ui-muted tracking-widest uppercase">Hesabım</p>
+				<h1 class="mt-2 text-2xl sm:text-3xl font-semibold">Hesap Özeti</h1>
+				<p class="mt-2 ui-muted">Hesap bilgilerin, sipariş özetin ve son siparişlerin.</p>
+			</div>
+			<div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center items-stretch gap-2">
+				<a href="/orders" class="ui-btn ui-btn-secondary sm:whitespace-nowrap text-center">Siparişlerim</a>
+				<a href="/track" class="ui-btn ui-btn-secondary sm:whitespace-nowrap text-center">Sipariş Takibi</a>
+				<a href="/cart" class="ui-btn ui-btn-primary sm:whitespace-nowrap text-center">Sepet (<%= typeof cartCount === 'number' ? cartCount : 0 %>)</a>
+			</div>
+		</div>
+
+		<div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-3">
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">Hesap Bilgileri</h2>
+				<div class="mt-3 grid gap-2 text-sm">
+					<div class="flex items-center justify-between gap-3">
+						<span class="ui-muted">Ad Soyad</span>
+						<span class="font-medium text-right"><%= safeText(user && user.full_name, '—') %></span>
+					</div>
+					<div class="flex items-center justify-between gap-3">
+						<span class="ui-muted">E-posta</span>
+						<span class="font-medium text-right"><%= safeText(user && user.email, '—') %></span>
+					</div>
+					<div class="flex items-center justify-between gap-3">
+						<span class="ui-muted">Telefon</span>
+						<span class="font-medium text-right"><%= safeText(user && user.phone, '—') %></span>
+					</div>
+					<div class="flex items-center justify-between gap-3">
+						<span class="ui-muted">Üyelik Tarihi</span>
+						<span class="font-medium text-right"><%= formatTRDateTime(user && user.created_at) %></span>
+					</div>
+				</div>
+				<div class="mt-4 flex flex-col sm:flex-row gap-2">
+					<form method="post" action="/logout" class="w-full sm:w-auto">
+						<button type="submit" class="ui-btn ui-btn-secondary w-full">Çıkış Yap</button>
+					</form>
+					<a href="/" class="ui-btn ui-btn-ghost w-full sm:w-auto">Mağazaya Git</a>
+				</div>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">Sipariş Özeti</h2>
+				<div class="mt-3 grid gap-2 text-sm">
+					<div class="flex items-center justify-between gap-3">
+						<span class="ui-muted">Toplam Sipariş</span>
+						<span class="font-semibold"><%= Number((orderSummary && orderSummary.totalOrders) || 0) %></span>
+					</div>
+					<div class="flex items-center justify-between gap-3">
+						<span class="ui-muted">Aktif Sipariş</span>
+						<span class="font-semibold"><%= Number((orderSummary && orderSummary.activeCount) || 0) %></span>
+					</div>
+					<div class="flex items-center justify-between gap-3">
+						<span class="ui-muted">Toplam Ödeme</span>
+						<span class="font-semibold"><%= Number((orderSummary && orderSummary.totalCharged) || 0).toFixed(2) %> ₺</span>
+					</div>
+					<div class="flex items-center justify-between gap-3">
+						<span class="ui-muted">Toplam İade</span>
+						<span class="font-semibold"><%= Number((orderSummary && orderSummary.totalRefunded) || 0).toFixed(2) %> ₺</span>
+					</div>
+					<div class="flex items-center justify-between gap-3">
+						<span class="ui-muted">Son Sipariş</span>
+						<span class="font-medium text-right"><%= formatTRDateTime(orderSummary && orderSummary.lastOrderAt) %></span>
+					</div>
+					<div class="flex items-center justify-between gap-3">
+						<span class="ui-muted">Son Durum</span>
+						<span class="inline-flex items-center rounded-full border ui-border px-2 py-1 text-xs font-semibold <%= statusPillClass(orderSummary && orderSummary.lastOrderStatus) %>">
+							<% if (orderSummary && orderSummary.lastOrderStatus) { %>
+								<%= (typeof orderStatusLabelTR === 'function')
+									? orderStatusLabelTR({ status: orderSummary.lastOrderStatus, payment_status: orderSummary.lastOrderPaymentStatus })
+									: statusLabelTR(orderSummary.lastOrderStatus) %>
+							<% } else { %>
+								—
+							<% } %>
+						</span>
+					</div>
+				</div>
+				<a href="/orders" class="mt-4 ui-btn ui-btn-primary w-full">Siparişlerime Git</a>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">Hızlı Yardım</h2>
+				<p class="mt-2 text-sm ui-muted">Takip kodun veya sipariş numaran varsa direkt sorgulayabilirsin.</p>
+				<a href="/track" class="mt-4 ui-btn ui-btn-secondary w-full">Takip Kodu ile Sorgula</a>
+				<a href="/shipping-returns" class="mt-2 ui-btn ui-btn-ghost w-full">Teslimat / İade</a>
+				<a href="/privacy" class="mt-2 ui-btn ui-btn-ghost w-full">Gizlilik</a>
+			</div>
+		</div>
+
+		<div class="mt-6">
+			<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+				<div>
+					<h2 class="text-lg font-semibold">Geçmiş Siparişlerin</h2>
+					<p class="mt-1 text-sm ui-muted">En son 5 sipariş burada listelenir (iade/iptal edilenler dahil).</p>
+				</div>
+				<a class="ui-btn ui-btn-secondary sm:whitespace-nowrap w-full sm:w-auto text-center" href="/orders">Tümü</a>
+			</div>
+
+			<% if (!orders || orders.length === 0) { %>
+				<div class="mt-4 border ui-border rounded-xl p-4">
+					<p class="font-semibold">Henüz siparişin yok.</p>
+					<p class="mt-1 text-sm ui-muted">Ödeme tamamlandıktan sonra burada görünecek.</p>
+					<div class="mt-4 flex flex-col sm:flex-row gap-2">
+						<a class="ui-btn ui-btn-primary" href="/">Ürünlere Git</a>
+						<a class="ui-btn ui-btn-secondary" href="/track">Takip Kodu ile Sorgula</a>
+					</div>
+				</div>
+			<% } else { %>
+					<div class="mt-4 grid gap-3">
+						<% orders.forEach((o) => { %>
+							<%
+								const ps = String(o.payment_status || '').trim().toLowerCase();
+								const refundedAmount = Number(o.refunded_amount || 0) || 0;
+								const showRefundInfo = (ps === 'partial_refunded' || ps === 'refunded') && refundedAmount > 0;
+								const overallLabel = (typeof orderStatusLabelTR === 'function' ? orderStatusLabelTR(o) : statusLabelTR(o.status));
+								const payLabel = (typeof paymentStatusLabelTR === 'function' ? paymentStatusLabelTR(o.payment_status) : safeText(o.payment_status, '—'));
+							%>
+							<div class="border ui-border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+								<div class="min-w-0">
+									<p class="font-semibold">Takip: <span class="font-mono"><%= safeText(o.tracking_code, '—') %></span></p>
+									<p class="mt-1 text-sm ui-muted">
+										<%= formatTRDateTime(o.created_at) %>
+										• <%= overallLabel %>
+										<% if (payLabel && payLabel !== overallLabel) { %> • <%= payLabel %><% } %>
+										• <%= Number(o.total_amount).toFixed(2) %> ₺
+										<% if (showRefundInfo) { %>
+											• İade: <%= refundedAmount.toFixed(2) %> ₺
+										<% } %>
+									</p>
+								</div>
+								<a class="ui-btn ui-btn-primary sm:whitespace-nowrap shrink-0" href="/track?code=<%= encodeURIComponent(o.tracking_code) %>">Takip / Detay</a>
+							</div>
+						<% }) %>
+					</div>
+			<% } %>
+		</div>
+	</div>
+</section>

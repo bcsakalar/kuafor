@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="tr" class="h-full" data-admin-base-path="<%= typeof adminBasePath === 'string' ? adminBasePath : '' %>">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title><%= title %> | <%= (typeof brandName === 'string' && brandName.trim()) ? brandName : 'BySamet Erkek Kuaförü' %> | Admin</title>
+	<link rel="icon" href="/public/logo/logo.ico" type="image/x-icon" />
+	<script src="/public/js/theme-init.js"></script>
+	<link rel="stylesheet" href="/public/css/tailwind.css" />
+	<link rel="stylesheet" href="/public/css/styles.css" />
+</head>
+
+<body
+	class="relative overflow-x-hidden min-h-screen flex flex-col bg-[color:var(--bg-primary)] text-[color:var(--text-primary)]"
+	data-rt-order-id="<%= typeof rtOrderId === 'string' ? rtOrderId : '' %>"
+	data-rt-tracking-code="<%= typeof rtTrackingCode === 'string' ? rtTrackingCode : '' %>"
+>
+	<% if (!(typeof hideAdminNav !== 'undefined' && hideAdminNav)) { %>
+		<%- include('../partials/adminHeader') %>
+	<% } %>
+
+	<main class="flex-1 w-full">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+			<%- body %>
+		</div>
+	</main>
+	<script src="/socket.io/socket.io.js" defer></script>
+	<script src="/public/js/realtime.js" defer></script>
+	<script src="/public/js/nav.js" defer></script>
+	<script src="/public/js/theme.js" defer></script>
+	<script>
+		window.__ADMIN_BASE_PATH__ = document.documentElement.getAttribute('data-admin-base-path') || '';
+	</script>
+</body>
+</html>

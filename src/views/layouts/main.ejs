@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="tr" class="h-full" data-category="<%= typeof currentCategory === 'string' ? currentCategory : 'men' %>">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+	<meta name="theme-color" content="#667eea" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<title><%= title %> | <%= (typeof brandName === 'string' && brandName.trim()) ? brandName : 'BySamet Erkek Kuaförü' %></title>
+	<link rel="icon" href="/public/logo/logo.ico" type="image/x-icon" />
+	<link rel="manifest" href="/public/manifest.json" />
+	<link rel="apple-touch-icon" href="/public/logo/logo.jpg" />
+	<script src="/public/js/theme-init.js"></script>
+	<link rel="stylesheet" href="/public/css/tailwind.css" />
+	<link rel="stylesheet" href="/public/css/styles.css" />
+	<style>
+		/* Touch-friendly improvements */
+		@media (pointer: coarse) {
+			button, a, input, select, textarea { min-height: 44px; }
+		}
+		/* Better focus styles */
+		:focus-visible { outline: 2px solid var(--accent, #667eea); outline-offset: 2px; }
+		/* Smooth scroll */
+		html { scroll-behavior: smooth; }
+		@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+	</style>
+</head>
+<body
+	class="luxury relative overflow-x-hidden min-h-screen flex flex-col bg-[color:var(--bg-primary)] text-[color:var(--text-primary)]"
+	data-rt-order-id="<%= typeof rtOrderId === 'string' ? rtOrderId : '' %>"
+	data-rt-tracking-code="<%= typeof rtTrackingCode === 'string' ? rtTrackingCode : '' %>"
+>
+	<%- include('../partials/siteHeader') %>
+
+	<main class="flex-1 w-full">
+		<%- body %>
+	</main>
+
+	<%- include('../partials/siteFooter') %>
+	<script src="/socket.io/socket.io.js" defer></script>
+	<script src="/public/js/realtime.js" defer></script>
+	<script src="/public/js/nav.js" defer></script>
+	<script src="/public/js/theme.js" defer></script>
+	<script src="/public/js/reveal.js" defer></script>
+	<script>
+		if ('serviceWorker' in navigator) {
+			window.addEventListener('load', function() {
+				navigator.serviceWorker.register('/public/sw.js', { scope: '/' }).catch(function() {});
+			});
+		}
+	</script>
+</body>
+</html>

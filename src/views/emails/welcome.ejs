@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="tr">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="x-apple-disable-message-reformatting" />
+		<title>Aramıza Hoş Geldin</title>
+	</head>
+	<body style="margin:0; padding:0; background-color:#111827; font-family:Arial, Helvetica, sans-serif; color:#e5e7eb;">
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#111827; padding:24px 12px;">
+			<tr>
+				<td align="center">
+					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; background-color:#0b1220; color:#e5e7eb; border-radius:16px; overflow:hidden;">
+						<%- await include('./partials/brandHeader') %>
+						<tr>
+							<td style="padding:22px 22px 0 22px;">
+								<p style="margin:0; font-size:14px; color:#94a3b8; letter-spacing:0.08em; text-transform:uppercase;">Hoş geldin</p>
+								<h1 style="margin:10px 0 0 0; font-size:24px; line-height:32px;">Aramıza Hoş Geldin<% if (fullName) { %>, <%= fullName %><% } %>!</h1>
+								<p style="margin:14px 0 0 0; font-size:15px; line-height:24px; color:#cbd5e1;">
+									Hesabın başarıyla oluşturuldu. Artık randevu oluşturabilir ve hesabından işlemlerini yönetebilirsin.
+								</p>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:18px 22px 22px 22px;">
+								<% if (appBaseUrl) { %>
+									<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:6px;">
+										<tr>
+											<td align="center" bgcolor="#2563eb" style="border-radius:12px;">
+												<a href="<%= appBaseUrl %>" style="display:inline-block; padding:12px 16px; font-size:14px; color:#ffffff; text-decoration:none; border-radius:12px;">Siteye Git</a>
+											</td>
+										</tr>
+									</table>
+								<% } %>
+
+								<p style="margin:18px 0 0 0; font-size:12px; line-height:18px; color:#94a3b8;">
+									Bu e-posta otomatik olarak gönderilmiştir. Yanıtlamayınız.
+								</p>
+								<p style="margin:10px 0 0 0; font-size:12px; line-height:18px; color:#94a3b8;">© <%= year %> <%= brandName %></p>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

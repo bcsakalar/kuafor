@@ -1,0 +1,44 @@
+<section class="max-w-md mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card ui-border rounded-2xl p-6 sm:p-8">
+		<p class="text-xs ui-muted tracking-widest uppercase">Hesap</p>
+		<h1 class="mt-2 text-2xl font-semibold">Giriş Yap</h1>
+		<p class="mt-2 ui-muted">Sepetini ve siparişlerini hesabınla takip et.</p>
+
+		<% if (error) { %>
+			<div class="mt-4 border ui-border rounded-xl p-3 text-sm">
+				<p class="font-semibold">Giriş başarısız</p>
+				<p class="ui-muted mt-1"><%= error %></p>
+			</div>
+		<% } %>
+
+		<form class="mt-6 grid gap-3" method="post" action="/login">
+			<input type="hidden" name="next" value="<%= nextUrl %>" />
+
+			<label class="grid gap-1 text-sm">
+				<span class="text-sm ui-muted">E-posta</span>
+				<input name="email" type="email" required autocomplete="email" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+			</label>
+
+			<label class="grid gap-1 text-sm">
+				<span class="text-sm ui-muted">Şifre</span>
+				<input name="password" type="password" required minlength="6" autocomplete="current-password" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+			</label>
+
+			<button type="submit" class="ui-btn ui-btn-primary w-full">Giriş Yap</button>
+		</form>
+
+		<p class="mt-4 text-sm ui-muted">
+			Şifreni mi unuttun?
+			<a class="underline" href="/forgot-password">Şifre sıfırla</a>
+		</p>
+
+		<div class="mt-4">
+			<a class="ui-btn ui-btn-secondary w-full text-center" href="/auth/google?next=<%= encodeURIComponent(nextUrl) %>">Google ile giriş yap</a>
+		</div>
+
+		<p class="mt-5 text-sm ui-muted">
+			Hesabın yok mu?
+			<a class="underline" href="/register?next=<%= encodeURIComponent(nextUrl) %>">Kayıt Ol</a>
+		</p>
+	</div>
+</section>

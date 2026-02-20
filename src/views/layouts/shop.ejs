@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="tr" class="h-full">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+	<meta name="theme-color" content="#667eea" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<title><%= title %> | <%= (typeof brandName === 'string' && brandName.trim()) ? brandName : 'BySamet Erkek Kuaförü' %></title>
+	<link rel="icon" href="/public/logo/logo.ico" type="image/x-icon" />
+	<link rel="manifest" href="/public/manifest.json" />
+	<link rel="apple-touch-icon" href="/public/logo/logo.jpg" />
+	<script src="/public/js/theme-init.js"></script>
+	<link rel="stylesheet" href="/public/css/tailwind.css" />
+	<link rel="stylesheet" href="/public/css/styles.css" />
+	<style>
+		/* Touch-friendly improvements */
+		@media (pointer: coarse) {
+			button, a, input, select, textarea {
+				min-height: 44px;
+				min-width: 44px;
+			}
+			.touch-target {
+				padding: 12px;
+			}
+		}
+		/* Responsive table container */
+		.table-responsive {
+			overflow-x: auto;
+			-webkit-overflow-scrolling: touch;
+		}
+		/* Better focus styles for accessibility */
+		:focus-visible {
+			outline: 2px solid var(--accent, #667eea);
+			outline-offset: 2px;
+		}
+		/* Smooth scroll behavior */
+		html {
+			scroll-behavior: smooth;
+		}
+		@media (prefers-reduced-motion: reduce) {
+			html {
+				scroll-behavior: auto;
+			}
+		}
+		/* Image lazy loading placeholder (ödeme logoları hariç - beyaz gradient görünmesin) */
+		img[loading="lazy"]:not(.payment-logo) {
+			background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+			background-size: 200% 100%;
+		}
+		.payment-logo {
+			background: transparent !important;
+		}
+	</style>
+</head>
+<body
+	data-app="shop"
+	data-rt-order-id="<%= typeof rtOrderId === 'string' ? rtOrderId : '' %>"
+	data-rt-tracking-code="<%= typeof rtTrackingCode === 'string' ? rtTrackingCode : '' %>"
+	class="relative overflow-x-hidden min-h-screen flex flex-col bg-[color:var(--bg-primary)] text-[color:var(--text-primary)]"
+>
+	<%- include('../partials/shopHeader') %>
+	<main class="flex-1 w-full">
+		<%- body %>
+	</main>
+	<%- include('../partials/shopFooter') %>
+	<script src="/socket.io/socket.io.js" defer></script>
+	<script src="/public/js/realtime.js" defer></script>
+	<script src="/public/js/nav.js" defer></script>
+	<script src="/public/js/theme.js" defer></script>
+	<script>
+		// Service Worker Registration
+		if ('serviceWorker' in navigator) {
+			window.addEventListener('load', function() {
+				navigator.serviceWorker.register('/public/sw.js', { scope: '/' })
+					.then(function(reg) {
+						console.log('[App] Service Worker registered');
+					})
+					.catch(function(err) {
+						console.log('[App] Service Worker registration failed:', err);
+					});
+			});
+		}
+	</script>
+</body>
+</html>

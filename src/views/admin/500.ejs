@@ -1,0 +1,8 @@
+<section class="ui-card ui-border rounded-2xl p-6">
+	<h1 class="text-2xl font-semibold">Bir hata oluştu</h1>
+	<p class="ui-muted mt-2">İşleminizi şu an tamamlayamadık. Lütfen birkaç dakika sonra tekrar deneyin.</p>
+	<p class="ui-muted mt-2 text-sm">Hata kodu: <%= errorId %></p>
+	<div class="mt-4">
+		<a class="ui-btn ui-btn-primary" href="<%= (adminBasePath || '') + '/' %>">Panele dön</a>
+	</div>
+</section>

@@ -1,0 +1,45 @@
+<section class="max-w-md mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card ui-border rounded-2xl p-6 sm:p-8">
+		<p class="text-xs ui-muted tracking-widest uppercase">Hesap</p>
+		<h1 class="mt-2 text-2xl font-semibold">Kayıt Ol</h1>
+		<p class="mt-2 ui-muted">Sipariş geçmişin ve sepetin hesabına bağlansın.</p>
+
+		<% if (error) { %>
+			<div class="mt-4 border ui-border rounded-xl p-3 text-sm">
+				<p class="font-semibold">Kayıt başarısız</p>
+				<p class="ui-muted mt-1"><%= error %></p>
+			</div>
+		<% } %>
+
+		<form class="mt-6 grid gap-3" method="post" action="/register">
+			<input type="hidden" name="next" value="<%= nextUrl %>" />
+
+			<label class="grid gap-1 text-sm">
+				<span class="text-sm ui-muted">Ad Soyad</span>
+				<input name="fullName" type="text" required minlength="2" autocomplete="name" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+			</label>
+
+			<label class="grid gap-1 text-sm">
+				<span class="text-sm ui-muted">Telefon</span>
+				<input name="phone" type="tel" required minlength="10" inputmode="tel" autocomplete="tel" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+			</label>
+
+			<label class="grid gap-1 text-sm">
+				<span class="text-sm ui-muted">E-posta</span>
+				<input name="email" type="email" required autocomplete="email" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+			</label>
+
+			<label class="grid gap-1 text-sm">
+				<span class="text-sm ui-muted">Şifre</span>
+				<input name="password" type="password" required minlength="6" autocomplete="new-password" class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+			</label>
+
+			<button type="submit" class="ui-btn ui-btn-primary w-full">Kayıt Ol</button>
+		</form>
+
+		<p class="mt-5 text-sm ui-muted">
+			Zaten hesabın var mı?
+			<a class="underline" href="/login?next=<%= encodeURIComponent(nextUrl) %>">Giriş Yap</a>
+		</p>
+	</div>
+</section>

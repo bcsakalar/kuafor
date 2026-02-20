@@ -1,0 +1,24 @@
+<div class="min-h-[55vh] flex items-center justify-center">
+	<section class="ui-card ui-border rounded-2xl p-6 sm:p-10 w-full max-w-2xl text-center">
+		<p class="ui-muted text-sm">Hata kodu: 404</p>
+		<h1 class="mt-2 text-3xl font-semibold tracking-tight">
+			<%
+				const t = (typeof title === 'string') ? title.trim() : '';
+				const heading = (!t || t.toLowerCase() === 'bulunamadı' || t.toLowerCase() === 'sayfa bulunamadı')
+					? 'Sayfa bulunamadı'
+					: t;
+			%>
+			<%= heading %>
+		</h1>
+		<p class="ui-muted mt-3">
+			Aradığınız yönetim sayfası bulunamadı. Bağlantı yanlış olabilir veya sayfa taşınmış olabilir.
+		</p>
+		<div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+			<a class="ui-btn ui-btn-primary" href="<%= (adminBasePath || '') + '/' %>">Panele dön</a>
+			<a class="ui-btn ui-btn-ghost" href="<%= (adminBasePath || '') + '/ayarlar' %>">Ayarlar</a>
+		</div>
+		<p class="ui-muted mt-6 text-sm">
+			Eğer bu sayfaya bir linkten geldiysen, link güncel olmayabilir.
+		</p>
+	</section>
+</div>

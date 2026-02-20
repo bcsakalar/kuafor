@@ -1,0 +1,44 @@
+<section class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card ui-border rounded-2xl p-6">
+		<h1 class="text-2xl font-semibold">Ödeme</h1>
+		<p class="mt-2 ui-muted">Ödeme formu bu sayfada açılacaktır. Ödeme sonrası sonuç otomatik işlenecek.</p>
+
+		<div class="mt-6 grid gap-3 text-sm">
+			<div class="flex items-center justify-between gap-4">
+				<span class="ui-muted">Sipariş No</span>
+				<span class="font-mono"><%= String(orderId || '') %></span>
+			</div>
+		</div>
+
+		<% if (paymentError) { %>
+			<div class="mt-6 p-3 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200 text-sm">
+				<%= String(paymentError) %>
+			</div>
+			<div class="mt-6 flex flex-wrap gap-3">
+				<a class="ui-btn ui-btn-primary" href="/checkout">Checkout'a dön</a>
+				<a class="ui-btn ui-btn-secondary" href="/checkout/hosted?orderId=<%= encodeURIComponent(String(orderId)) %>">Tekrar Dene</a>
+			</div>
+		<% } else if (checkoutFormContent) { %>
+			<div class="mt-6" id="iyzico-checkout-form" data-iyzico-hosted="1">
+				<%- checkoutFormContent %>
+			</div>
+			<div id="order-status-poller"
+				data-order-id="<%= String(orderId) %>"
+				data-success-url="/order-success?orderId=<%= encodeURIComponent(String(orderId)) %>">
+			</div>
+			<div class="mt-6 text-xs ui-muted">
+				Form görünmüyorsa sayfayı yenileyin veya <a class="underline" href="/checkout">checkout</a> sayfasından tekrar deneyin.
+			</div>
+		<% } else { %>
+			<div class="mt-6 p-3 rounded border ui-border bg-[color:var(--bg-elevated)] text-sm ui-muted">
+				Ödeme formu yüklenemedi.
+			</div>
+			<div class="mt-6 flex flex-wrap gap-3">
+				<a class="ui-btn ui-btn-primary" href="/checkout">Checkout'a dön</a>
+				<a class="ui-btn ui-btn-secondary" href="/checkout/hosted?orderId=<%= encodeURIComponent(String(orderId)) %>">Tekrar Dene</a>
+			</div>
+		<% } %>
+	</div>
+</section>
+
+<script src="/public/js/shop/checkout-payment.js" defer></script>

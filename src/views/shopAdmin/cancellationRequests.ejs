@@ -1,0 +1,155 @@
+<%
+	function safeText(v, fallback) {
+		const s = String(v || '').trim();
+		return s ? s : (fallback || '—');
+	}
+
+	function formatTRDateTime(value) {
+		if (!value) return '—';
+		try { return new Date(value).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' }); } catch { return '—'; }
+	}
+
+	function requestStatusTR(status) {
+		const s = String(status || '').trim().toLowerCase();
+		if (typeof cancellationRequestTextTR === 'function') {
+			// Admin listesinde kısa etiket tercih ediyoruz.
+			if (s === 'requested') return 'Talep Alındı';
+			if (s === 'approved') return 'Onaylandı';
+			if (s === 'rejected') return 'Reddedildi';
+			if (s === 'cancelled') return 'İptal';
+			return 'Talep Alındı';
+		}
+		if (s === 'requested') return 'Talep Alındı';
+		if (s === 'approved') return 'Onaylandı';
+		if (s === 'rejected') return 'Reddedildi';
+		if (s === 'cancelled') return 'İptal Edildi';
+		return safeText(status, '—');
+	}
+
+	function orderStatusTR(status) {
+		if (typeof orderStageLabelTR === 'function') return orderStageLabelTR(status);
+		const s = String(status || '').trim().toLowerCase();
+		if (s === 'pending') return 'Sipariş Alındı';
+		if (s === 'shipped') return 'Kargoya Verildi';
+		if (s === 'completed') return 'Teslim Edildi';
+		if (s === 'cancelled') return 'İptal Edildi';
+		return safeText(status, '—');
+	}
+
+	function overallOrderStatusTR(orderStatus, paymentStatus) {
+		if (typeof orderStatusLabelTR === 'function') {
+			return orderStatusLabelTR({ status: orderStatus, payment_status: paymentStatus });
+		}
+		return orderStatusTR(orderStatus);
+	}
+
+	function paymentStatusTR(status) {
+		if (typeof paymentStatusLabelTR === 'function') return paymentStatusLabelTR(status);
+		const s = String(status || '').trim().toLowerCase();
+		if (s === 'paid') return 'Ödendi';
+		if (s === 'pending') return 'Beklemede';
+		if (s === 'failed') return 'Başarısız';
+		if (s === 'partial_refunded') return 'Kısmi İade';
+		if (s === 'refunded') return 'İade Edildi';
+		return safeText(status, '—');
+	}
+
+	const q = (typeof query === 'object' && query) ? query : {};
+	const statusFilter = String(q.status || 'requested').trim().toLowerCase();
+	const search = String(q.q || '').trim();
+	const err = String(q.err || '');
+%>
+
+<header class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+	<div>
+		<h1 class="text-2xl font-semibold">İptal / İade Talepleri</h1>
+		<p class="mt-1 ui-muted text-sm">Müşterilerden gelen iptal/iade taleplerini buradan yönetebilirsin.</p>
+	</div>
+	<div class="flex flex-wrap items-center gap-2">
+		<a class="ui-btn ui-btn-secondary w-full sm:w-auto text-center" href="/orders">Siparişler</a>
+	</div>
+</header>
+
+<% if (err) { %>
+	<div class="mb-4 p-3 rounded border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/30 text-rose-800 dark:text-rose-200 text-sm">
+		<% if (err === 'invalid') { %>
+			Geçersiz istek.
+		<% } else if (err === 'notfound') { %>
+			Talep bulunamadı.
+		<% } else if (err === 'status') { %>
+			Bu talep artık işlenemez.
+		<% } else { %>
+			İşlem sırasında hata oluştu.
+		<% } %>
+	</div>
+<% } %>
+
+<div class="ui-card ui-border rounded-2xl p-5">
+	<div class="grid gap-3">
+		<div class="flex flex-wrap items-center gap-2">
+			<a class="ui-btn <%= statusFilter === 'requested' ? 'ui-btn-primary' : 'ui-btn-secondary' %>" href="/cancellation-requests?status=requested">Açık</a>
+			<a class="ui-btn <%= statusFilter === 'approved' ? 'ui-btn-primary' : 'ui-btn-secondary' %>" href="/cancellation-requests?status=approved">Onaylanan</a>
+			<a class="ui-btn <%= statusFilter === 'rejected' ? 'ui-btn-primary' : 'ui-btn-secondary' %>" href="/cancellation-requests?status=rejected">Reddedilen</a>
+			<a class="ui-btn <%= statusFilter === 'cancelled' ? 'ui-btn-primary' : 'ui-btn-secondary' %>" href="/cancellation-requests?status=cancelled">İptal</a>
+			<a class="ui-btn <%= statusFilter === 'all' ? 'ui-btn-primary' : 'ui-btn-secondary' %>" href="/cancellation-requests?status=all">Tümü</a>
+		</div>
+		<form method="get" action="/cancellation-requests" class="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
+			<input type="hidden" name="status" value="<%= encodeURIComponent(statusFilter || 'requested') %>" />
+			<input
+				name="q"
+				value="<%= search %>"
+				placeholder="Takip kodu / Sipariş ID / Talep ID ara"
+				class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm"
+			/>
+			<button class="ui-btn ui-btn-secondary" type="submit">Ara</button>
+		</form>
+	</div>
+
+	<div class="mt-4 grid gap-3">
+		<% (requests || []).forEach((r) => { %>
+			<div class="border ui-border rounded-xl p-4">
+				<div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+					<div class="min-w-0">
+						<p class="font-semibold">
+							<a class="underline" href="/orders/<%= encodeURIComponent(r.order_id) %>">Sipariş #<%= r.order_id %></a>
+							• <span class="border ui-border rounded-full px-2 py-0.5 text-xs"><%= requestStatusTR(r.status) %></span>
+						</p>
+						<p class="mt-1 text-sm ui-muted">
+							Talep: <%= formatTRDateTime(r.created_at) %>
+							• Takip: <span class="font-mono"><%= safeText(r.tracking_code, '—') %></span>
+							• Sipariş Durumu: <span class="border ui-border rounded-full px-2 py-0.5 text-xs"><%= overallOrderStatusTR(r.order_status, r.payment_status) %></span>
+							• Ödeme: <span class="border ui-border rounded-full px-2 py-0.5 text-xs"><%= paymentStatusTR(r.payment_status) %></span>
+							• Tutar: <span class="font-semibold"><%= Number(r.total_amount || 0).toFixed(2) %> ₺</span>
+						</p>
+						<% if (r.customer_note) { %>
+							<p class="mt-2 text-sm ui-muted"><span class="font-semibold">Müşteri Notu:</span> <%= String(r.customer_note) %></p>
+						<% } %>
+						<% if (r.admin_note) { %>
+							<p class="mt-2 text-sm ui-muted"><span class="font-semibold">Admin Notu:</span> <%= String(r.admin_note) %></p>
+						<% } %>
+					</div>
+
+					<div class="shrink-0">
+						<% if (String(r.status) === 'requested') { %>
+							<form method="post" action="/cancellation-requests/<%= encodeURIComponent(r.id) %>/approve" onsubmit="return confirm('Sipariş iptal edilip (kalan) tutar tam iade edilecek. Devam edilsin mi?');" class="grid gap-2">
+								<textarea name="admin_note" rows="2" class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm" placeholder="Admin notu (opsiyonel)"></textarea>
+								<button class="ui-btn ui-btn-secondary" type="submit">Onayla (İptal + İade)</button>
+							</form>
+							<form method="post" action="/cancellation-requests/<%= encodeURIComponent(r.id) %>/reject" onsubmit="return confirm('Talep reddedilecek. Devam edilsin mi?');" class="mt-2 grid gap-2">
+								<textarea name="admin_note" rows="2" class="w-full border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2 text-sm" placeholder="Red notu (opsiyonel)"></textarea>
+								<button class="ui-btn ui-btn-ghost" type="submit">Reddet</button>
+							</form>
+						<% } else { %>
+							<p class="text-sm ui-muted">İşlem yapılmış.</p>
+							<p class="mt-1 text-xs ui-muted">İşlenme: <%= formatTRDateTime(r.processed_at) %></p>
+						<% } %>
+					</div>
+				</div>
+			</div>
+		<% }) %>
+
+		<% if (!requests || requests.length === 0) { %>
+			<p class="ui-muted text-sm">Bu filtrede talep bulunamadı.</p>
+		<% } %>
+	</div>
+</div>

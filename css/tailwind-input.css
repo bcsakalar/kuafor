@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* EJS templates - Tailwind needs to scan these for class names */
+@source "../src/**/*.ejs";
+
+/* Dark variant: data-category men/women, data-app shop/shopadmin, or .dark class */
+@custom-variant dark (&:where([data-category="men"], [data-category="men"] *, [data-category="women"], [data-category="women"] *, [data-app="shop"], [data-app="shop"] *, [data-app="shopadmin"], [data-app="shopadmin"] *, .dark, .dark *));

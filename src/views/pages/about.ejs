@@ -1,0 +1,71 @@
+	<section class="relative overflow-hidden">
+		<div class="pointer-events-none absolute inset-0 mix-blend-soft-light" aria-hidden="true">
+			<div class="absolute -top-44 -right-56 h-[820px] w-[820px] rounded-full bg-[color:var(--accent)] opacity-[0.06] blur-3xl"></div>
+			<div class="absolute -bottom-56 -left-56 h-[880px] w-[880px] rounded-full bg-blue-500/10 opacity-[0.28] blur-3xl"></div>
+		</div>
+		<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+	<div class="grid lg:grid-cols-2 gap-6">
+		<div class="ui-card rounded-2xl p-5 sm:p-7" data-reveal>
+		<h1 class="text-3xl font-semibold tracking-tight">Hakkımızda</h1>
+		<p class="ui-muted mt-3 leading-relaxed">
+			İki ayrı bölümde hizmet veriyoruz: <span class="font-medium">Erkek Kuaförü</span> ve
+			<span class="font-medium">Güzellik Salonu</span>. Ortak noktamız; özenli işçilik, hijyen ve zamanında hizmet.
+		</p>
+		<p class="ui-muted mt-3 leading-relaxed">
+			Erkek kuaförü bölümümüzde saç & sakal uygulamalarında titiz çalışırız.
+			Güzellik salonu bölümümüzde ise cilt bakımı ve kişisel bakım uygulamalarında konforu öncelikleriz.
+		</p>
+		<div class="mt-6 grid sm:grid-cols-2 gap-3">
+			<div class="ui-glass rounded-xl p-4">
+				<p class="font-semibold">Değerlerimiz</p>
+				<ul class="mt-2 text-sm ui-muted space-y-1">
+					<li>Hijyen ve güven</li>
+					<li>Net iletişim</li>
+					<li>Özenli işçilik</li>
+					<li>Zaman yönetimi</li>
+				</ul>
+			</div>
+			<div class="ui-glass rounded-xl p-4">
+				<p class="font-semibold">Kalite Standardı</p>
+				<ul class="mt-2 text-sm ui-muted space-y-1">
+					<li>Dezenfeksiyon rutini</li>
+					<li>Tek kullanımlık ürünler</li>
+					<li>Düzenli ekipman bakımı</li>
+					<li>Konfor odaklı hizmet</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="ui-card rounded-2xl p-5 sm:p-7" data-reveal>
+		<img
+			src="<%= (media && media.slots && media.slots['about.hero'] && media.slots['about.hero'].src) ? media.slots['about.hero'].src : '/public/images/placeholder.svg' %>"
+			alt="<%= (media && media.slots && media.slots['about.hero'] && media.slots['about.hero'].alt) ? media.slots['about.hero'].alt : 'İşletme görseli' %>"
+			class="w-full aspect-video object-cover rounded-xl border ui-border"
+		/>
+		<div class="mt-4 grid sm:grid-cols-2 gap-3">
+			<div class="ui-glass rounded-xl p-4">
+				<p class="font-medium">Erkek Kuaförü</p>
+				<p class="mt-1 text-sm ui-muted">Klasik & modern kesimler, sakal düzenleme.</p>
+			</div>
+			<div class="ui-glass rounded-xl p-4">
+				<p class="font-medium">Güzellik Salonu</p>
+				<p class="mt-1 text-sm ui-muted">Cilt bakımı ve kişisel bakım uygulamaları.</p>
+			</div>
+		</div>
+		<div class="mt-4">
+			<a class="ui-btn ui-btn-primary" href="/randevu" data-book-trigger>Randevu Al</a>
+		</div>
+		<div class="ui-glass mt-6 rounded-xl p-4">
+			<p class="font-semibold">Şirket Bilgileri</p>
+			<div class="mt-2">
+				<% const s = (typeof settings === 'object' && settings) ? settings : {}; %>
+				<%- include('../partials/legalContactBlock', { settings: s, showTax: false }) %>
+			</div>
+		</div>
+	</div>
+	</div>
+		</div>
+	</section>
+
+<script src="/public/js/about.js" defer></script>

@@ -1,0 +1,93 @@
+<%
+	const s = (typeof settings === 'object' && settings) ? settings : {};
+%>
+
+<section class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card ui-border rounded-2xl p-6 sm:p-8">
+		<p class="text-xs ui-muted tracking-widest uppercase">İptal & İade</p>
+		<h1 class="mt-2 text-2xl sm:text-3xl font-semibold">İptal, Cayma ve İade Prosedürü</h1>
+		<p class="mt-3 ui-muted">
+			Bu metin; 6502 sayılı Kanun ve Mesafeli Sözleşmeler Yönetmeliği kapsamında sipariş iptali, 14 günlük cayma hakkı,
+			iade gönderimi ve bedel iadesi süreçlerine ilişkin bilgilendirme sunar.
+		</p>
+
+		<div class="mt-6 rounded-xl border ui-border p-4 text-sm ui-muted">
+			<p class="font-semibold text-[color:var(--text-primary)]">Satıcı İletişim</p>
+			<div class="mt-2">
+				<%- include('../../partials/legalContactBlock', { settings: s, showTax: false }) %>
+			</div>
+		</div>
+
+		<div class="mt-8 grid gap-6">
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">1) Sipariş iptali</h2>
+				<ul class="mt-2 text-sm ui-muted list-disc pl-5">
+					<li>Siparişiniz kargoya verilmeden önce iptal edilebilir.</li>
+					<li>İptal talebinizi; sipariş numaranız ile birlikte e‑posta veya iletişim kanallarımız üzerinden iletebilirsiniz.</li>
+					<li>İptal onaylandığında ödeme iadesi, ödemenin yapıldığı yöntemle gerçekleştirilir.</li>
+				</ul>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">2) Cayma hakkı (14 gün)</h2>
+				<p class="mt-2 text-sm ui-muted">
+					Tüketici; malın tesliminden itibaren 14 gün içinde herhangi bir gerekçe göstermeksizin ve cezai şart ödemeksizin cayma hakkını kullanabilir.
+					Cayma hakkının kullanımı için satıcıya yazılı bildirim (e‑posta/KEP gibi) yapılması yeterlidir.
+				</p>
+				<p class="mt-2 text-sm ui-muted">
+					Cayma hakkı bildirimi yaptıktan sonra, iade edilecek ürünün mümkünse orijinal ambalajı ile, tekrar satılabilir ve hasarsız şekilde gönderilmesi beklenir.
+				</p>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">3) Cayma hakkı istisnaları (özellikle hijyen ürünleri)</h2>
+				<p class="mt-2 text-sm ui-muted">
+					Mevzuat gereği bazı ürünlerde cayma hakkı istisnaları uygulanabilir.
+					Örneğin; ambalajı açılmış, iadesi sağlık ve hijyen açısından uygun olmayan ürünler (kozmetik/kişisel bakım vb.) iade kapsamı dışında değerlendirilebilir.
+					İstisnanın uygulanıp uygulanmayacağı ürünün niteliğine göre değerlendirilir.
+				</p>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">4) İade gönderimi (kargo ve paketleme)</h2>
+				<ul class="mt-2 text-sm ui-muted list-disc pl-5">
+					<li>İade talebinizi, sipariş numaranız ile birlikte bize iletin (e‑posta/iletişim formu).</li>
+					<li>Talebiniz alındıktan sonra, iade kargo adımları hakkında bilgilendirme yapılır.</li>
+					<li>Ürünü; hasar görmeyecek şekilde paketleyin, varsa fatura/irsaliye bilgilerini ekleyin.</li>
+					<li>İade adresi olarak: <span class="font-medium"><%= s.contact_address || '-' %></span> kullanılacaktır (adres boşsa, iade öncesi bizimle iletişime geçin).</li>
+				</ul>
+				<p class="mt-2 text-sm ui-muted">
+					Kargo ücretinin kime ait olacağı, iadenin sebebine (cayma, ayıplı ürün, yanlış ürün vb.) ve mevzuat hükümlerine göre değişebilir.
+				</p>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">5) İnceleme ve onay</h2>
+				<p class="mt-2 text-sm ui-muted">
+					İade ürün satıcıya ulaştıktan sonra; ürünün durumu, ambalajı ve iade koşullarına uygunluğu kontrol edilir.
+					İade koşullarını karşılayan talepler için bedel iadesi süreci başlatılır.
+				</p>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">6) Bedel iadesi</h2>
+				<p class="mt-2 text-sm ui-muted">
+					Cayma hakkının geçerli şekilde kullanılması halinde, iade edilen ürün bedeli ve mevzuat gereği iade edilmesi gereken tutarlar,
+					ödemenin yapıldığı yöntemle iade edilir. Banka/ödeme kuruluşu süreçleri nedeniyle hesaba yansıma süreleri değişebilir.
+				</p>
+			</div>
+
+			<div class="border ui-border rounded-xl p-4">
+				<h2 class="font-semibold">7) İletişim</h2>
+				<p class="mt-2 text-sm ui-muted">
+					İptal/iade talepleriniz için <span class="font-medium"><%= s.contact_email || '-' %></span> üzerinden bizimle iletişime geçebilirsiniz.
+				</p>
+			</div>
+		</div>
+
+		<div class="mt-8 flex items-center gap-2">
+			<a href="/" class="ui-btn ui-btn-secondary">Mağazaya Dön</a>
+			<a href="/sozlesmeler/mesafeli-satis" class="ui-btn ui-btn-secondary">Mesafeli Satış</a>
+		</div>
+	</div>
+</section>

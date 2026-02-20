@@ -1,0 +1,173 @@
+<section class="grid gap-6">
+	<div class="ui-card ui-border rounded-2xl p-5 sm:p-6">
+		<h1 class="text-2xl font-semibold">Yönetim Paneli</h1>
+		<p class="mt-2 ui-muted leading-relaxed">
+			Günlük planı buradan takip edin: yaklaşan randevular, şube yoğunluğu ve personel bazında görünüm tek ekranda.
+		</p>
+
+		<div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+			<div class="border ui-border rounded-xl p-4 bg-[color:var(--bg-primary)]">
+				<p class="text-sm ui-muted">Bugün Randevu Geliri</p>
+				<p class="mt-1 text-2xl font-semibold"><%= Number((todayAppointment && todayAppointment.appointment_revenue_today) || 0).toFixed(2) %> ₺</p>
+				<p class="mt-1 text-sm ui-muted">Tamamlanan randevuların toplamı</p>
+			</div>
+			<div class="border ui-border rounded-xl p-4 bg-[color:var(--bg-primary)]">
+				<p class="text-sm ui-muted">Bu Ay Randevu Geliri</p>
+				<p class="mt-1 text-2xl font-semibold"><%= Number((monthAppointment && monthAppointment.appointment_revenue_month) || 0).toFixed(2) %> ₺</p>
+				<p class="mt-1 text-sm ui-muted">Tamamlanan randevuların toplamı</p>
+			</div>
+			<div class="border ui-border rounded-xl p-4 bg-[color:var(--bg-primary)]">
+				<p class="text-sm ui-muted">Ayın Elemanı</p>
+				<p class="mt-1 text-2xl font-semibold"><%= (staffOfMonth && staffOfMonth.staff_full_name) ? staffOfMonth.staff_full_name : '-' %></p>
+				<p class="mt-1 text-sm ui-muted">
+					<%= Number((staffOfMonth && staffOfMonth.appointments_count) || 0) %> randevu
+				</p>
+			</div>
+			<div class="border ui-border rounded-xl p-4 bg-[color:var(--bg-elevated)]">
+				<p class="text-sm ui-muted">Doluluk (Bugün)</p>
+				<p class="mt-1 text-2xl font-semibold">
+					<%
+						const cap = Number((occupancy && occupancy.capacity_slots) || 0);
+						const booked = Number((occupancy && occupancy.booked_slots) || 0);
+						const pct = cap > 0 ? Math.round((booked / cap) * 100) : 0;
+					%>
+					<%= pct %>%
+				</p>
+				<p class="mt-1 text-sm ui-muted"><%= booked %> / <%= cap %> slot</p>
+			</div>
+		</div>
+
+		<div class="mt-6 grid lg:grid-cols-2 gap-6">
+			<div class="ui-card ui-border rounded-2xl p-5 sm:p-6">
+				<h2 class="text-lg font-semibold">Son 7 Günlük Randevu Geliri</h2>
+				<p class="ui-muted mt-1 text-sm">Tamamlanan randevular (günlük).</p>
+				<div class="mt-4">
+					<canvas id="revenue7dChart" height="120"></canvas>
+				</div>
+			</div>
+			<div class="ui-card ui-border rounded-2xl p-5 sm:p-6">
+				<h2 class="text-lg font-semibold">Randevu Doluluk Oranı</h2>
+				<p class="ui-muted mt-1 text-sm">Bugün için slot bazlı doluluk.</p>
+				<div class="mt-4">
+					<canvas id="occupancyPieChart" height="120"></canvas>
+				</div>
+			</div>
+		</div>
+
+		<div class="mt-4 border ui-border rounded-xl p-4 bg-[color:var(--bg-primary)]">
+			<p class="font-semibold">Randevu Kodu ile Ara</p>
+			<p class="mt-1 text-sm ui-muted">Müşterinin paylaştığı randevu kodunu girerek randevuyu hızlıca bulun.</p>
+			<div class="mt-3 flex flex-col sm:flex-row gap-2">
+				<input id="apptSearchCode" class="flex-1 border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="Örn: 8a6df6cf-0bc4-433e-ae09-ef2fbaa98160" />
+				<button id="apptSearchBtn" class="ui-btn ui-btn-primary px-4">Ara</button>
+			</div>
+			<p id="apptSearchMsg" class="mt-2 text-sm"></p>
+			<div id="apptSearchResult" class="mt-3"></div>
+		</div>
+
+		<div class="mt-4 border ui-border rounded-xl p-4 bg-[color:var(--bg-primary)]">
+			<p class="font-semibold">Son Randevular</p>
+			<p class="mt-1 text-sm ui-muted">Yeni randevular gerçek zamanlı olarak burada görünür.</p>
+			<ul id="recentAppointmentsList" class="mt-3 grid gap-2"></ul>
+			<p id="recentAppointmentsEmpty" class="mt-2 text-sm ui-muted">Henüz yeni randevu yok.</p>
+		</div>
+		<div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+			<div class="border ui-border rounded-xl p-4 bg-[color:var(--bg-primary)]">
+				<p class="text-sm ui-muted">Erkek Kuaförü</p>
+				<p class="mt-1 text-2xl font-semibold"><%= (upcomingMen || []).length %></p>
+				<p class="mt-1 text-sm ui-muted">yaklaşan randevu</p>
+			</div>
+			<div class="border ui-border rounded-xl p-4 bg-[color:var(--bg-primary)]">
+				<p class="text-sm ui-muted">Güzellik Salonu</p>
+				<p class="mt-1 text-2xl font-semibold"><%= (upcomingWomen || []).length %></p>
+				<p class="mt-1 text-sm ui-muted">yaklaşan randevu</p>
+			</div>
+			<div class="border ui-border rounded-xl p-4 bg-[color:var(--bg-elevated)]">
+				<p class="text-sm ui-muted">Not</p>
+				<p class="mt-1 text-sm ui-muted">“Her ikisi” olarak tanımlanan personel, iki şube için de randevu alabilir.</p>
+			</div>
+			<div class="border ui-border rounded-xl p-4 bg-[color:var(--bg-elevated)]">
+				<p class="text-sm ui-muted">Çakışma Kontrolü</p>
+				<p class="mt-1 text-sm ui-muted">Aynı personel için aynı saat aralığına ikinci randevu alınamaz.</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="grid lg:grid-cols-2 gap-6">
+	<div class="ui-card ui-border rounded-2xl p-5 sm:p-6">
+		<h2 class="text-2xl font-semibold">Erkek Kuaförü</h2>
+		<p class="ui-muted mt-2">Yaklaşan randevular (Erkek Kuaförü)</p>
+
+		<div class="mt-4 overflow-x-auto">
+			<table class="w-full text-sm">
+				<thead>
+					<tr class="text-left border-b ui-border">
+						<th class="py-2">Tarih</th>
+						<th>Müşteri</th>
+						<th>Telefon</th>
+						<th>Personel</th>
+					</tr>
+				</thead>
+				<tbody id="upcomingMenTbody">
+					<% if (!upcomingMen || upcomingMen.length === 0) { %>
+						<tr class="border-b ui-border">
+							<td class="py-3 ui-muted" colspan="4" data-empty-row="1">Yaklaşan randevu yok.</td>
+						</tr>
+					<% } %>
+					<% (upcomingMen || []).forEach(a => { %>
+						<tr class="border-b ui-border">
+							<td class="py-2"><%= new Date(a.starts_at).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' }) %></td>
+							<td><%= a.customer_full_name %></td>
+							<td><%= a.customer_phone %></td>
+							<td><%= a.staff_full_name || '-' %></td>
+						</tr>
+					<% }) %>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="ui-card ui-border rounded-2xl p-5 sm:p-6">
+		<h2 class="text-xl font-semibold">Güzellik Salonu</h2>
+		<p class="ui-muted mt-2">Yaklaşan randevular</p>
+
+		<div class="mt-4 overflow-x-auto">
+			<table class="w-full text-sm">
+				<thead>
+					<tr class="text-left border-b ui-border">
+						<th class="py-2">Tarih</th>
+						<th>Müşteri</th>
+						<th>Telefon</th>
+						<th>Personel</th>
+					</tr>
+				</thead>
+				<tbody id="upcomingWomenTbody">
+					<% if (!upcomingWomen || upcomingWomen.length === 0) { %>
+						<tr class="border-b ui-border">
+							<td class="py-3 ui-muted" colspan="4" data-empty-row="1">Yaklaşan randevu yok.</td>
+						</tr>
+					<% } %>
+					<% (upcomingWomen || []).forEach(a => { %>
+						<tr class="border-b ui-border">
+							<td class="py-2"><%= new Date(a.starts_at).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' }) %></td>
+							<td><%= a.customer_full_name %></td>
+							<td><%= a.customer_phone %></td>
+							<td><%= a.staff_full_name || '-' %></td>
+						</tr>
+					<% }) %>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	</div>
+</section>
+
+<script>
+	window.__DASHBOARD_ANALYTICS__ = {
+		last7DaysRevenue: <%- JSON.stringify(last7DaysAppointmentRevenue || []) %>,
+		occupancy: <%- JSON.stringify(occupancy || {}) %>,
+	};
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+<script src="/public/js/admin/dashboard.js" defer></script>

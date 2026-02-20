@@ -1,0 +1,24 @@
+<section class="max-w-lg mx-auto ui-card ui-border rounded-2xl p-6">
+	<h1 class="text-2xl font-semibold">Admin Giriş</h1>
+	<p class="mt-2 text-sm ui-muted">Yönetim paneline erişmek için giriş yapın.</p>
+
+	<% if (success) { %>
+		<div class="mt-4 p-3 rounded border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 text-sm"><%= success %></div>
+	<% } %>
+
+	<% if (error) { %>
+		<div class="mt-4 p-3 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200 text-sm"><%= error %></div>
+	<% } %>
+
+	<form class="mt-6 grid gap-3" method="post" action="<%= (adminBasePath || '') + '/login' %>">
+		<label class="grid gap-1 text-sm">
+			<span class="ui-muted">E-posta</span>
+			<input name="email" type="email" required class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="admin@ornek.com" />
+		</label>
+		<label class="grid gap-1 text-sm">
+			<span class="ui-muted">Şifre</span>
+			<input name="password" type="password" required class="border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" placeholder="••••••••" />
+		</label>
+		<button class="mt-2 ui-btn ui-btn-primary" type="submit">Giriş Yap</button>
+	</form>
+</section>

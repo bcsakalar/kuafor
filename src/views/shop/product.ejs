@@ -1,0 +1,137 @@
+<section class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+	<nav class="text-sm">
+		<a href="/products" class="ui-muted hover:underline">Ürünler</a>
+		<span class="ui-muted">/</span>
+		<span class="font-semibold"><%= product.name %></span>
+	</nav>
+
+	<div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+		<div class="ui-card ui-border rounded-2xl overflow-hidden self-start">
+			<div class="aspect-[4/3] bg-[color:var(--bg-elevated)]">
+				<% if (product.image_url) { %>
+					<img src="<%= product.image_url %>" alt="<%= product.name %>" class="w-full h-full object-cover" />
+				<% } else { %>
+					<div class="w-full h-full relative" style="background: radial-gradient(640px 320px at 18% 12%, var(--ring), transparent 60%), linear-gradient(180deg, var(--bg-elevated), transparent);">
+						<div class="absolute inset-0 flex items-center justify-center">
+							<div class="text-center px-6">
+								<p class="text-xs ui-muted">Görsel yakında</p>
+								<p class="mt-1 text-sm font-semibold"><%= product.name %></p>
+							</div>
+						</div>
+					</div>
+				<% } %>
+			</div>
+		</div>
+
+		<div class="ui-card ui-border rounded-2xl p-6">
+			<%
+				const sizeOptions = Array.isArray(product.size_options) ? product.size_options.filter(Boolean) : [];
+				const colorOptions = Array.isArray(product.color_options) ? product.color_options.filter(Boolean) : [];
+				const hasSizeOptions = sizeOptions.length > 0;
+				const hasColorOptions = colorOptions.length > 0;
+				const variantError = (typeof query === 'object' && query && query.variant_error) ? String(query.variant_error) : '';
+			%>
+			<h1 class="text-2xl sm:text-3xl font-semibold leading-tight"><%= product.name %></h1>
+			<div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+				<% if (!hasSizeOptions && product.size) { %>
+					<span class="text-xs px-2 py-1 rounded-full border ui-border bg-[color:var(--bg-elevated)]"><%= product.size %></span>
+				<% } %>
+				<% if (product.category_name) { %>
+					<span class="ui-muted">Kategori: <%= product.category_name %></span>
+				<% } %>
+				<% if (product.stock > 0) { %>
+					<span class="text-xs px-2 py-1 rounded-full border ui-border bg-[color:var(--bg-elevated)]">Stokta</span>
+				<% } else { %>
+					<span class="text-xs px-2 py-1 rounded-full border ui-border bg-[color:var(--bg-elevated)]">Tükendi</span>
+				<% } %>
+			</div>
+
+			<div class="mt-6 flex flex-col gap-6">
+				<div>
+					<p class="text-xs ui-muted">Fiyat</p>
+					<%
+						const basePrice = Number(product.price);
+						const minEff = Number((product.min_price ?? product.price));
+						const showMin = Number.isFinite(minEff) ? minEff : basePrice;
+						const formattedMinPrice = Number.isFinite(showMin)
+							? showMin.toLocaleString('tr-TR', { minimumFractionDigits: (Math.abs(showMin % 1) > 1e-9 ? 2 : 0), maximumFractionDigits: 2 })
+							: '';
+						const stockNum = Number(product.stock) || 0;
+						const isOutOfStock = stockNum <= 0;
+						const isLowStock = !isOutOfStock && stockNum <= 5;
+					%>
+					<p class="text-2xl font-semibold tabular-nums" data-price-display><%= formattedMinPrice %> ₺</p>
+					<p class="mt-1 text-sm ui-muted">Boyut seçince fiyat güncellenir.</p>
+					<% if (isLowStock) { %>
+						<div class="mt-3 p-3 rounded border border-red-600/30 bg-red-950/20 text-red-200 text-sm">
+							<strong>Son stoklar:</strong> Bu ürün tükenmek üzere. Geç kalmadan sipariş verin.
+						</div>
+					<% } %>
+				</div>
+				<form class="w-full flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-2" method="post" action="/cart/add" data-variant-pricing>
+					<input type="hidden" name="productId" value="<%= product.id %>" />
+					<input type="hidden" data-base-price value="<%= Number(product.price).toFixed(2) %>" />
+					<input type="hidden" data-variant-prices-json value="<%= JSON.stringify(product.variant_prices || {}) %>" />
+					<div class="sm:order-[-1] w-full p-3 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200 text-sm <%= variantError ? '' : 'hidden' %>" data-variant-error>
+						Seçenekleri kontrol edin. Boyut (ml/gr) ve varsa renk seçin.
+					</div>
+					<% if (hasSizeOptions) { %>
+						<label class="grid gap-1 text-xs w-full sm:w-auto">
+							<span class="ui-muted">Boyut (ml/gr)</span>
+							<% if (sizeOptions.length === 1) { %>
+								<input type="hidden" name="selected_size" value="<%= sizeOptions[0] %>" />
+								<input value="<%= sizeOptions[0] %>" disabled class="w-full sm:w-44 border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+							<% } else { %>
+								<select name="selected_size" required class="w-full sm:w-44 border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2">
+									<option value="" selected>Seçiniz</option>
+									<% sizeOptions.forEach((opt) => { %>
+										<option value="<%= opt %>"><%= opt %></option>
+									<% }) %>
+								</select>
+							<% } %>
+							<p class="text-[11px] ui-muted">Fiyat seçilen boyuta göre değişebilir.</p>
+						</label>
+					<% } %>
+					<% if (hasColorOptions) { %>
+						<label class="grid gap-1 text-xs w-full sm:w-auto">
+							<span class="ui-muted">Renk</span>
+							<% if (colorOptions.length === 1) { %>
+								<input type="hidden" name="selected_color" value="<%= colorOptions[0] %>" />
+								<input value="<%= colorOptions[0] %>" disabled class="w-full sm:w-44 border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+							<% } else { %>
+								<select name="selected_color" required class="w-full sm:w-44 border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2">
+									<option value="" selected>Seçiniz</option>
+									<% colorOptions.forEach((opt) => { %>
+										<option value="<%= opt %>"><%= opt %></option>
+									<% }) %>
+								</select>
+							<% } %>
+						</label>
+					<% } %>
+					<input name="quantity" type="number" min="1" max="<%= Math.min(50, Math.max(1, product.stock)) %>" value="1" class="w-24 border ui-border bg-[color:var(--bg-elevated)] rounded px-3 py-2" />
+					<button class="ui-btn ui-btn-primary sm:shrink-0" type="submit" <%= product.stock <= 0 ? 'disabled' : '' %>>Sepete Ekle</button>
+				</form>
+			</div>
+
+			<% if (product.stock <= 0) { %>
+				<div class="mt-4 p-3 rounded border ui-border bg-[color:var(--bg-elevated)] text-sm ui-muted">Bu ürün şu an stokta yok.</div>
+			<% } %>
+
+			<% if (product.description) { %>
+				<div class="mt-8">
+					<p class="text-sm font-semibold">Açıklama</p>
+					<p class="mt-2 whitespace-pre-line ui-muted"><%= product.description %></p>
+				</div>
+			<% } %>
+
+			<div class="mt-8 ui-border rounded-xl p-4">
+				<p class="text-sm font-semibold">Bilgilendirme</p>
+				<ul class="mt-2 text-sm ui-muted space-y-1">
+					<li><a class="hover:underline" href="/shipping-returns">Teslimat & İade</a></li>
+					<li><a class="hover:underline" href="/privacy">Gizlilik Politikası</a></li>
+					<li><a class="hover:underline" href="/cookies">Çerez Politikası</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="tr">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="x-apple-disable-message-reformatting" />
+		<title>Sipariş İadesi (Admin)</title>
+	</head>
+	<body style="margin:0; padding:0; background-color:#111827; font-family:Arial, Helvetica, sans-serif; color:#e5e7eb;">
+		<%
+			function moneyTR(value) {
+				const n = Number(value);
+				if (!Number.isFinite(n)) return '0,00 ₺';
+				return n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺';
+			}
+			const adminOrderUrl = (appBaseUrl && orderId)
+				? `${String(appBaseUrl).replace(/\/$/, '')}/orders/${encodeURIComponent(String(orderId))}`
+				: '';
+		%>
+
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#111827; padding:24px 12px;">
+			<tr>
+				<td align="center">
+					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:720px; background-color:#0b1220; color:#e5e7eb; border-radius:16px; overflow:hidden;">
+						<%- await include('../partials/brandHeader') %>
+						<tr>
+							<td style="padding:22px 22px 0 22px;">
+								<p style="margin:0; font-size:14px; color:#94a3b8; letter-spacing:0.08em; text-transform:uppercase;">Sipariş İadesi</p>
+								<h1 style="margin:10px 0 0 0; font-size:22px; line-height:30px;">İade işlemi kaydedildi</h1>
+								<p style="margin:12px 0 0 0; font-size:15px; line-height:24px; color:#cbd5e1;">
+									Sipariş için iade işlemi yapıldı. İade tutarı: <strong><%= moneyTR(refundAmount) %></strong>.
+								</p>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:16px 22px 0 22px;">
+								<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #334155; background-color:#0f172a; border-radius:12px;">
+									<tr>
+										<td style="padding:12px 14px;">
+											<p style="margin:0; font-size:12px; color:#94a3b8;">Sipariş No</p>
+											<p style="margin:6px 0 0 0; font-size:14px; color:#f8fafc;"><strong><%= orderId || '—' %></strong></p>
+											<% if (trackingCode) { %>
+												<p style="margin:6px 0 0 0; font-size:12px; color:#94a3b8;">Takip: <span style="font-family:monospace;"><%= trackingCode %></span></p>
+											<% } %>
+										</td>
+										<td style="padding:12px 14px;" align="right">
+											<p style="margin:0; font-size:12px; color:#94a3b8;">Müşteri</p>
+											<p style="margin:6px 0 0 0; font-size:14px; color:#cbd5e1;">
+												<strong><%= customerName || '—' %></strong>
+												<% if (customerEmail) { %><br /><span style="font-size:12px; color:#94a3b8;"><%= customerEmail %></span><% } %>
+												<% if (customerPhone) { %><br /><span style="font-size:12px; color:#94a3b8;"><%= customerPhone %></span><% } %>
+											</p>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:18px 22px 22px 22px;">
+								<% if (adminOrderUrl) { %>
+									<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:6px;">
+										<tr>
+											<td align="center" bgcolor="#2563eb" style="border-radius:12px;">
+												<a href="<%= adminOrderUrl %>" style="display:inline-block; padding:12px 16px; font-size:14px; color:#ffffff; text-decoration:none; border-radius:12px;">Sipariş Detayını Aç</a>
+											</td>
+										</tr>
+									</table>
+								<% } %>
+								<p style="margin:18px 0 0 0; font-size:12px; line-height:18px; color:#94a3b8;">Bu e-posta otomatik olarak gönderilmiştir.</p>
+								<p style="margin:10px 0 0 0; font-size:12px; line-height:18px; color:#94a3b8;">© <%= year %> <%= brandName %></p>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

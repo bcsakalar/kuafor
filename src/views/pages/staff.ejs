@@ -1,0 +1,52 @@
+<section class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+	<div class="ui-card rounded-2xl p-5 sm:p-7" data-reveal>
+		<h1 class="text-3xl font-semibold tracking-tight h-font">Ekibimiz</h1>
+		<p class="ui-muted mt-3">
+			Seçtiğiniz konsepte göre uygun uzmanlarımızı görebilir, isterseniz randevu sırasında personel seçebilirsiniz.
+		</p>
+		<div class="mt-5 flex flex-wrap gap-3">
+			<a class="ui-btn ui-btn-primary" href="/randevu" data-book-trigger>Randevu Al</a>
+			<a class="ui-btn ui-btn-ghost" href="/hizmetler">Hizmetlere Git</a>
+		</div>
+	</div>
+
+	<div class="mt-8 grid lg:grid-cols-2 gap-6">
+		<div class="ui-card rounded-2xl p-5 sm:p-7" data-reveal>
+			<h2 class="text-xl font-semibold">Erkek Kuaförü</h2>
+			<p class="mt-2 text-sm ui-muted">Kesim, sakal ve bakım hizmetleri.</p>
+			<div class="mt-5 grid sm:grid-cols-2 gap-4" data-for="men">
+				<% (menStaff || []).forEach(p => { %>
+					<div class="rounded-2xl border ui-border p-5 bg-[color:var(--bg-elevated)]">
+						<p class="font-semibold"><%= p.full_name %></p>
+						<p class="mt-1 text-sm ui-muted"><%= p.role ? p.role : 'Uzman' %></p>
+					</div>
+				<% }) %>
+				<% if (!menStaff || menStaff.length === 0) { %>
+					<p class="ui-muted text-sm">Bu kategori için aktif personel bulunamadı.</p>
+				<% } %>
+			</div>
+			<div class="mt-5" data-for="women">
+				<p class="ui-muted text-sm">Kuaför ekibini görmek için üst menüden “KUAFÖR” seçin.</p>
+			</div>
+		</div>
+
+		<div class="ui-card rounded-2xl p-5 sm:p-7" data-reveal>
+			<h2 class="text-xl font-semibold">Güzellik Salonu</h2>
+			<p class="mt-2 text-sm ui-muted">Cilt bakımı ve kişisel bakım uygulamaları.</p>
+			<div class="mt-5 grid sm:grid-cols-2 gap-4" data-for="women">
+				<% (womenStaff || []).forEach(p => { %>
+					<div class="rounded-2xl border ui-border p-5 bg-[color:var(--bg-elevated)]">
+						<p class="font-semibold"><%= p.full_name %></p>
+						<p class="mt-1 text-sm ui-muted"><%= p.role ? p.role : 'Uzman' %></p>
+					</div>
+				<% }) %>
+				<% if (!womenStaff || womenStaff.length === 0) { %>
+					<p class="ui-muted text-sm">Bu kategori için aktif personel bulunamadı.</p>
+				<% } %>
+			</div>
+			<div class="mt-5" data-for="men">
+				<p class="ui-muted text-sm">Güzellik ekibini görmek için üst menüden “GÜZELLİK” seçin.</p>
+			</div>
+		</div>
+	</div>
+</section>

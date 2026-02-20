@@ -1,0 +1,746 @@
+/* Global design tokens via CSS variables.
+   Theme is controlled by html[data-category="men"|"women"]. */
+
+/* Hamburger menu responsive helper */
+@media (min-width: 1024px) {
+	[data-mobile-nav-toggle] {
+		display: none !important;
+	}
+}
+
+:root {
+	color-scheme: light;
+}
+
+html {
+	--bg-primary: #f9f7f2;
+	--bg-elevated: #ffffff;
+	--text-primary: #141414;
+	--text-muted: #5a5a5a;
+	--border: rgba(20, 20, 20, 0.12);
+	--accent: #d4af37; /* gold */
+	--accent-contrast: #ffffff;
+	--ring: rgba(212, 175, 55, 0.35);
+	--hero-overlay: rgba(20, 20, 20, 0.35);
+	--font-heading: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+	--font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+
+html[data-category="men"],
+html[data-category="women"] {
+	color-scheme: dark;
+	--bg-primary: #1a1a1a; /* charcoal */
+	--bg-elevated: #111111;
+	--text-primary: rgba(255, 255, 255, 0.92);
+	--text-muted: rgba(255, 255, 255, 0.68);
+	--border: rgba(255, 255, 255, 0.14);
+	--accent: #d4af37; /* gold */
+	--accent-contrast: #111111;
+	--ring: rgba(212, 175, 55, 0.35);
+	--hero-overlay: rgba(0, 0, 0, 0.55);
+	--font-heading: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+	--font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+
+/* Shop + ShopAdmin: always use a clean dark ecommerce palette.
+   Scoped by body[data-app] so the main site keeps its own theme. */
+body[data-app="shop"],
+body[data-app="shopadmin"] {
+	color-scheme: dark;
+	--bg-primary: #020617; /* slate-950 */
+	--bg-elevated: rgba(255, 255, 255, 0.04);
+	--text-primary: rgba(255, 255, 255, 0.92);
+	--text-muted: rgba(255, 255, 255, 0.68);
+	--border: rgba(255, 255, 255, 0.14);
+	--accent: #d4af37;
+	--accent-contrast: #111111;
+	--ring: rgba(212, 175, 55, 0.35);
+	--hero-overlay: rgba(0, 0, 0, 0.58);
+	--font-heading: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+	--font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+
+/* Smooth global transition when category changes */
+html, body, header, main, footer {
+	transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: var(--font-body);
+	background: var(--bg-primary);
+	color: var(--text-primary);
+	text-rendering: optimizeLegibility;
+}
+
+/* Responsive safety net (complements Tailwind utilities) */
+img,
+video,
+canvas {
+	max-width: 100%;
+	height: auto;
+}
+
+/* Avoid long IDs / tracking codes forcing horizontal scroll */
+.font-mono {
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+pre {
+	max-width: 100%;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+/* Shop: order tracking page (track) */
+.order-item-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 16px;
+	align-items: start;
+}
+
+.order-item-total,
+.order-item-unit {
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+	font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.order-item-total {
+	text-align: right;
+}
+
+/* ShopAdmin: orders list readability */
+.shopadmin-order-card {
+	background: var(--bg-elevated);
+}
+
+.shopadmin-order-card:hover {
+	border-color: rgba(212, 175, 55, 0.55); /* accent */
+}
+
+.shopadmin-order-details > summary {
+	list-style: none;
+}
+
+.shopadmin-order-details > summary::-webkit-details-marker {
+	display: none;
+}
+
+/* ShopAdmin: generic accordion/details UX */
+.shopadmin-details > summary {
+	list-style: none;
+}
+
+.shopadmin-details > summary::-webkit-details-marker {
+	display: none;
+}
+
+.shopadmin-details > summary:focus {
+	outline: none;
+}
+
+/* ShopAdmin products page: left column content visible, no clipping, text wraps */
+.shopadmin-left-col {
+	overflow-x: visible;
+}
+
+.shopadmin-left-col label,
+.shopadmin-left-col p,
+.shopadmin-left-col summary {
+	min-width: 0;
+	overflow-wrap: break-word;
+	word-break: break-word;
+}
+
+.shopadmin-left-col summary span {
+	min-width: 0;
+}
+
+/* Checkbox/radio: do not stretch; label text keeps space */
+.shopadmin-left-col label.flex {
+	min-width: 0;
+}
+.shopadmin-left-col label.flex span {
+	min-width: 0;
+	flex: 1;
+	overflow-wrap: break-word;
+	word-break: normal;
+}
+
+/* Input/button width: fit column, no horizontal overflow (exclude checkbox/radio) */
+.shopadmin-left-col form {
+	min-width: 0;
+	width: 100%;
+}
+
+.shopadmin-left-col input:not([type="checkbox"]):not([type="radio"]),
+.shopadmin-left-col select,
+.shopadmin-left-col textarea {
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+.shopadmin-left-col button {
+	min-width: 0;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+.shopadmin-left-col .ui-btn {
+	width: auto;
+	max-width: 100%;
+}
+
+/* ShopAdmin: scrollbars match page theme (dark) */
+body[data-app="shopadmin"] {
+	scrollbar-color: rgba(255, 255, 255, 0.25) var(--bg-elevated);
+	scrollbar-width: thin;
+}
+
+body[data-app="shopadmin"] .shopadmin-scrollbar {
+	scrollbar-color: rgba(255, 255, 255, 0.25) var(--bg-elevated);
+	scrollbar-width: thin;
+}
+
+body[data-app="shopadmin"] .shopadmin-scrollbar::-webkit-scrollbar,
+body[data-app="shopadmin"]::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+body[data-app="shopadmin"] .shopadmin-scrollbar::-webkit-scrollbar-track,
+body[data-app="shopadmin"]::-webkit-scrollbar-track {
+	background: var(--bg-elevated);
+	border-radius: 4px;
+}
+
+body[data-app="shopadmin"] .shopadmin-scrollbar::-webkit-scrollbar-thumb,
+body[data-app="shopadmin"]::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.25);
+	border-radius: 4px;
+}
+
+body[data-app="shopadmin"] .shopadmin-scrollbar::-webkit-scrollbar-thumb:hover,
+body[data-app="shopadmin"]::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.35);
+}
+
+body[data-app="shopadmin"] .shopadmin-scrollbar::-webkit-scrollbar-corner,
+body[data-app="shopadmin"]::-webkit-scrollbar-corner {
+	background: var(--bg-elevated);
+}
+
+.shopadmin-money {
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+	font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+/* ShopAdmin products table: fixed row height so all pages look the same */
+#shopAdminProductsTable tbody tr[data-shopadmin-product-card] {
+	height: 52px;
+}
+
+#shopAdminProductsTable tbody tr[data-shopadmin-product-card] td {
+	overflow: hidden;
+	vertical-align: middle;
+	max-height: 52px;
+}
+
+#shopAdminProductsTable tbody tr[data-shopadmin-product-card] .shopadmin-product-name-cell {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	max-height: 2.5em;
+}
+
+/* Luxury background + texture (public layout only)
+   Applied by adding class "luxury" on <body>.
+   Important: do NOT force "men" colors for "women"; keep overrides scoped. */
+body.luxury {
+	position: relative;
+	isolation: isolate;
+	background: transparent;
+}
+
+/* Both sections use the same masculine luxury look */
+html[data-category="men"] body.luxury,
+html[data-category="women"] body.luxury {
+	color-scheme: dark;
+	--bg-primary: #020617; /* slate-950 */
+	--bg-elevated: rgba(255, 255, 255, 0.04);
+	--text-primary: rgba(255, 255, 255, 0.92);
+	--text-muted: rgba(255, 255, 255, 0.68);
+	--border: rgba(255, 255, 255, 0.14);
+	--hero-overlay: rgba(0, 0, 0, 0.58);
+}
+
+body.luxury::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -2;
+	pointer-events: none;
+	/* Glow/spotlight kapalı: arka planı düz tut */
+	background: var(--bg-primary);
+}
+
+/* Sayfa bölümlerindeki "ışık" overlay'lerini kapat (erkek/kadın ortak) */
+body.luxury .mix-blend-soft-light {
+	display: none !important;
+}
+
+body.luxury::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	opacity: 0.08;
+	mix-blend-mode: overlay;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
+	background-repeat: repeat;
+	background-size: 180px 180px;
+}
+
+/* Mobile navigation (hamburger + slide panel) */
+.mobile-nav-panel {
+	max-height: 0;
+	opacity: 0;
+	pointer-events: none;
+	overflow: hidden;
+	transition: max-height 0.35s ease, opacity 0.25s ease;
+}
+
+.mobile-nav-panel[data-open="true"] {
+	max-height: 80vh;
+	opacity: 1;
+	pointer-events: auto;
+	overflow: auto;
+}
+
+/* <details> popovers (used for icon dropdowns) */
+details > summary {
+	list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+	display: none;
+}
+
+.hamburger {
+	display: inline-flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 4px;
+}
+
+.hamburger-line {
+	display: block;
+	width: 20px;
+	height: 2px;
+	border-radius: 999px;
+	background: var(--text-primary);
+	transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+[data-mobile-nav-toggle][aria-expanded="true"] .hamburger-line:nth-child(1) {
+	transform: translateY(6px) rotate(45deg);
+}
+
+[data-mobile-nav-toggle][aria-expanded="true"] .hamburger-line:nth-child(2) {
+	opacity: 0;
+}
+
+[data-mobile-nav-toggle][aria-expanded="true"] .hamburger-line:nth-child(3) {
+	transform: translateY(-6px) rotate(-45deg);
+}
+
+
+/* Form controls (keeps admin + public consistent) */
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+select,
+textarea {
+	background: var(--bg-elevated);
+	color: var(--text-primary);
+	border-color: var(--border);
+}
+
+/* Hint native form UI (especially <select> dropdown) to follow the active theme */
+html[data-category="men"] input,
+html[data-category="men"] select,
+html[data-category="men"] textarea {
+	color-scheme: dark;
+}
+
+/* Some browsers keep the <select> dropdown list white unless options are styled */
+html[data-category="men"] select option,
+html[data-category="men"] select optgroup {
+	background-color: var(--bg-primary);
+	color: var(--text-primary);
+}
+
+html[data-category="women"] input,
+html[data-category="women"] select,
+html[data-category="women"] textarea {
+	color-scheme: dark;
+}
+
+html[data-category="women"] select option,
+html[data-category="women"] select optgroup {
+	background-color: var(--bg-primary);
+	color: var(--text-primary);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+select:focus,
+textarea:focus {
+	outline: none;
+	box-shadow: 0 0 0 3px var(--ring);
+}
+
+select {
+	accent-color: var(--accent);
+}
+
+.h-font {
+	font-family: var(--font-heading);
+}
+
+/* Section separation (modern + minimal)
+   Adds a subtle divider between top-level sections in main content.
+   Works in both men/women themes by relying on existing tokens. */
+main > section + section {
+	position: relative;
+}
+
+main > section + section::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: min(72rem, calc(100% - 2rem));
+	height: 1px;
+	background: linear-gradient(90deg, transparent, var(--border), transparent);
+	opacity: 0.75;
+	pointer-events: none;
+}
+
+/* Helpers */
+.ui-card {
+	background: var(--bg-elevated);
+	border: 1px solid var(--border);
+}
+
+/* Glassmorphism (public layout only) */
+html[data-category="men"] body.luxury .ui-card {
+	background: rgba(255, 255, 255, 0.05);
+	border-color: rgba(255, 255, 255, 0.12);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	transition: border-color 0.22s ease;
+}
+
+/* Generic glass surface helper for non-.ui-card blocks */
+html[data-category="men"] body.luxury .ui-glass {
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	transition: border-color 0.22s ease;
+}
+
+/* Women (light): make section blocks/cards more defined (avoid glass washout) */
+html[data-category="women"] body.luxury .ui-card,
+html[data-category="women"] body.luxury .ui-glass {
+	background: var(--bg-elevated);
+	border: 1px solid var(--border);
+	backdrop-filter: none;
+	-webkit-backdrop-filter: none;
+	box-shadow: 0 18px 44px -34px var(--ring);
+}
+
+.ui-muted {
+	color: var(--text-muted);
+}
+
+.ui-border {
+	border-color: var(--border);
+}
+
+.ui-accent {
+	color: var(--accent);
+}
+
+.ui-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 0.75rem;
+	padding: 0.625rem 1rem;
+	font-weight: 600;
+	transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, transform 0.12s ease;
+}
+
+.ui-btn:active {
+	transform: translateY(1px);
+}
+
+.ui-btn-primary {
+	background: var(--accent);
+	color: var(--accent-contrast);
+}
+
+.ui-btn-primary:hover {
+	filter: brightness(0.98);
+}
+
+.ui-btn-secondary {
+	border: 1px solid var(--border);
+	background: var(--bg-elevated);
+	color: var(--text-primary);
+}
+
+.ui-btn-secondary:hover {
+	filter: brightness(1.02);
+}
+
+.ui-btn-secondary:disabled,
+.ui-btn-primary:disabled,
+.ui-btn-ghost:disabled {
+	opacity: 0.55;
+	pointer-events: none;
+}
+
+.ui-btn-ghost {
+	border: 1px solid var(--border);
+	background: transparent;
+	color: var(--text-primary);
+}
+
+.ui-btn-ghost:hover {
+	background: rgba(0, 0, 0, 0.04);
+}
+
+html[data-category="men"] .ui-btn-ghost:hover {
+	background: rgba(255, 255, 255, 0.06);
+}
+
+/* Shop: minimalist product cards (scoped) */
+body[data-app="shop"] [data-product-card] .ui-btn {
+	border-radius: 0.625rem;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.875rem;
+}
+
+body[data-app="shop"] [data-product-card] input[type="number"] {
+	border-radius: 0.625rem;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.875rem;
+}
+
+/* Shop: checkout order summary layout safety */
+body[data-app="shop"] .order-summary__items {
+	display: grid;
+	gap: 0.75rem;
+	max-height: 340px;
+	overflow: auto;
+	padding-right: 6px;
+}
+
+body[data-app="shop"] .order-summary__item {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	column-gap: 1rem;
+	row-gap: 0.25rem;
+	align-items: start;
+	padding-bottom: 0.75rem;
+	border-bottom: 1px solid var(--border);
+}
+
+body[data-app="shop"] .order-summary__item:last-child {
+	padding-bottom: 0;
+	border-bottom: none;
+}
+
+body[data-app="shop"] .order-summary__name {
+	font-weight: 600;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+body[data-app="shop"] .order-summary__meta {
+	grid-column: 1 / -1;
+	font-size: 0.875rem;
+	color: var(--text-muted);
+	overflow-wrap: anywhere;
+}
+
+body[data-app="shop"] .order-summary__price {
+	font-weight: 600;
+	text-align: right;
+	white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+	body[data-app="shop"] .order-summary__items {
+		max-height: none;
+		overflow: visible;
+		padding-right: 0;
+	}
+}
+
+/* Shop: Iyzipay/Iyzico checkout form responsiveness */
+body[data-app="shop"] #iyzico-checkout-form {
+	/* Iyzipay injects its own fixed widths; we center and allow it to expand */
+	display: flex;
+	justify-content: center;
+	align-items: stretch;
+	min-height: 320px;
+}
+
+body[data-app="shop"] #iyzico-checkout-form #iyzipay-checkout-form,
+body[data-app="shop"] #iyzico-checkout-form iframe {
+	width: 100% !important;
+	max-width: 720px;
+	min-height: 320px;
+}
+
+@media (max-width: 640px) {
+	body[data-app="shop"] #iyzico-checkout-form #iyzipay-checkout-form,
+	body[data-app="shop"] #iyzico-checkout-form iframe {
+		max-width: 100%;
+		min-height: 540px;
+	}
+}
+
+@media (min-width: 1024px) {
+	body[data-app="shop"] #iyzico-checkout-form #iyzipay-checkout-form,
+	body[data-app="shop"] #iyzico-checkout-form iframe {
+		max-width: 920px;
+	}
+}
+
+/* Give the embedded iframe a comfortable height on desktop */
+body[data-app="shop"] #iyzico-checkout-form iframe {
+	min-height: 720px;
+	height: clamp(720px, 82vh, 920px);
+}
+
+/* Iyzipay sometimes injects a centered lightbox/modal outside our wrapper.
+   These overrides make it usable on desktop (without affecting mobile too much). */
+body[data-app="shop"] .iyzi-modal,
+body[data-app="shop"] #iyzi-modal,
+body[data-app="shop"] .iyzipay-modal,
+body[data-app="shop"] #iyzipay-modal {
+	/* keep it centered */
+	padding: 24px !important;
+}
+
+body[data-app="shop"] .iyzi-modal .iyzi-modal-content,
+body[data-app="shop"] #iyzi-modal .iyzi-modal-content,
+body[data-app="shop"] .iyzipay-modal .iyzipay-modal-content,
+body[data-app="shop"] #iyzipay-modal .iyzipay-modal-content,
+body[data-app="shop"] .iyzi-modal-content,
+body[data-app="shop"] .iyzipay-modal-content {
+	width: min(980px, 96vw) !important;
+	max-width: 980px !important;
+	height: min(92vh, 920px) !important;
+	max-height: 92vh !important;
+}
+
+body[data-app="shop"] .iyzi-modal iframe,
+body[data-app="shop"] #iyzi-modal iframe,
+body[data-app="shop"] .iyzipay-modal iframe,
+body[data-app="shop"] #iyzipay-modal iframe {
+	width: 100% !important;
+	height: 100% !important;
+}
+
+/* Show/hide blocks based on current category */
+html[data-category="men"] [data-for="women"],
+html[data-category="women"] [data-for="men"] {
+	display: none !important;
+}
+
+/* Scroll reveal */
+[data-reveal] {
+	opacity: 0;
+	transform: translateY(14px);
+	transition: opacity 0.65s ease, transform 0.65s ease;
+	transition-delay: var(--reveal-delay, 0ms);
+	will-change: opacity, transform;
+}
+
+[data-reveal].is-in {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+/* Alias for the requested .visible class */
+[data-reveal].visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+/* Modal */
+[data-modal-backdrop][aria-hidden="true"] {
+	display: none;
+}
+
+/* Navbar toggle pill */
+/* Use percentage-based sizing/translation to keep alignment consistent */
+[data-category-toggle] .js-toggle-pill {
+	width: calc(50% - 3px);
+	transform: translateX(0);
+	/* Override the fixed Tailwind height (h-[22px]) so the pill fills the control */
+	height: auto;
+	top: 3px;
+	bottom: 3px;
+	left: 3px;
+}
+
+[data-category-toggle][data-active="women"] .js-toggle-pill {
+	transform: translateX(100%);
+}
+
+[data-category-toggle] [data-toggle-side] {
+	color: var(--text-muted);
+}
+
+[data-category-toggle][data-active="men"] [data-toggle-side="men"],
+[data-category-toggle][data-active="women"] [data-toggle-side="women"] {
+	color: var(--accent-contrast);
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+	html, body, header, main, footer {
+		transition: none;
+	}
+	[data-reveal] {
+		transition: none;
+		opacity: 1;
+		transform: none;
+	}
+	body.luxury .ui-card,
+	body.luxury .ui-glass {
+		transition: none;
+	}
+	body.luxury .ui-card:hover,
+	body.luxury .ui-glass:hover {
+		transform: none;
+		filter: none;
+	}
+}

@@ -1,0 +1,90 @@
+<%
+	function safeText(v, fallback) {
+		const s = String(v || '').trim();
+		return s ? s : (fallback || '—');
+	}
+
+	function formatTRDateTime(value) {
+		if (!value) return '—';
+		try { return new Date(value).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' }); } catch { return '—'; }
+	}
+
+	function statusTR(status) {
+		const s = String(status || '').trim().toLowerCase();
+		if (s === 'new') return 'Yeni';
+		if (s === 'read') return 'Okundu';
+		if (s === 'archived') return 'Arşiv';
+		return safeText(status, '—');
+	}
+
+	const q = (typeof query === 'object' && query) ? query : {};
+	const base = (typeof adminBasePath === 'string') ? adminBasePath : '';
+	const ok = String(q.ok || '') === '1' || String(q.ok || '').toLowerCase() === 'true' || String(q.ok || '') === 'ok';
+	const err = String(q.err || '');
+	const m = message || null;
+%>
+
+<header class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+	<div>
+		<h1 class="text-2xl font-semibold">Mesaj Detayı</h1>
+		<p class="mt-1 ui-muted text-sm">İletişim mesajını görüntüleyin ve durumunu yönetin.</p>
+	</div>
+	<div class="flex flex-wrap items-center gap-2">
+		<a class="ui-btn ui-btn-secondary w-full sm:w-auto text-center" href="<%= base + '/inbox' %>">Gelen Kutusu</a>
+	</div>
+</header>
+
+<% if (ok) { %>
+	<div class="mb-4 p-3 rounded border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 text-sm">İşlem başarılı.</div>
+<% } %>
+
+<% if (err) { %>
+	<div class="mb-4 p-3 rounded border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/30 text-rose-800 dark:text-rose-200 text-sm">Bir hata oluştu.</div>
+<% } %>
+
+<% if (!m) { %>
+	<div class="ui-card ui-border rounded-2xl p-5">
+		<p class="ui-muted text-sm">Mesaj bulunamadı.</p>
+	</div>
+<% } else { %>
+	<div class="ui-card ui-border rounded-2xl p-5">
+		<div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+			<div class="min-w-0">
+				<p class="font-semibold">
+					<%= safeText(m.full_name, 'Müşteri') %>
+					<span class="ml-2 text-sm ui-muted font-normal">• <%= safeText(m.email) %></span>
+				</p>
+				<p class="mt-1 text-sm ui-muted">
+					Durum: <span class="border ui-border rounded-full px-2 py-0.5 text-xs"><%= statusTR(m.status) %></span>
+					• Gönderim: <%= formatTRDateTime(m.created_at) %>
+					<% if (m.updated_at) { %>• Güncelleme: <%= formatTRDateTime(m.updated_at) %><% } %>
+				</p>
+				<p class="mt-1 text-sm ui-muted">Konu: <span class="font-semibold"><%= safeText(m.subject, '—') %></span></p>
+				<p class="mt-1 text-xs ui-muted">Mesaj ID: <span class="font-mono"><%= String(m.id) %></span></p>
+			</div>
+
+			<div class="shrink-0 grid gap-2">
+				<a class="ui-btn ui-btn-secondary" href="mailto:<%= encodeURIComponent(String(m.email || '')) %>?subject=<%= encodeURIComponent('Re: ' + safeText(m.subject, 'İletişim')) %>">E-posta ile Yanıtla</a>
+				<form method="post" action="<%= base + '/inbox/' + encodeURIComponent(m.id) + '/status' %>" class="grid gap-2">
+					<input type="hidden" name="returnTo" value="detail" />
+					<button class="ui-btn ui-btn-ghost" type="submit" name="status" value="read">Okundu İşaretle</button>
+					<button class="ui-btn ui-btn-ghost" type="submit" name="status" value="new">Yeni İşaretle</button>
+					<button class="ui-btn ui-btn-ghost" type="submit" name="status" value="archived">Arşivle</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="mt-5 border ui-border rounded-xl p-4">
+			<h2 class="font-semibold">Mesaj</h2>
+			<div class="mt-2 text-sm ui-muted whitespace-pre-wrap break-words"><%= safeText(m.message, '—') %></div>
+		</div>
+
+		<details class="mt-4">
+			<summary class="cursor-pointer text-sm font-semibold">Teknik Bilgi</summary>
+			<div class="mt-2 text-sm ui-muted grid gap-1">
+				<p><span class="font-semibold">IP:</span> <%= safeText(m.created_ip, '—') %></p>
+				<p><span class="font-semibold">User-Agent:</span> <%= safeText(m.user_agent, '—') %></p>
+			</div>
+		</details>
+	</div>
+<% } %>
